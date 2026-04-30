@@ -227,6 +227,9 @@ export default function LandingPage() {
           height={28}
           style={{ objectFit: 'contain' }}
         />
+        <Link href="/legal" style={{ color: '#00FF66', textDecoration: 'none', fontSize: '0.8rem' }}>
+          Mentions légales & CGU
+        </Link>
         <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}>
           © 2025 Fyndzz · Paris 🇫🇷
         </span>
