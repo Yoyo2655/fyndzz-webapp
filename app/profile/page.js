@@ -197,9 +197,20 @@ export default function ProfilePage() {
       `}</style>
 
       {/* HEADER */}
-      <div style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <Link href="/map" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '1.2rem' }}>←</Link>
-        <span style={{ fontWeight: '700', fontSize: '1rem' }}>Mon profil</span>
+      <div style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Link href="/map" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '1.2rem' }}>←</Link>
+          <span style={{ fontWeight: '700', fontSize: '1rem' }}>Mon profil</span>
+        </div>
+        <button onClick={logout} style={{
+          background: 'rgba(255,255,255,0.08)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: '8px', padding: '0.4rem 0.9rem',
+          color: 'rgba(255,255,255,0.7)', fontSize: '0.82rem',
+          cursor: 'pointer', fontWeight: '500'
+        }}>
+            Déconnexion
+        </button>
       </div>
 
       {/* AVATAR + NOM */}
