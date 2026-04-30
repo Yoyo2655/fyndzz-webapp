@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     first_name: '', last_name: '',
     email: '', password: '', confirm_password: '', phone: '',
+    address: '', city: '', postal_code: '', country: 'France',
     plate: '', vehicle_brand: '', vehicle_model: '',
     vehicle_year: '', vehicle_color: '', vehicle_energy: ''
   })
@@ -64,9 +65,15 @@ export default function RegisterPage() {
     if (userId) {
       await supabase.from('profiles').insert({
         id: userId,
+        first_name: form.first_name,
+        last_name: form.last_name,
         full_name: `${form.first_name} ${form.last_name}`,
         email: form.email,
         phone: form.phone,
+        address: form.address,
+        postal_code: form.postal_code,
+        city: form.city,
+        country: form.country,
         plate: form.plate,
         vehicle_brand: form.vehicle_brand,
         vehicle_model: form.vehicle_model,
@@ -93,6 +100,14 @@ export default function RegisterPage() {
     color: 'rgba(255,255,255,0.6)', marginBottom: '0.4rem'
   }
 
+  const selectStyle = {
+    ...inputStyle,
+    cursor: 'pointer',
+    color: '#fff',
+    appearance: 'none',
+    WebkitAppearance: 'none',
+  }
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -100,12 +115,25 @@ export default function RegisterPage() {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontFamily: 'sans-serif', padding: '2rem 0'
     }}>
+      <style>{`
+        select option {
+          background: #1e1a6e;
+          color: #fff;
+        }
+        select:focus {
+          border-color: rgba(0,255,102,0.5) !important;
+        }
+        input::placeholder {
+          color: rgba(255,255,255,0.3);
+        }
+      `}</style>
+
       <div style={{
         background: 'rgba(255,255,255,0.07)',
         border: '1px solid rgba(255,255,255,0.15)',
         borderRadius: '20px', padding: '2.5rem',
         width: '100%', maxWidth: '440px',
-        backdropFilter: 'blur(20px)'
+        backdropFilter: 'blur(20px)', margin: '0 1rem'
       }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
@@ -121,9 +149,9 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Progress bar */}
+        {/* Progress bar — 3 étapes */}
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
-          {[1, 2].map(s => (
+          {[1, 2, 3].map(s => (
             <div key={s} style={{
               flex: 1, height: '4px', borderRadius: '2px',
               background: step >= s ? '#00FF66' : 'rgba(255,255,255,0.15)'
@@ -131,15 +159,19 @@ export default function RegisterPage() {
           ))}
         </div>
 
-        <form onSubmit={step === 1 ? (e) => { e.preventDefault(); setStep(2) } : handleRegister}>
+        <form onSubmit={
+          step === 1 ? (e) => { e.preventDefault(); setStep(2) } :
+          step === 2 ? (e) => { e.preventDefault(); setStep(3) } :
+          handleRegister
+        }>
 
+          {/* ── ÉTAPE 1 — Compte ── */}
           {step === 1 && (
             <>
               <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 Étape 1 — Compte
               </div>
 
-              {/* Prénom + Nom côte à côte */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                 <div>
                   <label style={labelStyle}>Prénom</label>
@@ -188,10 +220,75 @@ export default function RegisterPage() {
             </>
           )}
 
+          {/* ── ÉTAPE 2 — Adresse ── */}
           {step === 2 && (
             <>
               <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Étape 2 — Votre véhicule
+                Étape 2 — Adresse
+              </div>
+
+              <div>
+                <label style={labelStyle}>Rue</label>
+                <input style={inputStyle} placeholder="12 rue de la Paix" value={form.address}
+                  onChange={e => update('address', e.target.value)} required />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                <div>
+                  <label style={labelStyle}>Code postal</label>
+                  <input style={inputStyle} placeholder="75001" value={form.postal_code}
+                    onChange={e => update('postal_code', e.target.value)} required />
+                </div>
+                <div>
+                  <label style={labelStyle}>Ville</label>
+                  <input style={inputStyle} placeholder="Paris" value={form.city}
+                    onChange={e => update('city', e.target.value)} required />
+                </div>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Pays</label>
+                <select
+                  value={form.country}
+                  onChange={e => update('country', e.target.value)}
+                  style={selectStyle}
+                >
+                  <option value="France">France</option>
+                  <option value="Belgique">Belgique</option>
+                  <option value="Suisse">Suisse</option>
+                  <option value="Luxembourg">Luxembourg</option>
+                  <option value="Maroc">Maroc</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.8rem' }}>
+                <button type="button" onClick={() => setStep(1)} style={{
+                  flex: 1, padding: '0.9rem',
+                  background: 'transparent', color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '10px', fontWeight: '600',
+                  fontSize: '0.95rem', cursor: 'pointer'
+                }}>
+                  ← Retour
+                </button>
+                <button type="submit" style={{
+                  flex: 2, padding: '0.9rem',
+                  background: '#00FF66', color: '#0A0040',
+                  border: 'none', borderRadius: '10px',
+                  fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer'
+                }}>
+                  Continuer →
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ── ÉTAPE 3 — Véhicule ── */}
+          {step === 3 && (
+            <>
+              <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Étape 3 — Votre véhicule
               </div>
 
               <div>
@@ -244,7 +341,7 @@ export default function RegisterPage() {
                 <select
                   value={form.vehicle_energy}
                   onChange={e => update('vehicle_energy', e.target.value)}
-                  style={{ ...inputStyle, cursor: 'pointer' }}
+                  style={selectStyle}
                 >
                   <option value="">Sélectionner</option>
                   <option value="Essence">Essence</option>
@@ -262,7 +359,7 @@ export default function RegisterPage() {
               )}
 
               <div style={{ display: 'flex', gap: '0.8rem' }}>
-                <button type="button" onClick={() => setStep(1)} style={{
+                <button type="button" onClick={() => setStep(2)} style={{
                   flex: 1, padding: '0.9rem',
                   background: 'transparent', color: '#fff',
                   border: '1px solid rgba(255,255,255,0.2)',

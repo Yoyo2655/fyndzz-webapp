@@ -328,16 +328,26 @@ export default function MapPage() {
           .logo-mobile { display: none !important; }
           .search-desktop { display: flex !important; }
           .search-mobile { display: none !important; }
+
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+          .bottom-bar {
+            padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+            height: auto;
+            min-height: 64px;
+          }
         }
       `}</style>
       {/* ── BOTTOM BAR ── */}
-      <div style={{
-        flexShrink: 0, height: '64px',
-        background: 'rgba(22,12,107,0.97)',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-around',
-        padding: '0 16px', zIndex: 100
-      }}>
+        <div style={{className: 'bottom-bar',
+          flexShrink: 0,
+          height: '64px',
+          background: 'rgba(22,12,107,0.97)',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+          padding: '0 16px',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          zIndex: 100
+        }}>
 
         {/* Profil */}
         <Link href="/profile" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
