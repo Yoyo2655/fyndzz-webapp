@@ -1,40 +1,68 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import 'leaflet/dist/leaflet.css'
 import { getRoute, getNearestFree } from '@/lib/osrm'
 
-export default function Map({ sensors = [], onRouteFound, onNavigationStart }) {
+export default function Map({ sensors = [], onRouteFound, navMode, currentStep, onStepAdvance }) {
   const mapRef = useRef(null)
   const mapInstanceRef = useRef(null)
   const markersRef = useRef({})
   const routeLayerRef = useRef(null)
   const destinationMarkerRef = useRef(null)
-  const [userPos, setUserPos] = useState(null)
+  const userMarkerRef = useRef(null)
+  const watchIdRef = useRef(null)
+  const stepsRef = useRef([])
+  const currentStepRef = useRef(0)
 
   useEffect(() => {
     if (mapInstanceRef.current) return
     const L = require('leaflet')
 
-    mapInstanceRef.current = L.map(mapRef.current).setView([48.860, 2.275], 14)
+    mapInstanceRef.current = L.map(mapRef.current, {
+      zoomControl: true,
+      attributionControl: true
+    }).setView([48.860, 2.275], 14)
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(mapInstanceRef.current)
 
+    // Géolocalisation initiale
     navigator.geolocation.getCurrentPosition(pos => {
-      const { latitude, longitude } = pos.coords
-      setUserPos({ lat: latitude, lng: longitude })
-      window.__fyndzz_userpos = { lat: latitude, lng: longitude }
-      L.circleMarker([latitude, longitude], {
-        radius: 10, fillColor: '#3D2CD5', color: '#fff',
-        fillOpacity: 1, weight: 2
-      }).bindTooltip('Vous êtes ici').addTo(mapInstanceRef.current)
-    })
+      const { latitude: lat, longitude: lng } = pos.coords
+      window.__fyndzz_userpos = { lat, lng }
 
+      userMarkerRef.current = L.circleMarker([lat, lng], {
+        radius: 10, fillColor: '#3D2CD5', color: '#fff',
+        fillOpacity: 1, weight: 3
+      }).bindTooltip('Vous').addTo(mapInstanceRef.current)
+
+      mapInstanceRef.current.setView([lat, lng], 15)
+    }, null, { enableHighAccuracy: true })
+
+    // Exposer move_to pour SimulateGPS
+    window.__fyndzz_move_to = (lat, lng) => {
+      window.__fyndzz_userpos = { lat, lng }
+      if (userMarkerRef.current) {
+        userMarkerRef.current.setLatLng([lat, lng])
+      } else {
+        userMarkerRef.current = L.circleMarker([lat, lng], {
+          radius: 10, fillColor: '#3D2CD5', color: '#fff',
+          fillOpacity: 1, weight: 3
+        }).addTo(mapInstanceRef.current)
+      }
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.setView([lat, lng], 17, { animate: true, duration: 0.8 })
+      }
+    }
+
+    // Handler destination
     const handleDestination = async (destination) => {
+      const L = require('leaflet')
+
       if (destinationMarkerRef.current) destinationMarkerRef.current.remove()
-      destinationMarkerRef.current = require('leaflet').circleMarker(
+      destinationMarkerRef.current = L.circleMarker(
         [destination.lat, destination.lng],
         { radius: 10, fillColor: '#FFD700', color: '#fff', fillOpacity: 1, weight: 2 }
       ).bindTooltip('Destination').addTo(mapInstanceRef.current)
@@ -52,15 +80,16 @@ export default function Map({ sensors = [], onRouteFound, onNavigationStart }) {
         style: { color: '#A78BFA', weight: 5, opacity: 1 }
       }).addTo(mapInstanceRef.current)
 
-      const mins = Math.round(route.duration / 60)
-      const dist = Math.round(route.distance)
+      mapInstanceRef.current.fitBounds(routeLayerRef.current.getBounds(), { padding: [60, 60] })
 
-      // Remonter les infos au parent
+      const steps = route.legs?.[0]?.steps || []
+      stepsRef.current = steps
+
       if (onRouteFound) onRouteFound({
         street: nearest.street,
-        mins,
-        dist,
-        steps: route.legs?.[0]?.steps || [],
+        mins: Math.round(route.duration / 60),
+        dist: Math.round(route.distance),
+        steps,
         destination,
         nearest
       })
@@ -73,13 +102,69 @@ export default function Map({ sensors = [], onRouteFound, onNavigationStart }) {
     window.__fyndzz_search_trigger = async () => {
       const dest = window.__fyndzz_destination
       if (!dest || !mapInstanceRef.current) return
-      mapInstanceRef.current.setView([dest.lat, dest.lng], 15)
       await handleDestination(dest)
     }
 
   }, [])
 
-  useEffect(() => { window.__fyndzz_sensors = sensors }, [sensors])
+  // Mode navigation — suivi GPS temps réel
+  useEffect(() => {
+    if (!mapInstanceRef.current) return
+    const L = require('leaflet')
+
+    if (navMode) {
+      currentStepRef.current = currentStep
+
+      watchIdRef.current = navigator.geolocation.watchPosition(pos => {
+        const { latitude: lat, longitude: lng } = pos.coords
+        window.__fyndzz_userpos = { lat, lng }
+
+        if (userMarkerRef.current) {
+          userMarkerRef.current.setLatLng([lat, lng])
+        } else {
+          userMarkerRef.current = L.circleMarker([lat, lng], {
+            radius: 10, fillColor: '#3D2CD5', color: '#fff',
+            fillOpacity: 1, weight: 3
+          }).addTo(mapInstanceRef.current)
+        }
+
+        mapInstanceRef.current.setView([lat, lng], 17, { animate: true, duration: 0.5 })
+
+        const steps = stepsRef.current
+        const stepIdx = currentStepRef.current
+        if (steps[stepIdx]) {
+          const stepCoord = steps[stepIdx].maneuver?.location
+          if (stepCoord) {
+            const stepLat = stepCoord[1]
+            const stepLng = stepCoord[0]
+            const dist = getDistanceMeters(lat, lng, stepLat, stepLng)
+            if (dist < 30 && stepIdx < steps.length - 1) {
+              currentStepRef.current = stepIdx + 1
+              if (onStepAdvance) onStepAdvance(stepIdx + 1)
+            }
+          }
+        }
+      }, (err) => console.warn('GPS error:', err), {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 5000
+      })
+
+    } else {
+      if (watchIdRef.current) {
+        navigator.geolocation.clearWatch(watchIdRef.current)
+        watchIdRef.current = null
+      }
+    }
+
+    return () => {
+      if (watchIdRef.current) navigator.geolocation.clearWatch(watchIdRef.current)
+    }
+  }, [navMode])
+
+  useEffect(() => {
+    currentStepRef.current = currentStep
+  }, [currentStep])
 
   useEffect(() => {
     if (!mapInstanceRef.current || sensors.length === 0) return
@@ -96,5 +181,15 @@ export default function Map({ sensors = [], onRouteFound, onNavigationStart }) {
     })
   }, [sensors])
 
+  useEffect(() => { window.__fyndzz_sensors = sensors }, [sensors])
+
   return <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
+}
+
+function getDistanceMeters(lat1, lng1, lat2, lng2) {
+  const R = 6371000
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat/2) ** 2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLng/2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
 }
