@@ -72,7 +72,6 @@ export default function MapPage() {
     window.speechSynthesis.speak(utt)
   }, [])
 
-  // Appelé automatiquement par Map.js quand on atteint un waypoint
   const handleStepAdvance = useCallback((newStep) => {
     setCurrentStep(newStep)
     const step = routeInfo?.steps?.[newStep]
@@ -131,6 +130,13 @@ export default function MapPage() {
   const currentStepData = routeInfo?.steps?.[currentStep]
   const totalSteps = routeInfo?.steps?.length || 0
 
+  // Distance à pied formatée
+  const walkDistLabel = routeInfo?.walkDist
+    ? routeInfo.walkDist > 1000
+      ? `${(routeInfo.walkDist / 1000).toFixed(1)}km`
+      : `${routeInfo.walkDist}m`
+    : null
+
   return (
     <ProtectedRoute>
       <div style={{ height: '100vh', width: '100vw', position: 'relative', overflow: 'hidden', background: '#160C6B', fontFamily: 'sans-serif' }}>
@@ -145,14 +151,11 @@ export default function MapPage() {
             onStepAdvance={handleStepAdvance}
           />
           {process.env.NODE_ENV === 'development' && (
-            <SimulateGPS
-              routeInfo={routeInfo}
-              onStepAdvance={handleStepAdvance}
-            />
+            <SimulateGPS routeInfo={routeInfo} onStepAdvance={handleStepAdvance} />
           )}
         </div>
 
-        {/* ══════════════ MODE NAVIGATION WAZE ══════════════ */}
+        {/* ══════════════ MODE NAVIGATION ══════════════ */}
         {navMode && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 100, display: 'flex', flexDirection: 'column', pointerEvents: 'none' }}>
 
@@ -167,7 +170,6 @@ export default function MapPage() {
               boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', maxWidth: '600px', margin: '0 auto' }}>
-                {/* Icône direction */}
                 <div style={{
                   width: '56px', height: '56px', borderRadius: '14px',
                   background: '#00FF66', flexShrink: 0,
@@ -192,16 +194,13 @@ export default function MapPage() {
                     </div>
                   )}
                 </div>
-                {/* Bouton quitter */}
                 <button onClick={stopNavigation} style={{
                   background: 'rgba(255,77,109,0.2)', border: '1px solid rgba(255,77,109,0.4)',
                   borderRadius: '10px', padding: '0.5rem 0.8rem',
                   color: '#FF4D6D', fontWeight: '700', fontSize: '0.82rem',
-                  cursor: 'pointer', flexShrink: 0, pointerEvents: 'all'
+                  cursor: 'pointer', flexShrink: 0
                 }}>✕</button>
               </div>
-
-              {/* Barre de progression du trajet */}
               <div style={{ maxWidth: '600px', margin: '0.8rem auto 0' }}>
                 <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '100px', height: '4px' }}>
                   <div style={{
@@ -213,10 +212,10 @@ export default function MapPage() {
               </div>
             </div>
 
-            {/* Zone carte transparente (cliquable) */}
+            {/* Zone carte transparente */}
             <div style={{ flex: 1, pointerEvents: 'all' }} />
 
-            {/* Panneau bas */}
+            {/* Panneau bas GPS */}
             <div style={{
               pointerEvents: 'all',
               background: 'rgba(14,10,62,0.97)',
@@ -227,33 +226,38 @@ export default function MapPage() {
               boxShadow: '0 -4px 20px rgba(0,0,0,0.3)'
             }}>
               <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-
-                {/* Stats trajet */}
                 <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#00FF66', letterSpacing: '-0.02em' }}>{routeInfo?.mins} min</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#00FF66', letterSpacing: '-0.02em' }}>{routeInfo?.mins} min</div>
                     <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>Temps</div>
                   </div>
                   <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>
+                    <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>
                       {routeInfo?.dist > 1000 ? `${(routeInfo.dist / 1000).toFixed(1)}km` : `${Math.round(routeInfo?.dist || 0)}m`}
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>Distance</div>
+                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>En voiture</div>
                   </div>
                   <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
+                  {walkDistLabel && (
+                    <>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>🚶 {walkDistLabel}</div>
+                        <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>À pied</div>
+                      </div>
+                      <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
+                    </>
+                  )}
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#00FF66', letterSpacing: '-0.02em' }}>-{co2Saved}kg</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#00FF66', letterSpacing: '-0.02em' }}>-{co2Saved}kg</div>
                     <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>CO₂</div>
                   </div>
                   <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#FFB800', letterSpacing: '-0.02em' }}>{price}€</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#FFB800', letterSpacing: '-0.02em' }}>{price}€</div>
                     <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>Parking</div>
                   </div>
                 </div>
-
-                {/* Destination + prochaine instruction */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
                   <div>
                     <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginBottom: '0.2rem' }}>Destination</div>
@@ -336,12 +340,9 @@ export default function MapPage() {
             {/* BODY */}
             <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
               <div style={{ flex: 1 }} />
-
               {sidebarOpen && (
                 <div onClick={() => setSidebarOpen(false)} className="mobile-overlay" style={{ display: 'none', position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9, pointerEvents: 'all' }} />
               )}
-
-              {/* SIDEBAR */}
               <div style={{ pointerEvents: 'all', width: sidebarOpen ? '230px' : '0', flexShrink: 0, background: 'rgba(22,12,107,0.95)', backdropFilter: 'blur(12px)', borderLeft: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'width 0.3s ease', zIndex: 10 }}>
                 <div style={{ width: '230px', display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
                   <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
@@ -397,7 +398,7 @@ export default function MapPage() {
                   <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.2rem' }}>Place trouvée 🎯</div>
                   <div style={{ fontWeight: '700', fontSize: '1rem' }}>🅿️ {routeInfo.street}</div>
                 </div>
-                <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#00FF66' }}>{routeInfo.mins} min</div>
                     <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>Trajet</div>
@@ -406,8 +407,14 @@ export default function MapPage() {
                     <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff' }}>
                       {routeInfo.dist > 1000 ? `${(routeInfo.dist / 1000).toFixed(1)}km` : `${Math.round(routeInfo.dist)}m`}
                     </div>
-                    <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>Distance</div>
+                    <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>En voiture</div>
                   </div>
+                  {walkDistLabel && (
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff' }}>🚶 {walkDistLabel}</div>
+                      <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>À pied</div>
+                    </div>
+                  )}
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#FFB800' }}>{price}€</div>
                     <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>Parking</div>
