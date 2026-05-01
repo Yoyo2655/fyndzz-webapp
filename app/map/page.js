@@ -90,6 +90,7 @@ export default function MapPage() {
     setRouteInfo(null)
     setCurrentStep(0)
     window.speechSynthesis?.cancel()
+    window.__fyndzz_clear_route?.()
   }
 
   const formatStep = (step) => {
@@ -423,7 +424,10 @@ export default function MapPage() {
                 <button onClick={startNavigation} style={{ background: '#00FF66', color: '#0A0040', border: 'none', borderRadius: '10px', padding: '0.75rem 1.5rem', fontWeight: '800', fontSize: '0.95rem', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,255,102,0.3)' }}>
                   ▶ Démarrer
                 </button>
-                <button onClick={() => setRouteInfo(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '0.75rem', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '0.85rem' }}>✕</button>
+                <button onClick={() => {
+                  setRouteInfo(null)
+                  window.__fyndzz_clear_route?.()
+                  }} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '0.75rem', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '0.85rem' }}>✕</button>
               </div>
             )}
 

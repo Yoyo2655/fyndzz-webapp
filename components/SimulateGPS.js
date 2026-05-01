@@ -19,6 +19,7 @@ export default function SimulateGPS({ onStepAdvance, routeInfo }) {
         if (i >= steps.length) {
           clearInterval(interval)
           console.log('Fyndzz: simulation terminée ✅')
+          window.__fyndzz_clear_route?.()
           return
         }
         const coord = steps[i].maneuver?.location
