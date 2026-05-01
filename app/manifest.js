@@ -7,7 +7,7 @@ export default function manifest() {
     display: 'standalone',
     orientation: 'portrait',
     background_color: '#0e0d0d',
-    theme_color: '#3D2CD5',
+    theme_color: '#160C6B',
     icons: [
       {
         src: '/Logo_Fyndzz.png',
