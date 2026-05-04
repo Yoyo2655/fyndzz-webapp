@@ -7,12 +7,32 @@ import Image from 'next/image'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import SimulateGPS from '@/components/SimulateGPS'
+import { 
+  Search, 
+  Menu, 
+  X, 
+  Navigation, 
+  Mic, 
+  ChevronUp, 
+  Navigation2, 
+  User, 
+  Settings, 
+  LogOut,
+  MapPin,
+  Clock,
+  Zap
+} from 'lucide-react'
 
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
 
+// --- CONSTANTES DESIGN FYNDZZ ---
+const BRAND_GRADIENT = "bg-gradient-to-b from-[#160C6B] to-[#3D2CD5]";
+const ACCENT_GREEN = "#00FF66";
+
 export default function MapPage() {
+  // ─── ÉTAT ET LOGIQUE (CONSERVÉS À L'IDENTIQUE) ───
   const [sensors, setSensors] = useState([])
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState(null)
   const [search, setSearch] = useState('')
   const [searching, setSearching] = useState(false)
@@ -32,7 +52,23 @@ export default function MapPage() {
   }, {})
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+    supabase.auth.getUser().then(async ({ data }) => {
+      setUser(data.user)
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', data.user.id)
+          .single()
+        if (profile?.first_name || profile?.last_name) {
+          setInitials(
+            `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase()
+          )
+        } else {
+          setInitials(data.user.email?.slice(0, 2).toUpperCase() || '?')
+        }
+      }
+    })
     const fetchSensors = async () => {
       const { data } = await supabase.from('sensors').select('*')
       if (data) setSensors(data)
@@ -44,12 +80,11 @@ export default function MapPage() {
         setSensors(prev => prev.map(s => s.id === payload.new.id ? payload.new : s))
       })
       .subscribe()
-    if (window.innerWidth < 768) setSidebarOpen(false)
     return () => { supabase.removeChannel(channel) }
   }, [])
 
   const handleSearch = async (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     if (!search.trim()) return
     setSearching(true)
     try {
@@ -127,23 +162,17 @@ export default function MapPage() {
 
   const co2Saved = routeInfo ? Math.round(routeInfo.dist * 0.00012 * 100) / 100 : 0
   const price = routeInfo ? (Math.ceil(routeInfo.mins / 30) * 1.2).toFixed(2) : 0
-  const initials = user?.email?.slice(0, 2).toUpperCase() || '?'
+  const [initials, setInitials] = useState('?')
   const currentStepData = routeInfo?.steps?.[currentStep]
   const totalSteps = routeInfo?.steps?.length || 0
-
-  // Distance à pied formatée
-  const walkDistLabel = routeInfo?.walkDist
-    ? routeInfo.walkDist > 1000
-      ? `${(routeInfo.walkDist / 1000).toFixed(1)}km`
-      : `${routeInfo.walkDist}m`
-    : null
+  const walkDistLabel = routeInfo?.walkDist ? (routeInfo.walkDist > 1000 ? `${(routeInfo.walkDist / 1000).toFixed(1)}km` : `${routeInfo.walkDist}m`) : null
 
   return (
     <ProtectedRoute>
-      <div style={{ height: '100vh', width: '100vw', position: 'relative', overflow: 'hidden', background: '#160C6B', fontFamily: 'sans-serif' }}>
-
-        {/* ── CARTE — toujours montée ── */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+      <div className="relative h-screen w-screen overflow-hidden bg-[#160C6B] font-sans selection:bg-[#00FF66]">
+        
+        {/* ── CARTE (Z-INDEX 1) ── */}
+        <div className="absolute inset-0 z-0">
           <Map
             sensors={sensors}
             onRouteFound={(info) => { setRouteInfo(info); setNavMode(false) }}
@@ -156,331 +185,276 @@ export default function MapPage() {
           )}
         </div>
 
-        {/* ══════════════ MODE NAVIGATION ══════════════ */}
+        {/* ══════════════ MODE NAVIGATION (Z-INDEX 50) ══════════════ */}
         {navMode && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 100, display: 'flex', flexDirection: 'column', pointerEvents: 'none' }}>
-
-            {/* Bandeau instruction haut */}
-            <div style={{
-              pointerEvents: 'all',
-              background: 'linear-gradient(180deg, rgba(61,44,213,0.97) 0%, rgba(61,44,213,0.92) 100%)',
-              backdropFilter: 'blur(10px)',
-              padding: '1.2rem 1.5rem',
-              paddingTop: 'calc(1.2rem + env(safe-area-inset-top))',
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', maxWidth: '600px', margin: '0 auto' }}>
-                <div style={{
-                  width: '56px', height: '56px', borderRadius: '14px',
-                  background: '#00FF66', flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.8rem', boxShadow: '0 4px 12px rgba(0,255,102,0.4)'
-                }}>
+          <div className="absolute inset-0 z-50 pointer-events-none flex flex-col">
+            {/* Bandeau d'instruction (Haut) */}
+            <div className={`pointer-events-auto p-5 pt-[calc(1.25rem+env(safe-area-inset-top))] ${BRAND_GRADIENT} rounded-b-[2.5rem] shadow-2xl border-b border-white/10 animate-in slide-in-from-top duration-500`}>
+              <div className="max-w-xl mx-auto flex items-center gap-4">
+                <div className="w-14 h-14 bg-[#00FF66] rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-[#00FF66]/30">
                   {getStepIcon(currentStepData)}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '1.05rem', fontWeight: '700', color: '#fff', lineHeight: '1.3' }}>
+                <div className="flex-1">
+                  <div className="text-white font-black text-xl leading-tight">
                     {formatStep(currentStepData)}
                   </div>
                   {currentStepData?.distance > 0 && (
-                    <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span style={{ color: '#00FF66', fontWeight: '700' }}>
-                        {currentStepData.distance > 1000
-                          ? `${(currentStepData.distance / 1000).toFixed(1)} km`
-                          : `${Math.round(currentStepData.distance)} m`}
+                    <div className="text-white/60 font-bold text-sm mt-1">
+                      <span className="text-[#00FF66]">
+                        {currentStepData.distance > 1000 ? `${(currentStepData.distance / 1000).toFixed(1)} km` : `${Math.round(currentStepData.distance)} m`}
                       </span>
-                      <span>·</span>
-                      <span>Étape {currentStep + 1}/{totalSteps}</span>
+                      <span className="mx-2 opacity-30">|</span>
+                      Étape {currentStep + 1}/{totalSteps}
                     </div>
                   )}
                 </div>
-                <button onClick={stopNavigation} style={{
-                  background: 'rgba(255,77,109,0.2)', border: '1px solid rgba(255,77,109,0.4)',
-                  borderRadius: '10px', padding: '0.5rem 0.8rem',
-                  color: '#FF4D6D', fontWeight: '700', fontSize: '0.82rem',
-                  cursor: 'pointer', flexShrink: 0
-                }}>✕</button>
+                <button onClick={stopNavigation} className="p-3 bg-white/10 rounded-2xl text-white hover:bg-white/20 transition-colors">
+                  <X size={20} />
+                </button>
               </div>
-              <div style={{ maxWidth: '600px', margin: '0.8rem auto 0' }}>
-                <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '100px', height: '4px' }}>
-                  <div style={{
-                    width: `${totalSteps > 0 ? ((currentStep + 1) / totalSteps) * 100 : 0}%`,
-                    height: '4px', borderRadius: '100px',
-                    background: '#00FF66', transition: 'width 0.5s ease'
-                  }} />
-                </div>
+              <div className="max-w-xl mx-auto mt-4 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-[#00FF66] transition-all duration-700" 
+                  style={{ width: `${totalSteps > 0 ? ((currentStep + 1) / totalSteps) * 100 : 0}%` }}
+                />
               </div>
             </div>
 
-            {/* Zone carte transparente */}
-            <div style={{ flex: 1, pointerEvents: 'all' }} />
+            <div className="flex-1" />
 
-            {/* Panneau bas GPS */}
-            <div style={{
-              pointerEvents: 'all',
-              background: 'rgba(14,10,62,0.97)',
-              backdropFilter: 'blur(20px)',
-              borderTop: '1px solid rgba(255,255,255,0.1)',
-              padding: '1.2rem 1.5rem',
-              paddingBottom: 'calc(1.2rem + env(safe-area-inset-bottom))',
-              boxShadow: '0 -4px 20px rgba(0,0,0,0.3)'
-            }}>
-              <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#00FF66', letterSpacing: '-0.02em' }}>{routeInfo?.mins} min</div>
-                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>Temps</div>
-                  </div>
-                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>
-                      {routeInfo?.dist > 1000 ? `${(routeInfo.dist / 1000).toFixed(1)}km` : `${Math.round(routeInfo?.dist || 0)}m`}
+            {/* Panneau Stats GPS (Bas) */}
+            <div className="pointer-events-auto bg-white/95 backdrop-blur-xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] rounded-t-[3rem] shadow-[0_-15px_40px_-10px_rgba(22,12,107,0.2)] border-t border-slate-100 animate-in slide-in-from-bottom duration-500">
+               <div className="max-w-xl mx-auto flex flex-col gap-6">
+                  <div className="flex justify-around items-center">
+                    <div className="text-center">
+                      <div className="text-3xl font-black text-[#160C6B]">{routeInfo?.mins} min</div>
+                      <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">Temps</div>
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>En voiture</div>
-                  </div>
-                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
-                  {walkDistLabel && (
-                    <>
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>🚶 {walkDistLabel}</div>
-                        <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>À pied</div>
+                    <div className="w-[1px] h-10 bg-slate-100" />
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-slate-800">
+                        {routeInfo?.dist > 1000 ? `${(routeInfo.dist / 1000).toFixed(1)}km` : `${Math.round(routeInfo?.dist || 0)}m`}
                       </div>
-                      <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
-                    </>
-                  )}
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#00FF66', letterSpacing: '-0.02em' }}>-{co2Saved}kg</div>
-                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>CO₂</div>
+                      <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">Distance</div>
+                    </div>
+                    <div className="w-[1px] h-10 bg-slate-100" />
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-[#00FF66]">-{co2Saved}kg</div>
+                      <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">CO₂ Évité</div>
+                    </div>
                   </div>
-                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#FFB800', letterSpacing: '-0.02em' }}>{price}€</div>
-                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.15rem' }}>Parking</div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginBottom: '0.2rem' }}>Destination</div>
-                    <div style={{ fontWeight: '700', fontSize: '0.95rem' }}>🅿️ {routeInfo?.street}</div>
-                  </div>
-                  {currentStep + 1 < totalSteps && (
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginBottom: '0.2rem' }}>Ensuite</div>
-                      <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
-                        {getStepIcon(routeInfo?.steps?.[currentStep + 1])} {routeInfo?.steps?.[currentStep + 1]?.name || ''}
+                  
+                  <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#3D2CD5] rounded-xl flex items-center justify-center text-white">
+                        <MapPin size={20} />
+                      </div>
+                      <div className="font-bold text-slate-700 truncate max-w-[200px]">
+                        {routeInfo?.street}
                       </div>
                     </div>
-                  )}
-                </div>
-              </div>
+                    <div className="text-amber-500 font-black text-lg">{price}€</div>
+                  </div>
+               </div>
             </div>
           </div>
         )}
 
-        {/* ══════════════ MODE NORMAL ══════════════ */}
+        {/* ══════════════ MODE NORMAL (Z-INDEX 40) ══════════════ */}
         {!navMode && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', pointerEvents: 'none' }}>
-
-            {/* HEADER */}
-            <div style={{ pointerEvents: 'all', flexShrink: 0, background: 'rgba(22,12,107,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.1)', zIndex: 100 }}>
-              <div style={{ height: '52px', display: 'flex', alignItems: 'center', padding: '0 16px', gap: '12px' }}>
-                <button onClick={() => setSidebarOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {sidebarOpen ? (
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                      <line x1="2" y1="2" x2="16" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                      <line x1="16" y1="2" x2="2" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                      <line x1="2" y1="4" x2="16" y2="4" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                      <line x1="2" y1="9" x2="16" y2="9" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                      <line x1="2" y1="14" x2="16" y2="14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                  )}
-                </button>
-                <div className="logo-desktop">
-                  <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={120} height={32} style={{ objectFit: 'contain', display: 'block' }} />
-                </div>
-                <div className="logo-mobile">
-                  <Image src="/Logo-RBG_Fyndzz.png" alt="Fyndzz" width={32} height={32} style={{ objectFit: 'contain', display: 'block' }} />
-                </div>
-                <form onSubmit={handleSearch} className="search-desktop" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', padding: '0 12px' }}>
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
-                    <circle cx="6" cy="6" r="4.5" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5"/>
-                    <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                  <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher une destination..." style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: '#fff', fontSize: '12px', padding: '7px 0' }} />
-                  {search && (
-                    <button type="submit" style={{ background: '#00FF66', color: '#0A0040', border: 'none', borderRadius: '6px', padding: '0.3rem 0.8rem', fontSize: '11px', fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      Y aller →
-                    </button>
-                  )}
-                  {searching && <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>...</span>}
+          <div className="absolute inset-0 z-40 pointer-events-none flex flex-col">
+            
+            {/* Header Flottant (Waze Style) */}
+            <div className="pointer-events-auto p-4 flex items-center gap-3 max-w-2xl w-full mx-auto mt-4">
+              <button 
+                onClick={() => setSidebarOpen(true)}
+                className={`w-14 h-14 flex items-center justify-center rounded-2xl text-white shadow-xl hover:scale-105 active:scale-95 transition-all ${BRAND_GRADIENT}`}
+              >
+                <Menu size={24} />
+              </button>
+              
+              <div className="flex-1 bg-white h-14 rounded-2xl shadow-xl flex items-center px-5 gap-3 border border-slate-100 group">
+                <Search size={20} className="text-slate-400" />
+                <form onSubmit={handleSearch} className="flex-1">
+                  <input 
+                    type="text" 
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Où va-t-on ?" 
+                    className="w-full outline-none text-slate-800 font-bold placeholder-slate-400 bg-transparent text-lg"
+                  />
                 </form>
-                <Link href="/profile" style={{ textDecoration: 'none', flexShrink: 0, marginLeft: 'auto' }}>
-                  <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'linear-gradient(135deg, #3D2CD5, #00FF66)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#fff', cursor: 'pointer' }}>
-                    {initials}
-                  </div>
-                </Link>
-              </div>
-              <form onSubmit={handleSearch} className="search-mobile" style={{ display: 'none', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', margin: '0 12px 10px', padding: '0 12px' }}>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
-                  <circle cx="6" cy="6" r="4.5" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5"/>
-                  <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher une destination..." style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: '#fff', fontSize: '12px', padding: '10px 0' }} />
-                {search && (
-                  <button type="submit" style={{ background: '#00FF66', color: '#0A0040', border: 'none', borderRadius: '6px', padding: '0.3rem 0.8rem', fontSize: '11px', fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                    Y aller →
-                  </button>
+                {search && !searching && (
+                  <button onClick={handleSearch} className="text-[#3D2CD5] font-black text-sm uppercase">Aller</button>
                 )}
-              </form>
+                {searching && <div className="w-5 h-5 border-2 border-[#3D2CD5] border-t-transparent animate-spin rounded-full" />}
+                <Mic size={20} className="text-[#3D2CD5]" />
+              </div>
+
+              <Link href="/profile" className="w-14 h-14 rounded-2xl shadow-xl overflow-hidden border-2 border-white hover:scale-105 transition-transform bg-white flex items-center justify-center">
+                 <div className="w-full h-full flex items-center justify-center text-[#160C6B] font-black text-lg bg-gradient-to-br from-[#00FF66]/20 to-[#3D2CD5]/20">
+                  {initials}
+                 </div>
+              </Link>
             </div>
 
-            {/* BODY */}
-            <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
-              <div style={{ flex: 1 }} />
-              {sidebarOpen && (
-                <div onClick={() => setSidebarOpen(false)} className="mobile-overlay" style={{ display: 'none', position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9, pointerEvents: 'all' }} />
-              )}
-              <div style={{ pointerEvents: 'all', width: sidebarOpen ? '230px' : '0', flexShrink: 0, background: 'rgba(22,12,107,0.95)', backdropFilter: 'blur(12px)', borderLeft: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'width 0.3s ease', zIndex: 10 }}>
-                <div style={{ width: '230px', display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
-                  <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                    <div style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontWeight: '600' }}>Temps réel</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)' }}>Places libres</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#00FF66' }}>{free}</span>
+            {/* Sidebar / Drawer (Gauche) */}
+            <div className={`pointer-events-auto absolute inset-y-0 left-0 w-80 shadow-2xl z-50 transform transition-transform duration-500 ease-out p-6 flex flex-col rounded-r-[3rem] ${BRAND_GRADIENT} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+              <div className="flex items-center justify-between mb-8">
+                <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={140} height={40} className="object-contain" />
+                <button onClick={() => setSidebarOpen(false)} className="p-2 bg-white/10 rounded-full text-white/60 hover:bg-white/20 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                {/* Stats Section */}
+                <div className="bg-white/10 p-5 rounded-3xl text-white border border-white/10">
+                  <h3 className="text-xs font-black uppercase tracking-widest opacity-60 mb-4">Temps Réel</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/10 p-3 rounded-2xl">
+                      <div className="text-[#00FF66] text-2xl font-black">{free}</div>
+                      <div className="text-[10px] font-bold opacity-80">Libres</div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)' }}>Occupées</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#FF4D6D' }}>{taken}</span>
+                    <div className="bg-white/10 p-3 rounded-2xl">
+                      <div className="text-white text-2xl font-black">{sensors.length}</div>
+                      <div className="text-[10px] font-bold opacity-80">Total</div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)' }}>Capteurs actifs</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#fff' }}>{sensors.length}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>
+                  </div>
+                  <div className="mt-4">
+                    <div className="flex justify-between text-[10px] font-bold mb-1 uppercase text-white/60">
                       <span>Occupation</span><span>{pct}%</span>
                     </div>
-                    <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '4px', height: '5px' }}>
-                      <div style={{ width: `${pct}%`, height: '5px', borderRadius: '4px', background: pct > 70 ? '#FF4D6D' : pct > 40 ? '#FFB800' : '#00FF66', transition: 'width 0.5s ease' }} />
+                    <div className="h-1.5 bg-white/10 rounded-full">
+                      <div className="h-full rounded-full" style={{ 
+                        width: `${pct}%`,
+                        background: pct > 70 ? '#FF4D6D' : pct > 50 ? '#FFB800' : '#00FF66'
+                      }} />
                     </div>
                   </div>
-                  <div style={{ padding: '14px 16px', flex: 1 }}>
-                    <div style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', marginBottom: '10px', fontWeight: '600' }}>Par rue</div>
-                    {Object.entries(byStreet).map(([street, data]) => {
-                      const streetPct = Math.round((data.free / data.total) * 100)
-                      const color = streetPct > 50 ? '#00FF66' : streetPct > 20 ? '#FFB800' : '#FF4D6D'
-                      return (
-                        <div key={street} style={{ marginBottom: '10px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
-                            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>{street}</span>
-                            <span style={{ fontSize: '10px', color, flexShrink: 0 }}>{data.free}/{data.total}</span>
-                          </div>
-                          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '3px', height: '4px' }}>
-                            <div style={{ width: `${streetPct}%`, height: '4px', borderRadius: '3px', background: color, transition: 'width 0.5s ease' }} />
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div style={{ padding: '8px 16px', borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-                    <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>Mise à jour en temps réel</span>
-                  </div>
                 </div>
+
+                {/* Street List */}
+                <div className="space-y-3">
+                  <h3 className="text-white/40 font-black text-[10px] uppercase tracking-widest">Places par rue</h3>
+                  {Object.entries(byStreet).map(([street, data]) => (
+                    <div key={street} className="flex flex-col gap-1.5 p-3 hover:bg-white/10 rounded-2xl transition-colors">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-white text-sm truncate max-w-[150px]">{street}</span>
+                        {(() => {
+                          const ratio = data.free / data.total
+                          const color = ratio <= 0.2 ? '#FF4D6D' : ratio <= 0.5 ? '#FFB800' : '#00FF66'
+                          return (
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded-md" style={{ color, background: `${color}20` }}>
+                              {data.free}/{data.total}
+                            </span>
+                          )
+                        })()}
+                      </div>
+                      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full" style={{ 
+                          width: `${(data.free / data.total) * 100}%`,
+                          background: data.free / data.total <= 0.2 ? '#FF4D6D' : data.free / data.total <= 0.5 ? '#FFB800' : '#00FF66'
+                        }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6 pt-6 border-t border-white/10 space-y-2">
+                <Link href="/profile" className="flex items-center gap-4 p-4 rounded-2xl font-bold text-white/70 hover:bg-white/10 transition-colors">
+                  <Settings size={20} /> Paramètres
+                </Link>
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut()
+                    window.location.href = '/'
+                  }}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl font-bold text-red-400 hover:bg-red-500/10 transition-colors"
+                >
+                  <LogOut size={20} /> Déconnexion
+                </button>
               </div>
             </div>
 
-            {/* PANNEAU ROUTE TROUVÉE */}
+            <div className="flex-1" />
+
+            {/* Barre d'info "Route trouvée" (Waze ETA Bubble) */}
             {routeInfo && (
-              <div style={{ pointerEvents: 'all', flexShrink: 0, background: 'rgba(22,12,107,0.97)', backdropFilter: 'blur(12px)', borderTop: '2px solid #00FF66', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '160px' }}>
-                  <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.2rem' }}>Place trouvée 🎯</div>
-                  <div style={{ fontWeight: '700', fontSize: '1rem' }}>🅿️ {routeInfo.street}</div>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#00FF66' }}>{routeInfo.mins} min</div>
-                    <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>Trajet</div>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff' }}>
-                      {routeInfo.dist > 1000 ? `${(routeInfo.dist / 1000).toFixed(1)}km` : `${Math.round(routeInfo.dist)}m`}
+              <div className="pointer-events-auto mx-4 mb-24 max-w-xl self-center bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(22,12,107,0.25)] border border-slate-100 p-6 flex flex-col gap-6 animate-in zoom-in duration-300">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-[#160C6B]">{routeInfo.mins} min</span>
+                      <span className="text-slate-400 font-bold text-lg">{price}€</span>
                     </div>
-                    <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>En voiture</div>
-                  </div>
-                  {walkDistLabel && (
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff' }}>🚶 {walkDistLabel}</div>
-                      <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>À pied</div>
+                    <div className="text-slate-500 font-bold text-sm mt-1 flex items-center gap-2">
+                      <MapPin size={14} className="text-[#3D2CD5]" /> {routeInfo.street}
                     </div>
-                  )}
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#FFB800' }}>{price}€</div>
-                    <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>Parking</div>
                   </div>
+                  <button onClick={() => setRouteInfo(null)} className="p-2 bg-slate-100 rounded-full text-slate-400 hover:bg-slate-200 transition-colors"><X size={18}/></button>
                 </div>
-                <button onClick={startNavigation} style={{ background: '#00FF66', color: '#0A0040', border: 'none', borderRadius: '10px', padding: '0.75rem 1.5rem', fontWeight: '800', fontSize: '0.95rem', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,255,102,0.3)' }}>
-                  ▶ Démarrer
-                </button>
-                <button onClick={() => {
-                  setRouteInfo(null)
-                  window.__fyndzz_clear_route?.()
-                  }} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '0.75rem', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '0.85rem' }}>✕</button>
+
+                <div className="flex gap-4">
+                   <div className="flex-1 grid grid-cols-2 gap-2">
+                      <div className="bg-emerald-50 p-3 rounded-2xl flex flex-col">
+                        <span className="text-emerald-600 font-black text-xs uppercase">CO₂</span>
+                        <span className="text-emerald-700 font-black">-{co2Saved}kg</span>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-2xl flex flex-col">
+                        <span className="text-slate-400 font-black text-xs uppercase">Distance</span>
+                        <span className="text-slate-700 font-black">{routeInfo.dist > 1000 ? `${(routeInfo.dist / 1000).toFixed(1)}km` : `${Math.round(routeInfo.dist)}m`}</span>
+                      </div>
+                   </div>
+                   <button 
+                    onClick={startNavigation}
+                    className={`${BRAND_GRADIENT} text-white px-8 h-16 rounded-2xl font-black text-xl shadow-xl shadow-[#3D2CD5]/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3`}
+                  >
+                    <span>Y ALLER</span>
+                    <Navigation size={22} fill="currentColor" />
+                  </button>
+                </div>
               </div>
             )}
 
-            {/* BOTTOM BAR */}
-            <div className="bottom-bar" style={{ pointerEvents: 'all', flexShrink: 0, height: '64px', background: 'rgba(22,12,107,0.97)', backdropFilter: 'blur(12px)', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '0 16px', zIndex: 100 }}>
-              <Link href="/profile" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="8" r="4" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5"/>
-                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>Profil</span>
+            {/* Bottom Nav Bar (Waze Mobile Style) */}
+            <div className="pointer-events-auto bg-white/95 backdrop-blur-xl h-20 border-t border-slate-100 flex items-center justify-around px-6 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] rounded-t-[2.5rem]">
+              <Link href="/profile" className="flex flex-col items-center gap-1 group">
+                <User size={22} className="text-slate-400 group-hover:text-[#3D2CD5] transition-colors" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider group-hover:text-[#3D2CD5]">Profil</span>
               </Link>
-              <Link href="/map" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#00FF66', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-8px', boxShadow: '0 0 20px rgba(0,255,102,0.4)', border: '3px solid rgba(22,12,107,0.97)' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <circle cx="11" cy="11" r="7" stroke="#0A0040" strokeWidth="2"/>
-                    <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#0A0040" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
+              
+              <Link href="/map" className="relative -mt-10 group">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-90 border-4 border-white ${BRAND_GRADIENT}`}>
+                  <Navigation size={28} className="text-[#00FF66]" fill="currentColor" />
                 </div>
-                <span style={{ fontSize: '10px', color: '#00FF66', fontWeight: '700' }}>Carte</span>
               </Link>
-              <Link href="/payment" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <rect x="2" y="5" width="20" height="14" rx="3" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5"/>
-                  <line x1="2" y1="10" x2="22" y2="10" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5"/>
-                  <rect x="5" y="13" width="4" height="2" rx="1" fill="rgba(255,255,255,0.45)"/>
-                </svg>
-                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>Paiement</span>
+
+              <Link href="/payment" className="flex flex-col items-center gap-1 group">
+                <Zap size={22} className="text-slate-400 group-hover:text-[#00FF66] transition-colors" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider group-hover:text-[#00FF66]">Premium</span>
               </Link>
             </div>
           </div>
         )}
 
-        <style>{`
-          @media (max-width: 768px) {
-            .mobile-overlay { display: block !important; }
-            .logo-desktop { display: none !important; }
-            .logo-mobile { display: block !important; }
-            .search-desktop { display: none !important; }
-            .search-mobile { display: flex !important; }
-          }
-          @media (min-width: 769px) {
-            .logo-desktop { display: block !important; }
-            .logo-mobile { display: none !important; }
-            .search-desktop { display: flex !important; }
-            .search-mobile { display: none !important; }
-          }
+        {/* Bouton Recentrer Flottant (Toujours visible au dessus de la carte) */}
+        {!navMode && (
+          <button 
+            className="absolute right-6 bottom-32 z-40 bg-white p-4 rounded-2xl shadow-xl text-[#3D2CD5] hover:scale-110 active:scale-90 transition-all border border-slate-100"
+            onClick={() => window.__fyndzz_recenter?.()}
+          >
+            <Navigation2 size={24} fill="currentColor" />
+          </button>
+        )}
+
+        <style jsx global>{`
+          .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+          .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+          .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
           @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .bottom-bar {
-              padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
-              height: auto;
-              min-height: 64px;
-            }
+            .bottom-bar { padding-bottom: env(safe-area-inset-bottom); }
           }
         `}</style>
       </div>
