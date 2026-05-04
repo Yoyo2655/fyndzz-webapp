@@ -338,7 +338,10 @@ export default function MapPage() {
                       type="text" 
                       value={search}
                       onChange={e => handleSearchInput(e.target.value)}
-                      onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                      onFocus={() => {
+                        if (search && suggestions.length > 0) setShowSuggestions(true)
+                        else if (!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0) setShowSuggestions(true)
+                      }}
                       onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                       placeholder="Où va-t-on ?" 
                       className="w-full outline-none text-slate-800 font-bold placeholder-slate-400 bg-transparent text-lg"
@@ -357,9 +360,41 @@ export default function MapPage() {
                   )}
                 </div>
 
-                {/* Liste de suggestions */}
-                {showSuggestions && suggestions.length > 0 && (
+                {/* Suggestions + Favoris */}
+                {(showSuggestions && suggestions.length > 0) || (!search && (typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0)) ? (
                   <div className="absolute top-16 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50">
+                    
+                    {/* Favoris — affichés quand la barre est vide */}
+                    {!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0 && (
+                      <>
+                        <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          Lieux enregistrés
+                        </div>
+                        {window.__fyndzz_favs.map((fav, i) => (
+                          <button
+                            key={i}
+                            onMouseDown={() => {
+                              setSearch(fav.name)
+                              setShowSuggestions(false)
+                              window.__fyndzz_destination = { lat: fav.lat, lng: fav.lng }
+                              window.__fyndzz_search_trigger?.()
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left"
+                          >
+                            <div className="w-8 h-8 bg-[#3D2CD5]/10 rounded-xl flex items-center justify-center flex-shrink-0 text-sm">
+                              {fav.label === 'Maison' ? '🏠' : fav.label === 'Travail' ? '💼' : '📍'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-bold text-slate-800 text-sm">{fav.label}</div>
+                              <div className="text-slate-400 text-xs truncate">{fav.name}</div>
+                            </div>
+                          </button>
+                        ))}
+                        {suggestions.length > 0 && <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest border-t border-slate-50">Résultats</div>}
+                      </>
+                    )}
+
+                    {/* Suggestions Nominatim */}
                     {suggestions.map((s, i) => {
                       const main = s.display_name.split(',')[0]
                       const secondary = s.display_name.split(',').slice(1, 3).join(',').trim()
@@ -380,7 +415,7 @@ export default function MapPage() {
                       )
                     })}
                   </div>
-                )}
+                ) : null}
               </div>
 
               <Link href="/profile" className="w-14 h-14 rounded-2xl shadow-xl overflow-hidden border-2 border-white hover:scale-105 transition-transform bg-white flex items-center justify-center flex-shrink-0">
