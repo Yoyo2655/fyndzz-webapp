@@ -28,6 +28,8 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState({
     gps_voice: true,
     units: 'km',
+    avoid_tolls: false,
+    avoid_highways: false,
     fav_home: '', fav_home_lat: null, fav_home_lng: null,
     fav_work: '', fav_work_lat: null, fav_work_lng: null,
     fav_3_name: '', fav_3_lat: null, fav_3_lng: null,
@@ -59,6 +61,8 @@ export default function SettingsPage() {
           fav_5_name: data.fav_5_name || '',
           fav_5_lat: data.fav_5_lat,
           fav_5_lng: data.fav_5_lng,
+          avoid_tolls: data.avoid_tolls ?? false,
+          avoid_highways: data.avoid_highways ?? false,
         })
       }
       setLoading(false)
@@ -68,7 +72,7 @@ export default function SettingsPage() {
 
   const searchFav = async (query) => {
     setFavSearch(query)
-    if (query.length < 3) { setFavSuggestions([]); return }
+    if (query.length < 4) { setFavSuggestions([]); return }
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=fr&addressdetails=1`)
       const data = await res.json()
@@ -106,6 +110,8 @@ export default function SettingsPage() {
     await supabase.from('profiles').update({
       gps_voice: settings.gps_voice,
       units: settings.units,
+      avoid_tolls: settings.avoid_tolls,
+      avoid_highways: settings.avoid_highways,
       fav_home: settings.fav_home,
       fav_home_lat: settings.fav_home_lat,
       fav_home_lng: settings.fav_home_lng,
@@ -266,6 +272,44 @@ export default function SettingsPage() {
             </button>
           </div>
         </section>
+
+        {/* Éviter les péages */}
+        <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#FFB800]/20 flex items-center justify-center">
+              <span className="text-lg">🚧</span>
+            </div>
+            <div>
+              <div className="font-bold text-white">Éviter les péages</div>
+              <div className="text-xs text-white/40">Itinéraires sans péage</div>
+            </div>
+          </div>
+          <button
+            onClick={() => setSettings(p => ({ ...p, avoid_tolls: !p.avoid_tolls }))}
+            className={`w-14 h-7 rounded-full transition-all duration-300 relative ${settings.avoid_tolls ? 'bg-[#00FF66]' : 'bg-white/20'}`}
+          >
+            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${settings.avoid_tolls ? 'left-8' : 'left-1'}`} />
+          </button>
+        </div>
+
+        {/* Éviter les autoroutes */}
+        <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#FF4D6D]/20 flex items-center justify-center">
+              <span className="text-lg">🛣️</span>
+            </div>
+            <div>
+              <div className="font-bold text-white">Éviter les autoroutes</div>
+              <div className="text-xs text-white/40">Privilégier les routes secondaires</div>
+            </div>
+          </div>
+          <button
+            onClick={() => setSettings(p => ({ ...p, avoid_highways: !p.avoid_highways }))}
+            className={`w-14 h-7 rounded-full transition-all duration-300 relative ${settings.avoid_highways ? 'bg-[#00FF66]' : 'bg-white/20'}`}
+          >
+            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${settings.avoid_highways ? 'left-8' : 'left-1'}`} />
+          </button>
+        </div>
 
         {/* ── UNITÉS ── */}
         <section>

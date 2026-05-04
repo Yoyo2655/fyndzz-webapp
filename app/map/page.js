@@ -76,6 +76,8 @@ export default function MapPage() {
           window.__fyndzz_settings = {
             gps_voice: profile.gps_voice ?? true,
             units: profile.units ?? 'km',
+            avoid_tolls: profile.avoid_tolls ?? false,
+            avoid_highways: profile.avoid_highways ?? false,
           }
 
           // Favoris
@@ -124,7 +126,7 @@ export default function MapPage() {
   const handleSearchInput = (value) => {
     setSearch(value)
     clearTimeout(debounceRef.current)
-    if (!value.trim() || value.length < 3) {
+    if (!value.trim() || value.length < 4) {
       setSuggestions([])
       setShowSuggestions(false)
       return
@@ -138,7 +140,7 @@ export default function MapPage() {
         setSuggestions(data)
         setShowSuggestions(true)
       } catch (err) { console.error(err) }
-    }, 300)
+    }, 600)
   }
 
   const selectSuggestion = (suggestion) => {
