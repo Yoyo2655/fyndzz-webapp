@@ -357,12 +357,20 @@ export default function MapPage() {
                     />
                   </form>
                   {search && !searching && (
-                    <button 
-                      onClick={handleSearch} 
-                      className="text-white bg-[#3D2CD5] font-black text-sm px-3 py-1.5 rounded-xl flex-shrink-0"
-                    >
-                      Aller
-                    </button>
+                    <>
+                      <button
+                        onClick={() => { setSearch(''); setSuggestions([]); setShowSuggestions(false) }}
+                        className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
+                      >
+                        <X size={18} />
+                      </button>
+                      <button
+                        onClick={handleSearch}
+                        className="text-white bg-[#3D2CD5] p-2 rounded-xl flex-shrink-0 hover:scale-105 active:scale-95 transition-all"
+                      >
+                        <Navigation size={16} fill="currentColor" />
+                      </button>
+                    </>
                   )}
                   {searching && (
                     <div className="w-5 h-5 border-2 border-[#3D2CD5] border-t-transparent animate-spin rounded-full flex-shrink-0" />
