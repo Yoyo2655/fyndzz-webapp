@@ -579,7 +579,12 @@ export default function MapPage() {
         {!navMode && (
           <button 
             className="absolute right-6 bottom-32 z-40 bg-white p-4 rounded-2xl shadow-xl text-[#3D2CD5] hover:scale-110 active:scale-90 transition-all border border-slate-100"
-            onClick={() => window.__fyndzz_recenter?.()}
+            onClick={() => {
+              const pos = window.__fyndzz_userpos
+              if (pos && window.__fyndzz_map) {
+                window.__fyndzz_map.flyTo({ center: [pos.lng, pos.lat], zoom: 15, pitch: 0, bearing: 0, duration: 800 })
+              }
+            }}
           >
             <Navigation2 size={24} fill="currentColor" />
           </button>

@@ -232,6 +232,11 @@ export default function Map({ sensors = [], onRouteFound, navMode, currentStep, 
     navModeRef.current = navMode
   }, [navMode])
 
+  // Exposer la carte sur window — toujours à jour
+  useEffect(() => {
+    window.__fyndzz_map = mapInstanceRef.current
+  })
+
   // Vue inclinée — réagit immédiatement
   useEffect(() => {
     if (!mapInstanceRef.current) return
