@@ -1,0 +1,298 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, Home, Briefcase, MapPin, Volume2, VolumeX, Ruler, Save, Search } from 'lucide-react'
+
+const BRAND_GRADIENT = "bg-gradient-to-b from-[#160C6B] to-[#3D2CD5]"
+
+const FAVS = [
+  { key: 'home', icon: Home, label: 'Maison', color: '#00FF66' },
+  { key: 'work', icon: Briefcase, label: 'Travail', color: '#3D2CD5' },
+  { key: '3', icon: MapPin, label: 'Favori 3', color: '#FFB800' },
+  { key: '4', icon: MapPin, label: 'Favori 4', color: '#FF4D6D' },
+  { key: '5', icon: MapPin, label: 'Favori 5', color: '#A78BFA' },
+]
+
+export default function SettingsPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [successMsg, setSuccessMsg] = useState('')
+  const [searchingFav, setSearchingFav] = useState(null)
+  const [favSearch, setFavSearch] = useState('')
+  const [favSuggestions, setFavSuggestions] = useState([])
+
+  const [settings, setSettings] = useState({
+    gps_voice: true,
+    units: 'km',
+    fav_home: '', fav_home_lat: null, fav_home_lng: null,
+    fav_work: '', fav_work_lat: null, fav_work_lng: null,
+    fav_3_name: '', fav_3_lat: null, fav_3_lng: null,
+    fav_4_name: '', fav_4_lat: null, fav_4_lng: null,
+    fav_5_name: '', fav_5_lat: null, fav_5_lng: null,
+  })
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      if (data) {
+        setSettings({
+          gps_voice: data.gps_voice ?? true,
+          units: data.units ?? 'km',
+          fav_home: data.fav_home || '',
+          fav_home_lat: data.fav_home_lat,
+          fav_home_lng: data.fav_home_lng,
+          fav_work: data.fav_work || '',
+          fav_work_lat: data.fav_work_lat,
+          fav_work_lng: data.fav_work_lng,
+          fav_3_name: data.fav_3_name || '',
+          fav_3_lat: data.fav_3_lat,
+          fav_3_lng: data.fav_3_lng,
+          fav_4_name: data.fav_4_name || '',
+          fav_4_lat: data.fav_4_lat,
+          fav_4_lng: data.fav_4_lng,
+          fav_5_name: data.fav_5_name || '',
+          fav_5_lat: data.fav_5_lat,
+          fav_5_lng: data.fav_5_lng,
+        })
+      }
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  const searchFav = async (query) => {
+    setFavSearch(query)
+    if (query.length < 3) { setFavSuggestions([]); return }
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=fr&addressdetails=1`)
+      const data = await res.json()
+      setFavSuggestions(data)
+    } catch { }
+  }
+
+  const selectFav = (key, suggestion) => {
+    const name = suggestion.display_name.split(',').slice(0, 2).join(',').trim()
+    const lat = parseFloat(suggestion.lat)
+    const lng = parseFloat(suggestion.lon)
+    if (key === 'home') setSettings(p => ({ ...p, fav_home: name, fav_home_lat: lat, fav_home_lng: lng }))
+    else if (key === 'work') setSettings(p => ({ ...p, fav_work: name, fav_work_lat: lat, fav_work_lng: lng }))
+    else setSettings(p => ({ ...p, [`fav_${key}_name`]: name, [`fav_${key}_lat`]: lat, [`fav_${key}_lng`]: lng }))
+    setSearchingFav(null)
+    setFavSearch('')
+    setFavSuggestions([])
+  }
+
+  const clearFav = (key) => {
+    if (key === 'home') setSettings(p => ({ ...p, fav_home: '', fav_home_lat: null, fav_home_lng: null }))
+    else if (key === 'work') setSettings(p => ({ ...p, fav_work: '', fav_work_lat: null, fav_work_lng: null }))
+    else setSettings(p => ({ ...p, [`fav_${key}_name`]: '', [`fav_${key}_lat`]: null, [`fav_${key}_lng`]: null }))
+  }
+
+  const getFavValue = (key) => {
+    if (key === 'home') return settings.fav_home
+    if (key === 'work') return settings.fav_work
+    return settings[`fav_${key}_name`]
+  }
+
+  const save = async () => {
+    setSaving(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    await supabase.from('profiles').update({
+      gps_voice: settings.gps_voice,
+      units: settings.units,
+      fav_home: settings.fav_home,
+      fav_home_lat: settings.fav_home_lat,
+      fav_home_lng: settings.fav_home_lng,
+      fav_work: settings.fav_work,
+      fav_work_lat: settings.fav_work_lat,
+      fav_work_lng: settings.fav_work_lng,
+      fav_3_name: settings.fav_3_name,
+      fav_3_lat: settings.fav_3_lat,
+      fav_3_lng: settings.fav_3_lng,
+      fav_4_name: settings.fav_4_name,
+      fav_4_lat: settings.fav_4_lat,
+      fav_4_lng: settings.fav_4_lng,
+      fav_5_name: settings.fav_5_name,
+      fav_5_lat: settings.fav_5_lat,
+      fav_5_lng: settings.fav_5_lng,
+    }).eq('id', user.id)
+    setSaving(false)
+    setSuccessMsg('Paramètres sauvegardés ✓')
+    setTimeout(() => setSuccessMsg(''), 3000)
+  }
+
+  if (loading) return (
+    <div className={`min-h-screen ${BRAND_GRADIENT} flex items-center justify-center`}>
+      <div className="w-10 h-10 border-3 border-white/20 border-t-[#00FF66] rounded-full animate-spin" />
+    </div>
+  )
+
+  return (
+    <div className={`min-h-screen ${BRAND_GRADIENT} font-sans text-white pb-10`}>
+
+      {/* HEADER */}
+      <div className="sticky top-0 z-10 bg-[#160C6B]/80 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex items-center gap-4">
+        <Link href="/map" className="p-2 bg-white/10 rounded-xl hover:bg-white/20 transition-colors">
+          <ArrowLeft size={20} />
+        </Link>
+        <span className="font-black text-lg">Paramètres</span>
+        <div className="flex-1" />
+        {successMsg && (
+          <span className="text-[#00FF66] text-sm font-bold">{successMsg}</span>
+        )}
+        <button
+          onClick={save}
+          disabled={saving}
+          className="flex items-center gap-2 bg-[#00FF66] text-[#160C6B] font-black px-4 py-2 rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-60"
+        >
+          <Save size={16} />
+          {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+        </button>
+      </div>
+
+      <div className="max-w-lg mx-auto px-6 pt-8 space-y-8">
+
+        {/* ── FAVORIS ── */}
+        <section>
+          <h2 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">Lieux favoris</h2>
+          <div className="space-y-3">
+            {FAVS.map(({ key, icon: Icon, label, color }) => {
+              const value = getFavValue(key)
+              return (
+                <div key={key} className="bg-white/08 border border-white/10 rounded-2xl p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${color}22` }}>
+                      <Icon size={18} style={{ color }} />
+                    </div>
+                    <span className="font-bold text-white/80">{label}</span>
+                    {value && (
+                      <button
+                        onClick={() => clearFav(key)}
+                        className="ml-auto text-white/30 hover:text-red-400 text-xs font-bold transition-colors"
+                      >
+                        Supprimer
+                      </button>
+                    )}
+                  </div>
+
+                  {value ? (
+                    <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
+                      <MapPin size={14} style={{ color }} />
+                      <span className="text-sm text-white/80 truncate">{value}</span>
+                      <button
+                        onClick={() => { setSearchingFav(key); setFavSearch('') }}
+                        className="ml-auto text-white/40 hover:text-white text-xs transition-colors"
+                      >
+                        Modifier
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setSearchingFav(key); setFavSearch('') }}
+                      className="w-full flex items-center gap-2 bg-white/05 border border-dashed border-white/20 rounded-xl px-3 py-2 text-white/40 hover:text-white hover:border-white/40 transition-all text-sm"
+                    >
+                      <Search size={14} />
+                      Ajouter une adresse...
+                    </button>
+                  )}
+
+                  {/* Recherche inline */}
+                  {searchingFav === key && (
+                    <div className="mt-3">
+                      <input
+                        autoFocus
+                        type="text"
+                        value={favSearch}
+                        onChange={e => searchFav(e.target.value)}
+                        placeholder="Rechercher une adresse..."
+                        className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/30 outline-none focus:border-[#00FF66] text-sm"
+                      />
+                      {favSuggestions.length > 0 && (
+                        <div className="mt-2 bg-[#1a1060] border border-white/10 rounded-xl overflow-hidden">
+                          {favSuggestions.map((s, i) => (
+                            <button
+                              key={i}
+                              onClick={() => selectFav(key, s)}
+                              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/05 last:border-0 text-left"
+                            >
+                              <MapPin size={14} className="text-white/40 flex-shrink-0" />
+                              <div className="min-w-0">
+                                <div className="text-sm font-bold text-white truncate">{s.display_name.split(',')[0]}</div>
+                                <div className="text-xs text-white/40 truncate">{s.display_name.split(',').slice(1, 3).join(',')}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <button
+                        onClick={() => { setSearchingFav(null); setFavSuggestions([]) }}
+                        className="mt-2 text-xs text-white/30 hover:text-white transition-colors"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </section>
+
+        {/* ── VOIX GPS ── */}
+        <section>
+          <h2 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">Navigation</h2>
+          <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {settings.gps_voice
+                ? <Volume2 size={20} className="text-[#00FF66]" />
+                : <VolumeX size={20} className="text-white/40" />
+              }
+              <div>
+                <div className="font-bold text-white">Instructions vocales</div>
+                <div className="text-xs text-white/40">Guidage vocal pendant la navigation</div>
+              </div>
+            </div>
+            <button
+              onClick={() => setSettings(p => ({ ...p, gps_voice: !p.gps_voice }))}
+              className={`w-14 h-7 rounded-full transition-all duration-300 relative ${settings.gps_voice ? 'bg-[#00FF66]' : 'bg-white/20'}`}
+            >
+              <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${settings.gps_voice ? 'left-8' : 'left-1'}`} />
+            </button>
+          </div>
+        </section>
+
+        {/* ── UNITÉS ── */}
+        <section>
+          <h2 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">Affichage</h2>
+          <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Ruler size={20} className="text-[#00FF66]" />
+              <div>
+                <div className="font-bold text-white">Unités de distance</div>
+                <div className="text-xs text-white/40">Kilomètres ou miles</div>
+              </div>
+            </div>
+            <div className="flex bg-white/10 rounded-xl p-1 gap-1">
+              {['km', 'mi'].map(unit => (
+                <button
+                  key={unit}
+                  onClick={() => setSettings(p => ({ ...p, units: unit }))}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-black transition-all ${settings.units === unit ? 'bg-[#00FF66] text-[#160C6B]' : 'text-white/50 hover:text-white'}`}
+                >
+                  {unit}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  )
+}

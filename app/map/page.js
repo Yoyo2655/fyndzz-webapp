@@ -60,29 +60,49 @@ export default function MapPage() {
       if (data.user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('first_name, last_name')
+          .select('first_name, last_name, gps_voice, units, fav_home, fav_home_lat, fav_home_lng, fav_work, fav_work_lat, fav_work_lng, fav_3_name, fav_3_lat, fav_3_lng, fav_4_name, fav_4_lat, fav_4_lng, fav_5_name, fav_5_lat, fav_5_lng')
           .eq('id', data.user.id)
           .single()
-        if (profile?.first_name || profile?.last_name) {
-          setInitials(
-            `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase()
-          )
-        } else {
-          setInitials(data.user.email?.slice(0, 2).toUpperCase() || '?')
+
+        if (profile) {
+          // Initiales
+          if (profile.first_name || profile.last_name) {
+            setInitials(`${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase())
+          } else {
+            setInitials(data.user.email?.slice(0, 2).toUpperCase() || '?')
+          }
+
+          // Settings globaux
+          window.__fyndzz_settings = {
+            gps_voice: profile.gps_voice ?? true,
+            units: profile.units ?? 'km',
+          }
+
+          // Favoris
+          window.__fyndzz_favs = [
+            profile.fav_home ? { label: 'Maison', name: profile.fav_home, lat: profile.fav_home_lat, lng: profile.fav_home_lng } : null,
+            profile.fav_work ? { label: 'Travail', name: profile.fav_work, lat: profile.fav_work_lat, lng: profile.fav_work_lng } : null,
+            profile.fav_3_name ? { label: profile.fav_3_name, name: profile.fav_3_name, lat: profile.fav_3_lat, lng: profile.fav_3_lng } : null,
+            profile.fav_4_name ? { label: profile.fav_4_name, name: profile.fav_4_name, lat: profile.fav_4_lat, lng: profile.fav_4_lng } : null,
+            profile.fav_5_name ? { label: profile.fav_5_name, name: profile.fav_5_name, lat: profile.fav_5_lat, lng: profile.fav_5_lng } : null,
+          ].filter(Boolean)
         }
       }
     })
+
     const fetchSensors = async () => {
       const { data } = await supabase.from('sensors').select('*')
       if (data) setSensors(data)
     }
     fetchSensors()
+
     const channel = supabase
       .channel('sensors')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'sensors' }, (payload) => {
         setSensors(prev => prev.map(s => s.id === payload.new.id ? payload.new : s))
       })
       .subscribe()
+
     return () => { supabase.removeChannel(channel) }
   }, [])
 
@@ -134,6 +154,7 @@ export default function MapPage() {
 
   const speak = useCallback((text) => {
     if (!window.speechSynthesis || !text) return
+    if (window.__fyndzz_settings?.gps_voice === false) return // ← ajoute ça
     window.speechSynthesis.cancel()
     const utt = new SpeechSynthesisUtterance(text)
     utt.lang = 'fr-FR'
@@ -432,7 +453,7 @@ export default function MapPage() {
               </div>
 
               <div className="mt-6 pt-6 border-t border-white/10 space-y-2">
-                <Link href="/profile" className="flex items-center gap-4 p-4 rounded-2xl font-bold text-white/70 hover:bg-white/10 transition-colors">
+                <Link href="/settings" className="flex items-center gap-4 p-4 rounded-2xl font-bold text-white/70 hover:bg-white/10 transition-colors">
                   <Settings size={20} /> Paramètres
                 </Link>
                 <button
