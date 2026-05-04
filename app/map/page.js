@@ -217,6 +217,15 @@ export default function MapPage() {
     return '⬆️'
   }
 
+  const formatDist = (meters) => {
+    const units = window.__fyndzz_settings?.units || 'km'
+    if (units === 'mi') {
+      const miles = meters / 1609.34
+      return miles > 0.5 ? `${miles.toFixed(1)} mi` : `${Math.round(meters * 3.281)} ft`
+    }
+    return meters > 1000 ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`
+  }
+
   const co2Saved = routeInfo ? Math.round(routeInfo.dist * 0.00012 * 100) / 100 : 0
   const price = routeInfo ? (Math.ceil(routeInfo.mins / 30) * 1.2).toFixed(2) : 0
   const [initials, setInitials] = useState('?')
@@ -258,7 +267,7 @@ export default function MapPage() {
                   {currentStepData?.distance > 0 && (
                     <div className="text-white/60 font-bold text-sm mt-1">
                       <span className="text-[#00FF66]">
-                        {currentStepData.distance > 1000 ? `${(currentStepData.distance / 1000).toFixed(1)} km` : `${Math.round(currentStepData.distance)} m`}
+                        {formatDist(currentStepData.distance)}
                       </span>
                       <span className="mx-2 opacity-30">|</span>
                       Étape {currentStep + 1}/{totalSteps}
@@ -290,7 +299,7 @@ export default function MapPage() {
                     <div className="w-[1px] h-10 bg-slate-100" />
                     <div className="text-center">
                       <div className="text-2xl font-black text-slate-800">
-                        {routeInfo?.dist > 1000 ? `${(routeInfo.dist / 1000).toFixed(1)}km` : `${Math.round(routeInfo?.dist || 0)}m`}
+                        {formatDist(routeInfo?.dist || 0)}
                       </div>
                       <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">Distance</div>
                     </div>
@@ -531,7 +540,7 @@ export default function MapPage() {
                       </div>
                       <div className="bg-slate-50 p-3 rounded-2xl flex flex-col">
                         <span className="text-slate-400 font-black text-xs uppercase">Distance</span>
-                        <span className="text-slate-700 font-black">{routeInfo.dist > 1000 ? `${(routeInfo.dist / 1000).toFixed(1)}km` : `${Math.round(routeInfo.dist)}m`}</span>
+                        <span className="text-slate-700 font-black">{formatDist(routeInfo.dist)}</span>
                       </div>
                    </div>
                    <button 
