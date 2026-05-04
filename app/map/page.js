@@ -39,6 +39,9 @@ export default function MapPage() {
   const [routeInfo, setRouteInfo] = useState(null)
   const [navMode, setNavMode] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
+  const [suggestions, setSuggestions] = useState([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const debounceRef = useRef(null)
 
   const free = sensors.filter(s => s.is_free).length
   const taken = sensors.length - free
@@ -96,6 +99,37 @@ export default function MapPage() {
       }
     } catch (err) { console.error(err) }
     setSearching(false)
+  }
+
+  const handleSearchInput = (value) => {
+    setSearch(value)
+    clearTimeout(debounceRef.current)
+    if (!value.trim() || value.length < 3) {
+      setSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5&countrycodes=fr&addressdetails=1`
+        )
+        const data = await res.json()
+        setSuggestions(data)
+        setShowSuggestions(true)
+      } catch (err) { console.error(err) }
+    }, 300)
+  }
+
+  const selectSuggestion = (suggestion) => {
+    setSearch(suggestion.display_name.split(',')[0])
+    setShowSuggestions(false)
+    setSuggestions([])
+    window.__fyndzz_destination = {
+      lat: parseFloat(suggestion.lat),
+      lng: parseFloat(suggestion.lon)
+    }
+    window.__fyndzz_search_trigger?.()
   }
 
   const speak = useCallback((text) => {
@@ -273,28 +307,63 @@ export default function MapPage() {
                 <Menu size={24} />
               </button>
               
-              <div className="flex-1 bg-white h-14 rounded-2xl shadow-xl flex items-center px-5 gap-3 border border-slate-100 group">
-                <Search size={20} className="text-slate-400" />
-                <form onSubmit={handleSearch} className="flex-1">
-                  <input 
-                    type="text" 
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    placeholder="Où va-t-on ?" 
-                    className="w-full outline-none text-slate-800 font-bold placeholder-slate-400 bg-transparent text-lg"
-                  />
-                </form>
-                {search && !searching && (
-                  <button onClick={handleSearch} className="text-[#3D2CD5] font-black text-sm uppercase">Aller</button>
+              <div className="flex-1 relative">
+                <div className="bg-white h-14 rounded-2xl shadow-xl flex items-center px-5 gap-3 border border-slate-100">
+                  <Search size={20} className="text-slate-400 flex-shrink-0" />
+                  <form onSubmit={handleSearch} className="flex-1">
+                    <input 
+                      type="text" 
+                      value={search}
+                      onChange={e => handleSearchInput(e.target.value)}
+                      onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                      placeholder="Où va-t-on ?" 
+                      className="w-full outline-none text-slate-800 font-bold placeholder-slate-400 bg-transparent text-lg"
+                    />
+                  </form>
+                  {search && !searching && (
+                    <button 
+                      onClick={handleSearch} 
+                      className="text-white bg-[#3D2CD5] font-black text-sm px-3 py-1.5 rounded-xl flex-shrink-0"
+                    >
+                      Aller
+                    </button>
+                  )}
+                  {searching && (
+                    <div className="w-5 h-5 border-2 border-[#3D2CD5] border-t-transparent animate-spin rounded-full flex-shrink-0" />
+                  )}
+                </div>
+
+                {/* Liste de suggestions */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute top-16 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50">
+                    {suggestions.map((s, i) => {
+                      const main = s.display_name.split(',')[0]
+                      const secondary = s.display_name.split(',').slice(1, 3).join(',').trim()
+                      return (
+                        <button
+                          key={i}
+                          onMouseDown={() => selectSuggestion(s)}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left"
+                        >
+                          <div className="w-8 h-8 bg-[#3D2CD5]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <MapPin size={16} className="text-[#3D2CD5]" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-slate-800 text-sm truncate">{main}</div>
+                            <div className="text-slate-400 text-xs truncate">{secondary}</div>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
                 )}
-                {searching && <div className="w-5 h-5 border-2 border-[#3D2CD5] border-t-transparent animate-spin rounded-full" />}
-                <Mic size={20} className="text-[#3D2CD5]" />
               </div>
 
-              <Link href="/profile" className="w-14 h-14 rounded-2xl shadow-xl overflow-hidden border-2 border-white hover:scale-105 transition-transform bg-white flex items-center justify-center">
-                 <div className="w-full h-full flex items-center justify-center text-[#160C6B] font-black text-lg bg-gradient-to-br from-[#00FF66]/20 to-[#3D2CD5]/20">
+              <Link href="/profile" className="w-14 h-14 rounded-2xl shadow-xl overflow-hidden border-2 border-white hover:scale-105 transition-transform bg-white flex items-center justify-center flex-shrink-0">
+                <div className="w-full h-full flex items-center justify-center text-[#160C6B] font-black text-lg bg-gradient-to-br from-[#00FF66]/20 to-[#3D2CD5]/20">
                   {initials}
-                 </div>
+                </div>
               </Link>
             </div>
 
