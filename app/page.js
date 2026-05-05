@@ -69,7 +69,7 @@ export default function LandingPage() {
         textAlign: 'center',
         animation: 'logoIn 0.5s ease 0.3s both'
       }}>
-        <img src="/Titre-RBG_Fyndzz.png" style={{ height: '28px', objectFit: 'contain' }} alt="fyndzz" />
+        <img src="/Titre-RBG_Fyndzz.png" style={{ height: '48px', objectFit: 'contain' }} alt="fyndzz" />
       </div>
 
       <style>{`
