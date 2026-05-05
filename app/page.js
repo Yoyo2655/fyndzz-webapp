@@ -9,14 +9,89 @@ import Link from 'next/link'
 export default function LandingPage() {
   const router = useRouter()
   const [checking, setChecking] = useState(true)
+  const [showSplash, setShowSplash] = useState(false)
 
-  // Si déjà connecté → /map directement
   useEffect(() => {
+    // Splash screen uniquement en PWA standalone
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    if (isStandalone) {
+      setShowSplash(true)
+      setTimeout(() => setShowSplash(false), 2200)
+    }
+
+    // Si déjà connecté → /map directement
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) router.push('/map')
       else setChecking(false)
     })
   }, [])
+
+  if (showSplash) return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: 'linear-gradient(180deg, #160C6B 0%, #0d0a3e 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      animation: 'fadeOut 0.4s ease 1.8s both'
+    }}>
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {/* Anneaux animés */}
+        <div style={{
+          position: 'absolute', width: '160px', height: '160px', borderRadius: '50%',
+          border: '3px solid rgba(0,255,102,0.6)',
+          animation: 'ring1 1.5s ease-out 0.2s both'
+        }} />
+        <div style={{
+          position: 'absolute', width: '200px', height: '200px', borderRadius: '50%',
+          border: '2px solid rgba(0,255,102,0.3)',
+          animation: 'ring2 1.5s ease-out 0.4s both'
+        }} />
+        <div style={{
+          position: 'absolute', width: '240px', height: '240px', borderRadius: '50%',
+          border: '1px solid rgba(0,255,102,0.15)',
+          animation: 'ring2 1.5s ease-out 0.6s both'
+        }} />
+        {/* Logo */}
+        <div style={{
+          width: '110px', height: '110px', borderRadius: '28px',
+          background: 'linear-gradient(135deg, #3D2CD5, #160C6B)',
+          border: '2px solid rgba(0,255,102,0.3)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 0 40px rgba(0,255,102,0.2)',
+          animation: 'logoIn 0.5s ease 0.1s both'
+        }}>
+          <img src="/Logo-RBG_Fyndzz.png" style={{ width: '70px', height: '70px', objectFit: 'contain' }} alt="Fyndzz" />
+        </div>
+      </div>
+
+      {/* Nom en bas */}
+      <div style={{
+        position: 'absolute', bottom: '15%',
+        textAlign: 'center',
+        animation: 'logoIn 0.5s ease 0.3s both'
+      }}>
+        <img src="/Titre-RBG_Fyndzz.png" style={{ height: '28px', objectFit: 'contain' }} alt="fyndzz" />
+      </div>
+
+      <style>{`
+        @keyframes ring1 {
+          from { transform: scale(0.5); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes ring2 {
+          from { transform: scale(0.3); opacity: 0; }
+          50% { opacity: 1; }
+          to { transform: scale(1.2); opacity: 0; }
+        }
+        @keyframes logoIn {
+          from { transform: scale(0.8); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeOut {
+          to { opacity: 0; pointer-events: none; }
+        }
+      `}</style>
+    </div>
+  )
 
   if (checking) return (
     <div style={{
@@ -81,7 +156,6 @@ export default function LandingPage() {
         padding: '5rem 2rem 3rem',
         textAlign: 'center'
       }}>
-        {/* Badge */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
           background: 'rgba(0,255,102,0.1)',
@@ -134,10 +208,7 @@ export default function LandingPage() {
       </section>
 
       {/* STATS */}
-      <section style={{
-        maxWidth: '800px', margin: '2rem auto',
-        padding: '0 2rem'
-      }}>
+      <section style={{ maxWidth: '800px', margin: '2rem auto', padding: '0 2rem' }}>
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '1rem',
@@ -231,7 +302,7 @@ export default function LandingPage() {
           Mentions légales & CGU
         </Link>
         <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}>
-          © 2025 Fyndzz · Paris 🇫🇷
+          © 2026 Fyndzz · Paris 🇫🇷
         </span>
       </footer>
 
