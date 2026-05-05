@@ -20,7 +20,8 @@ import {
   LogOut,
   MapPin,
   Clock,
-  Zap
+  Zap,
+  ArrowRightLeft
 } from 'lucide-react'
 
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
@@ -631,14 +632,13 @@ export default function MapPage() {
         {!navMode && (
           <>
             <button
-              className="absolute right-6 bottom-48 z-40 bg-white p-4 rounded-2xl shadow-xl text-[#3D2CD5] hover:scale-110 active:scale-90 transition-all border border-slate-100"
-              onClick={() => setPlannerOpen(true)}
+              className={`absolute right-6 bottom-48 z-40 p-4 rounded-2xl shadow-xl transition-all hover:scale-110 active:scale-90 border-2 border-white ${
+                plannerOpen ? 'bg-[#160C6B] text-white' : 'bg-[#00FF66] text-[#160C6B]'
+              }`}
+              // Modification ici pour alterner entre true et false (fermer/ouvrir)
+              onClick={() => setPlannerOpen(!plannerOpen)}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <circle cx="6" cy="12" r="2" fill="#3D2CD5"/>
-                <circle cx="18" cy="12" r="2" fill="#3D2CD5"/>
-                <path d="M8 12h8M6 8l-3 4 3 4M18 8l3 4-3 4" stroke="#3D2CD5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              {plannerOpen ? <X size={24} /> : <ArrowRightLeft size={24} />}
             </button>
 
             {/* Panneau Planner */}
