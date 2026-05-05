@@ -9,36 +9,98 @@ import Link from 'next/link'
 export default function LandingPage() {
   const router = useRouter()
   const [checking, setChecking] = useState(true)
+  const [showSplash, setShowSplash] = useState(false)
 
   useEffect(() => {
+    // Splash screen uniquement en PWA standalone
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    if (isStandalone) {
+      setShowSplash(true)
+      setTimeout(() => setShowSplash(false), 2200)
+    }
+
+    // Si déjà connecté → /map directement
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) router.push('/map')
       else setChecking(false)
     })
   }, [])
 
-  if (checking) return (
+  if (showSplash) return (
     <div style={{
-      position: 'fixed', inset: 0,
+      position: 'fixed', inset: 0, zIndex: 9999,
       background: 'linear-gradient(180deg, #160C6B 0%, #0d0a3e 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
+      animation: 'fadeOut 0.4s ease 1.8s both'
     }}>
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ position: 'absolute', width: '160px', height: '160px', borderRadius: '50%', border: '3px solid rgba(0,255,102,0.6)', animation: 'ring1 1.5s ease-out 0.2s both' }} />
-        <div style={{ position: 'absolute', width: '200px', height: '200px', borderRadius: '50%', border: '2px solid rgba(0,255,102,0.3)', animation: 'ring2 1.5s ease-out 0.4s both' }} />
-        <div style={{ position: 'absolute', width: '240px', height: '240px', borderRadius: '50%', border: '1px solid rgba(0,255,102,0.15)', animation: 'ring2 1.5s ease-out 0.6s both' }} />
-        <div style={{ width: '110px', height: '110px', borderRadius: '28px', background: 'linear-gradient(135deg, #3D2CD5, #160C6B)', border: '2px solid rgba(0,255,102,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(0,255,102,0.2)', animation: 'logoIn 0.5s ease 0.1s both' }}>
+        {/* Anneaux animés */}
+        <div style={{
+          position: 'absolute', width: '160px', height: '160px', borderRadius: '50%',
+          border: '3px solid rgba(0,255,102,0.6)',
+          animation: 'ring1 1.5s ease-out 0.2s both'
+        }} />
+        <div style={{
+          position: 'absolute', width: '200px', height: '200px', borderRadius: '50%',
+          border: '2px solid rgba(0,255,102,0.3)',
+          animation: 'ring2 1.5s ease-out 0.4s both'
+        }} />
+        <div style={{
+          position: 'absolute', width: '240px', height: '240px', borderRadius: '50%',
+          border: '1px solid rgba(0,255,102,0.15)',
+          animation: 'ring2 1.5s ease-out 0.6s both'
+        }} />
+        {/* Logo */}
+        <div style={{
+          width: '110px', height: '110px', borderRadius: '28px',
+          background: 'linear-gradient(135deg, #3D2CD5, #160C6B)',
+          border: '2px solid rgba(0,255,102,0.3)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 0 40px rgba(0,255,102,0.2)',
+          animation: 'logoIn 0.5s ease 0.1s both'
+        }}>
           <img src="/Logo-RBG_Fyndzz.png" style={{ width: '70px', height: '70px', objectFit: 'contain' }} alt="Fyndzz" />
         </div>
       </div>
-      <div style={{ position: 'absolute', bottom: '15%', textAlign: 'center', animation: 'logoIn 0.5s ease 0.3s both' }}>
+
+      {/* Nom en bas */}
+      <div style={{
+        position: 'absolute', bottom: '15%',
+        textAlign: 'center',
+        animation: 'logoIn 0.5s ease 0.3s both'
+      }}>
         <img src="/Titre-RBG_Fyndzz.png" style={{ height: '28px', objectFit: 'contain' }} alt="fyndzz" />
       </div>
+
       <style>{`
-        @keyframes ring1 { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes ring2 { from { transform: scale(0.3); opacity: 0; } 50% { opacity: 1; } to { transform: scale(1.2); opacity: 0; } }
-        @keyframes logoIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes ring1 {
+          from { transform: scale(0.5); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes ring2 {
+          from { transform: scale(0.3); opacity: 0; }
+          50% { opacity: 1; }
+          to { transform: scale(1.2); opacity: 0; }
+        }
+        @keyframes logoIn {
+          from { transform: scale(0.8); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeOut {
+          to { opacity: 0; pointer-events: none; }
+        }
       `}</style>
+    </div>
+  )
+
+  if (checking) return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(180deg, #3D2CD5 0%, #160C6B 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center'
+    }}>
+      <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #00FF66', animation: 'spin 0.8s linear infinite' }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   )
 
@@ -60,39 +122,86 @@ export default function LandingPage() {
         padding: '1.2rem 2rem',
         borderBottom: '1px solid rgba(255,255,255,0.08)'
       }}>
-        <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={130} height={36} style={{ objectFit: 'contain' }} />
+        <Image
+          src="/Logo-et-Titre-paysage-RBG_Fyndzz.png"
+          alt="Fyndzz"
+          width={130}
+          height={36}
+          style={{ objectFit: 'contain' }}
+        />
         <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-          <Link href="/login" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '500', padding: '0.5rem 1.2rem', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}>
+          <Link href="/login" style={{
+            color: 'rgba(255,255,255,0.7)', textDecoration: 'none',
+            fontSize: '0.9rem', fontWeight: '500',
+            padding: '0.5rem 1.2rem',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: '8px', transition: 'all 0.2s'
+          }}>
             Connexion
           </Link>
-          <Link href="/register" style={{ background: '#00FF66', color: '#0A0040', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '700', padding: '0.5rem 1.2rem', borderRadius: '8px' }}>
+          <Link href="/register" style={{
+            background: '#00FF66', color: '#0A0040',
+            textDecoration: 'none', fontSize: '0.9rem',
+            fontWeight: '700', padding: '0.5rem 1.2rem',
+            borderRadius: '8px'
+          }}>
             S'inscrire
           </Link>
         </div>
       </nav>
 
       {/* HERO */}
-      <section style={{ maxWidth: '900px', margin: '0 auto', padding: '5rem 2rem 3rem', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,255,102,0.1)', border: '1px solid rgba(0,255,102,0.25)', borderRadius: '100px', padding: '0.35rem 1rem', fontSize: '0.75rem', fontWeight: '700', color: '#00FF66', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '2rem' }}>
+      <section style={{
+        maxWidth: '900px', margin: '0 auto',
+        padding: '5rem 2rem 3rem',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+          background: 'rgba(0,255,102,0.1)',
+          border: '1px solid rgba(0,255,102,0.25)',
+          borderRadius: '100px', padding: '0.35rem 1rem',
+          fontSize: '0.75rem', fontWeight: '700',
+          color: '#00FF66', letterSpacing: '0.08em',
+          textTransform: 'uppercase', marginBottom: '2rem'
+        }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00FF66', animation: 'pulse 2s infinite' }} />
           Bêta publique · Paris 16ème
         </div>
 
-        <h1 style={{ fontSize: 'clamp(2.4rem, 6vw, 4rem)', fontWeight: '800', lineHeight: '1.05', letterSpacing: '-0.03em', marginBottom: '1.5rem' }}>
+        <h1 style={{
+          fontSize: 'clamp(2.4rem, 6vw, 4rem)',
+          fontWeight: '800', lineHeight: '1.05',
+          letterSpacing: '-0.03em', marginBottom: '1.5rem'
+        }}>
           Fini de tourner en rond<br/>
           pour <span style={{ color: '#00FF66' }}>trouver une place.</span>
         </h1>
 
-        <p style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.6)', lineHeight: '1.75', maxWidth: '560px', margin: '0 auto 2.5rem', fontWeight: '300' }}>
+        <p style={{
+          fontSize: '1.05rem', color: 'rgba(255,255,255,0.6)',
+          lineHeight: '1.75', maxWidth: '560px',
+          margin: '0 auto 2.5rem', fontWeight: '300'
+        }}>
           Fyndzz connecte des capteurs IoT aux conducteurs en temps réel.
           Localisez une place disponible en quelques secondes — sans stress, sans CO₂ gaspillé.
         </p>
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/register" style={{ background: '#00FF66', color: '#0A0040', textDecoration: 'none', padding: '0.9rem 2rem', borderRadius: '10px', fontWeight: '700', fontSize: '0.95rem' }}>
+          <Link href="/register" style={{
+            background: '#00FF66', color: '#0A0040',
+            textDecoration: 'none', padding: '0.9rem 2rem',
+            borderRadius: '10px', fontWeight: '700',
+            fontSize: '0.95rem', letterSpacing: '0.01em'
+          }}>
             Créer un compte gratuit →
           </Link>
-          <Link href="/login" style={{ color: '#fff', textDecoration: 'none', padding: '0.9rem 2rem', borderRadius: '10px', fontWeight: '600', fontSize: '0.95rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+          <Link href="/login" style={{
+            color: '#fff', textDecoration: 'none',
+            padding: '0.9rem 2rem', borderRadius: '10px',
+            fontWeight: '600', fontSize: '0.95rem',
+            border: '1px solid rgba(255,255,255,0.2)'
+          }}>
             Se connecter
           </Link>
         </div>
@@ -100,7 +209,13 @@ export default function LandingPage() {
 
       {/* STATS */}
       <section style={{ maxWidth: '800px', margin: '2rem auto', padding: '0 2rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '2rem' }}>
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '1rem',
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '16px', padding: '2rem'
+        }}>
           {[
             { num: '80', label: 'Capteurs IoT' },
             { num: '16ème', label: 'Arr. pilote' },
@@ -118,17 +233,29 @@ export default function LandingPage() {
       {/* COMMENT ÇA MARCHE */}
       <section style={{ maxWidth: '900px', margin: '4rem auto', padding: '0 2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#00FF66', marginBottom: '0.8rem' }}>Le concept</div>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: '800', letterSpacing: '-0.02em' }}>Comment ça marche ?</h2>
+          <div style={{ fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#00FF66', marginBottom: '0.8rem' }}>
+            Le concept
+          </div>
+          <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: '800', letterSpacing: '-0.02em' }}>
+            Comment ça marche ?
+          </h2>
         </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
           {[
             { step: '01', icon: '📡', title: 'Capteurs temps réel', desc: 'Des capteurs IoT sous la chaussée transmettent l\'état de chaque place toutes les secondes.' },
             { step: '02', icon: '🧭', title: 'Guidage intelligent', desc: 'L\'algorithme trouve la place libre la plus proche de ta destination en distance réelle.' },
             { step: '03', icon: '🅿️', title: 'Tu te gares', desc: 'Navigation turn-by-turn directement jusqu\'à la place. Zéro stress.' },
           ].map(({ step, icon, title, desc }) => (
-            <div key={step} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '1.8rem' }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#00FF66', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '1rem' }}>Étape {step}</div>
+            <div key={step} style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '16px', padding: '1.8rem',
+              transition: 'border-color 0.3s'
+            }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#00FF66', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '1rem' }}>
+                Étape {step}
+              </div>
               <div style={{ fontSize: '2rem', marginBottom: '0.8rem' }}>{icon}</div>
               <div style={{ fontWeight: '700', fontSize: '1rem', marginBottom: '0.5rem' }}>{title}</div>
               <div style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.55)', lineHeight: '1.6' }}>{desc}</div>
@@ -138,24 +265,52 @@ export default function LandingPage() {
       </section>
 
       {/* CTA FINAL */}
-      <section style={{ textAlign: 'center', padding: '4rem 2rem 6rem', maxWidth: '600px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '1rem' }}>Prêt à ne plus chercher ?</h2>
-        <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2rem', fontSize: '0.95rem' }}>Rejoins la communauté Fyndzz gratuitement.</p>
-        <Link href="/register" style={{ background: '#00FF66', color: '#0A0040', textDecoration: 'none', padding: '1rem 2.5rem', borderRadius: '10px', fontWeight: '700', fontSize: '1rem' }}>
+      <section style={{
+        textAlign: 'center', padding: '4rem 2rem 6rem',
+        maxWidth: '600px', margin: '0 auto'
+      }}>
+        <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '1rem' }}>
+          Prêt à ne plus chercher ?
+        </h2>
+        <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2rem', fontSize: '0.95rem' }}>
+          Rejoins la communauté Fyndzz gratuitement.
+        </p>
+        <Link href="/register" style={{
+          background: '#00FF66', color: '#0A0040',
+          textDecoration: 'none', padding: '1rem 2.5rem',
+          borderRadius: '10px', fontWeight: '700', fontSize: '1rem'
+        }}>
           Rejoindre la bêta →
         </Link>
       </section>
 
       {/* FOOTER */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={90} height={28} style={{ objectFit: 'contain' }} />
-        <Link href="/legal" style={{ color: '#00FF66', textDecoration: 'none', fontSize: '0.8rem' }}>Mentions légales & CGU</Link>
-        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}>© 2026 Fyndzz · Paris 🇫🇷</span>
+      <footer style={{
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        padding: '1.5rem 2rem',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        flexWrap: 'wrap', gap: '1rem'
+      }}>
+        <Image
+          src="/Logo-et-Titre-paysage-RBG_Fyndzz.png"
+          alt="Fyndzz"
+          width={90}
+          height={28}
+          style={{ objectFit: 'contain' }}
+        />
+        <Link href="/legal" style={{ color: '#00FF66', textDecoration: 'none', fontSize: '0.8rem' }}>
+          Mentions légales & CGU
+        </Link>
+        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}>
+          © 2026 Fyndzz · Paris 🇫🇷
+        </span>
       </footer>
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        @media (max-width: 600px) { nav { padding: 1rem; } }
+        @media (max-width: 600px) {
+          nav { padding: 1rem; }
+        }
         @media (max-width: 500px) {
           div[style*="repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
           div[style*="repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
