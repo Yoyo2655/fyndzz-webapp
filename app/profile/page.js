@@ -7,7 +7,17 @@ import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
 
-const COLORS = ['#7C3AED', '#2563EB', '#059669', '#DC2626', '#D97706']
+const COLORS = [
+  '#7C3AED', // Violet
+  '#2563EB', // Bleu
+  '#059669', // Émeraude
+  '#DC2626', // Rouge
+  '#D97706', // Ambre
+  '#DB2777', // Rose 
+  '#65A30D', // Cyan 
+  '#4F46E5', // Indigo 
+  '#0891B2'  // Lime 
+];
 
 const emptyVehicle = { plate: '', brand: '', model: '', year: '', color: '', energy: '' }
 
