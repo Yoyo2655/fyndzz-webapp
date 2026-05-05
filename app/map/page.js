@@ -378,7 +378,7 @@ export default function MapPage() {
                 </div>
 
                 {/* Suggestions + Favoris */}
-                {(showSuggestions && suggestions.length > 0) || (!search && (typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0)) ? (
+                {(showSuggestions && (suggestions.length > 0 || (!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0))) ? (
                   <div className="absolute top-16 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50">
                     
                     {/* Favoris — affichés quand la barre est vide */}
