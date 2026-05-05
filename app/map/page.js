@@ -226,12 +226,56 @@ export default function MapPage() {
     return meters > 1000 ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`
   }
 
+  const searchPlanner = async (value, field) => {
+    if (field === 'from') setPlannerFrom(value)
+    else setPlannerTo(value)
+    
+    const debounceRef = field === 'from' ? debounceFromRef : debounceToRef
+    clearTimeout(debounceRef.current)
+    
+    if (!value.trim() || value.length < 4) { setPlannerSuggestions([]); return }
+    
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=4&countrycodes=fr`)
+        const data = await res.json()
+        setPlannerSuggestions(data.map(s => ({ ...s, field })))
+      } catch {}
+    }, 600)
+  }
+
+  const selectPlannerSuggestion = (s) => {
+    const coords = { lat: parseFloat(s.lat), lng: parseFloat(s.lon) }
+    const name = s.display_name.split(',')[0]
+    if (s.field === 'from') { setPlannerFrom(name); setPlannerFromCoords(coords) }
+    else { setPlannerTo(name); setPlannerToCoords(coords) }
+    setPlannerSuggestions([])
+  }
+
+  const launchPlanner = () => {
+    if (!plannerToCoords) return
+    const from = plannerFromCoords || window.__fyndzz_userpos || { lat: 48.860, lng: 2.275 }
+    window.__fyndzz_destination = plannerToCoords
+    window.__fyndzz_userpos = from
+    window.__fyndzz_search_trigger?.()
+    setPlannerOpen(false)
+  }
+
   const co2Saved = routeInfo ? Math.round(routeInfo.dist * 0.00012 * 100) / 100 : 0
   const price = routeInfo ? (Math.ceil(routeInfo.mins / 30) * 1.2).toFixed(2) : 0
   const [initials, setInitials] = useState('?')
   const currentStepData = routeInfo?.steps?.[currentStep]
   const totalSteps = routeInfo?.steps?.length || 0
   const walkDistLabel = routeInfo?.walkDist ? (routeInfo.walkDist > 1000 ? `${(routeInfo.walkDist / 1000).toFixed(1)}km` : `${routeInfo.walkDist}m`) : null
+  const [plannerOpen, setPlannerOpen] = useState(false)
+  const [plannerFrom, setPlannerFrom] = useState('')
+  const [plannerTo, setPlannerTo] = useState('')
+  const [plannerFromCoords, setPlannerFromCoords] = useState(null)
+  const [plannerToCoords, setPlannerToCoords] = useState(null)
+  const [plannerSuggestions, setPlannerSuggestions] = useState([])
+  const [plannerFocused, setPlannerFocused] = useState(null) // 'from' | 'to'
+  const debounceFromRef = useRef(null)
+  const debounceToRef = useRef(null)
 
   return (
     <ProtectedRoute>
@@ -581,6 +625,121 @@ export default function MapPage() {
               </Link>
             </div>
           </div>
+        )}
+
+        {/* Bouton Planner */}
+        {!navMode && (
+          <>
+            <button
+              className="absolute right-6 bottom-48 z-40 bg-white p-4 rounded-2xl shadow-xl text-[#3D2CD5] hover:scale-110 active:scale-90 transition-all border border-slate-100"
+              onClick={() => setPlannerOpen(true)}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="6" cy="12" r="2" fill="#3D2CD5"/>
+                <circle cx="18" cy="12" r="2" fill="#3D2CD5"/>
+                <path d="M8 12h8M6 8l-3 4 3 4M18 8l3 4-3 4" stroke="#3D2CD5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {/* Panneau Planner */}
+            {plannerOpen && (
+              <div className="absolute inset-x-4 bottom-36 z-50 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden"
+                style={{ maxWidth: '480px', margin: '0 auto', left: '50%', transform: 'translateX(-50%)', right: 'auto', width: 'calc(100% - 2rem)' }}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                  <span className="font-black text-[#160C6B] text-sm uppercase tracking-widest">Planifier un trajet</span>
+                  <button onClick={() => setPlannerOpen(false)} className="p-1.5 bg-slate-100 rounded-full text-slate-400">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {/* Champs */}
+                <div className="px-4 pb-4 space-y-2">
+                  {/* Départ */}
+                  <div className="relative">
+                    <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
+                      <div className="w-3 h-3 rounded-full border-2 border-[#00FF66] flex-shrink-0" />
+                      <input
+                        type="text"
+                        value={plannerFrom}
+                        onChange={e => searchPlanner(e.target.value, 'from')}
+                        onFocus={() => setPlannerFocused('from')}
+                        onBlur={() => setTimeout(() => setPlannerFocused(null), 150)}
+                        placeholder="Point de départ..."
+                        className="flex-1 bg-transparent outline-none text-slate-700 font-bold text-sm placeholder-slate-400"
+                      />
+                      {plannerFrom && (
+                        <button onClick={() => { setPlannerFrom(''); setPlannerFromCoords(null) }}>
+                          <X size={14} className="text-slate-400" />
+                        </button>
+                      )}
+                    </div>
+                    {plannerFocused === 'from' && plannerSuggestions.filter(s => s.field === 'from').length > 0 && (
+                      <div className="absolute top-14 left-0 right-0 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden">
+                        {plannerSuggestions.filter(s => s.field === 'from').map((s, i) => (
+                          <button key={i} onMouseDown={() => selectPlannerSuggestion(s)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-left border-b border-slate-50 last:border-0">
+                            <MapPin size={14} className="text-slate-400 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-sm font-bold text-slate-800 truncate">{s.display_name.split(',')[0]}</div>
+                              <div className="text-xs text-slate-400 truncate">{s.display_name.split(',').slice(1, 3).join(',')}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Ligne verticale */}
+                  <div className="w-px h-3 bg-slate-200 ml-6" />
+
+                  {/* Destination */}
+                  <div className="relative">
+                    <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
+                      <div className="w-3 h-3 rounded-full bg-[#160C6B] flex-shrink-0" />
+                      <input
+                        type="text"
+                        value={plannerTo}
+                        onChange={e => searchPlanner(e.target.value, 'to')}
+                        onFocus={() => setPlannerFocused('to')}
+                        onBlur={() => setTimeout(() => setPlannerFocused(null), 150)}
+                        placeholder="Destination..."
+                        className="flex-1 bg-transparent outline-none text-slate-700 font-bold text-sm placeholder-slate-400"
+                      />
+                      {plannerTo && (
+                        <button onClick={() => { setPlannerTo(''); setPlannerToCoords(null) }}>
+                          <X size={14} className="text-slate-400" />
+                        </button>
+                      )}
+                    </div>
+                    {plannerFocused === 'to' && plannerSuggestions.filter(s => s.field === 'to').length > 0 && (
+                      <div className="absolute top-14 left-0 right-0 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden">
+                        {plannerSuggestions.filter(s => s.field === 'to').map((s, i) => (
+                          <button key={i} onMouseDown={() => selectPlannerSuggestion(s)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-left border-b border-slate-50 last:border-0">
+                            <MapPin size={14} className="text-slate-400 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-sm font-bold text-slate-800 truncate">{s.display_name.split(',')[0]}</div>
+                              <div className="text-xs text-slate-400 truncate">{s.display_name.split(',').slice(1, 3).join(',')}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bouton voir le trajet */}
+                  <button
+                    onClick={launchPlanner}
+                    disabled={!plannerToCoords}
+                    className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all mt-2 ${plannerToCoords ? 'bg-gradient-to-r from-[#160C6B] to-[#3D2CD5] text-white shadow-lg hover:scale-[1.02] active:scale-95' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}
+                  >
+                    Voir le trajet
+                    <Navigation size={16} fill="currentColor" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Bouton Recentrer Flottant (Toujours visible au dessus de la carte) */}
