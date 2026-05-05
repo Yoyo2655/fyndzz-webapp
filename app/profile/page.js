@@ -352,7 +352,7 @@ export default function ProfilePage() {
                         color: activeVehicle === i + 1 ? '#0A0040' : '#fff',
                         fontWeight: activeVehicle === i + 1 ? '700' : '400', fontSize: '0.85rem'
                         }}>
-                        {v.brand || v.plate || `Voiture ${i + 1}`}
+                        {v.plate || v.brand || `Voiture ${i + 1}`}
                         </button>
                     )
                     })}
