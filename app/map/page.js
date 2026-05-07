@@ -391,7 +391,7 @@ export default function MapPage() {
               
               <div className="flex-1 relative">
                 <div className="bg-white h-14 rounded-2xl shadow-xl flex items-center px-5 gap-3 border border-slate-100">
-                  <Search size={20} className="text-slate-400 flex-shrink-0" />
+                  <Image src="/Logo-blue-RBG_Fyndzz.png" alt="Fyndzz" width={48} height={48} style={{ objectFit: 'contain', flexShrink: 0, opacity: 1 }} />
                   <form onSubmit={handleSearch} className="flex-1">
                     <input 
                       type="text" 
@@ -402,7 +402,7 @@ export default function MapPage() {
                         else if (!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0) setShowSuggestions(true)
                       }}
                       onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                      placeholder="Où va-t-on ?" 
+                      placeholder="Where to ?" 
                       className="w-full outline-none text-slate-800 font-bold placeholder-slate-400 bg-transparent text-lg"
                     />
                   </form>

@@ -239,7 +239,7 @@ export default function ProfilePage() {
             <div style={{ fontWeight: '700', fontSize: '1.2rem' }}>{profile?.first_name} {profile?.last_name}</div>
             <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '0.2rem' }}>{profile?.email}</div>
             <div style={{ marginTop: '0.5rem', background: 'rgba(0,255,102,0.1)', border: '1px solid rgba(0,255,102,0.25)', color: '#00FF66', fontSize: '0.7rem', fontWeight: '700', padding: '0.25rem 0.8rem', borderRadius: '100px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Bêta testeur
+            Fyndzzer
             </div>
         </div>
 
