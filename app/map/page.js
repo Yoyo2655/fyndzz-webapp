@@ -16,7 +16,6 @@ import {
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
 
 const BRAND_GRADIENT = "bg-gradient-to-b from-[#160C6B] to-[#3D2CD5]"
-const ACCENT_GREEN = "#00FF66"
 
 export default function MapPage() {
   const [sensors, setSensors] = useState([])
@@ -58,7 +57,7 @@ export default function MapPage() {
       if (data.user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('first_name, last_name, gps_voice, units, fav_home, fav_home_lat, fav_home_lng, fav_work, fav_work_lat, fav_work_lng, fav_3_name, fav_3_lat, fav_3_lng, fav_4_name, fav_4_lat, fav_4_lng, fav_5_name, fav_5_lat, fav_5_lng, avoid_tolls, avoid_highways, show_fuel, show_elec, show_sensors')
+          .select('first_name, last_name, gps_voice, units, fav_home, fav_home_lat, fav_home_lng, fav_work, fav_work_lat, fav_work_lng, fav_3_name, fav_3_lat, fav_3_lng, fav_4_name, fav_4_lat, fav_4_lng, fav_5_name, fav_5_lat, fav_5_lng, avoid_tolls, avoid_highways, show_fuel, show_elec, show_sensors, recent_destinations')
           .eq('id', data.user.id)
           .single()
 
@@ -86,6 +85,8 @@ export default function MapPage() {
             profile.fav_4_name ? { label: profile.fav_4_name, name: profile.fav_4_name, lat: profile.fav_4_lat, lng: profile.fav_4_lng } : null,
             profile.fav_5_name ? { label: profile.fav_5_name, name: profile.fav_5_name, lat: profile.fav_5_lat, lng: profile.fav_5_lng } : null,
           ].filter(Boolean)
+
+          window.__fyndzz_recents = profile.recent_destinations || []
         }
       }
     })
@@ -106,6 +107,16 @@ export default function MapPage() {
     return () => { supabase.removeChannel(channel) }
   }, [])
 
+  const saveRecentDestination = async (name, lat, lng) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    const existing = window.__fyndzz_recents || []
+    const filtered = existing.filter(d => d.name !== name)
+    const updated = [{ name, lat, lng }, ...filtered].slice(0, 4)
+    window.__fyndzz_recents = updated
+    await supabase.from('profiles').update({ recent_destinations: updated }).eq('id', user.id)
+  }
+
   const handleSearch = async (e) => {
     if (e) e.preventDefault()
     if (!search.trim()) return
@@ -117,7 +128,7 @@ export default function MapPage() {
         window.__fyndzz_destination = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
         window.__fyndzz_search_trigger?.()
       }
-    } catch (err) { console.error(err) }
+    } catch (err) {}
     setSearching(false)
   }
 
@@ -131,7 +142,7 @@ export default function MapPage() {
         const data = await res.json()
         setSuggestions(data)
         setShowSuggestions(true)
-      } catch (err) { console.error(err) }
+      } catch (err) {}
     }, 600)
   }
 
@@ -164,6 +175,11 @@ export default function MapPage() {
     setCurrentStep(0)
     const firstStep = routeInfo?.steps?.[0]
     if (firstStep) speak(formatStep(firstStep))
+    // Sauvegarder la destination dans l'historique
+    if (routeInfo?.destination) {
+      const name = search || routeInfo.street || 'Destination'
+      saveRecentDestination(name, routeInfo.destination.lat, routeInfo.destination.lng)
+    }
   }
 
   const stopNavigation = () => {
@@ -251,6 +267,12 @@ export default function MapPage() {
   const price = routeInfo ? (Math.ceil(routeInfo.mins / 30) * 1.2).toFixed(2) : 0
   const currentStepData = routeInfo?.steps?.[currentStep]
   const totalSteps = routeInfo?.steps?.length || 0
+
+  // Helper pour afficher suggestions + favoris + recents
+  const showDropdown = showSuggestions && (
+    suggestions.length > 0 ||
+    (!search && typeof window !== 'undefined' && (window.__fyndzz_favs?.length > 0 || window.__fyndzz_recents?.length > 0))
+  )
 
   return (
     <ProtectedRoute>
@@ -358,7 +380,7 @@ export default function MapPage() {
                       onChange={e => handleSearchInput(e.target.value)}
                       onFocus={() => {
                         if (search && suggestions.length > 0) setShowSuggestions(true)
-                        else if (!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0) setShowSuggestions(true)
+                        else if (!search && typeof window !== 'undefined' && (window.__fyndzz_favs?.length > 0 || window.__fyndzz_recents?.length > 0)) setShowSuggestions(true)
                       }}
                       onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                       placeholder="Où va-t-on ?"
@@ -378,9 +400,11 @@ export default function MapPage() {
                   {searching && <div className="w-5 h-5 border-2 border-[#3D2CD5] border-t-transparent animate-spin rounded-full flex-shrink-0" />}
                 </div>
 
-                {/* Suggestions */}
-                {(showSuggestions && (suggestions.length > 0 || (!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0))) && (
+                {/* Dropdown suggestions + favoris + recents */}
+                {showDropdown && (
                   <div className="absolute top-16 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50">
+
+                    {/* Favoris */}
                     {!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0 && (
                       <>
                         <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lieux enregistrés</div>
@@ -395,20 +419,42 @@ export default function MapPage() {
                             </div>
                           </button>
                         ))}
-                        {suggestions.length > 0 && <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest border-t border-slate-50">Résultats</div>}
                       </>
                     )}
-                    {suggestions.map((s, i) => (
-                      <button key={i} onMouseDown={() => selectSuggestion(s)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left">
-                        <div className="w-8 h-8 bg-[#3D2CD5]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <MapPin size={16} className="text-[#3D2CD5]" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-slate-800 text-sm truncate">{s.display_name.split(',')[0]}</div>
-                          <div className="text-slate-400 text-xs truncate">{s.display_name.split(',').slice(1, 3).join(',').trim()}</div>
-                        </div>
-                      </button>
-                    ))}
+
+                    {/* Destinations récentes */}
+                    {!search && typeof window !== 'undefined' && window.__fyndzz_recents?.length > 0 && (
+                      <>
+                        <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest border-t border-slate-50">Récents</div>
+                        {window.__fyndzz_recents.map((dest, i) => (
+                          <button key={i} onMouseDown={() => { setSearch(dest.name); setShowSuggestions(false); window.__fyndzz_destination = { lat: dest.lat, lng: dest.lng }; window.__fyndzz_search_trigger?.() }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left">
+                            <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0 text-sm">🕐</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-bold text-slate-800 text-sm truncate">{dest.name}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </>
+                    )}
+
+                    {/* Suggestions Nominatim */}
+                    {suggestions.length > 0 && (
+                      <>
+                        {!search && <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest border-t border-slate-50">Résultats</div>}
+                        {suggestions.map((s, i) => (
+                          <button key={i} onMouseDown={() => selectSuggestion(s)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left">
+                            <div className="w-8 h-8 bg-[#3D2CD5]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                              <MapPin size={16} className="text-[#3D2CD5]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-bold text-slate-800 text-sm truncate">{s.display_name.split(',')[0]}</div>
+                              <div className="text-slate-400 text-xs truncate">{s.display_name.split(',').slice(1, 3).join(',').trim()}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </>
+                    )}
+
                   </div>
                 )}
               </div>
@@ -422,8 +468,7 @@ export default function MapPage() {
 
             {/* ── SIDEBAR ── */}
             <div className={`pointer-events-auto absolute inset-y-0 left-0 w-80 shadow-2xl z-50 transform transition-transform duration-500 ease-out p-6 flex flex-col rounded-r-[3rem] ${BRAND_GRADIENT} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-              
-              {/* Header sidebar */}
+
               <div className="flex items-center justify-between mb-8">
                 <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={140} height={40} className="object-contain" />
                 <button onClick={() => setSidebarOpen(false)} className="p-2 bg-white/10 rounded-full text-white/60 hover:bg-white/20 transition-colors">
@@ -431,7 +476,6 @@ export default function MapPage() {
                 </button>
               </div>
 
-              {/* Contenu scrollable */}
               <div className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
 
                 {/* Stats */}
@@ -483,24 +527,20 @@ export default function MapPage() {
 
               {/* Footer sidebar */}
               <div className="mt-6 pt-6 border-t border-white/10 space-y-2">
-
-                {/* Spotify */}
                 <div className="mb-2">
                   <SpotifyPlayer />
                 </div>
-
                 <Link href="/settings" className="flex items-center gap-4 p-4 rounded-2xl font-bold text-white/70 hover:bg-white/10 transition-colors">
                   <Settings size={20} /> Paramètres
                 </Link>
-
                 <button
                   onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}
                   className="w-full flex items-center gap-4 p-4 rounded-2xl font-bold text-red-400 hover:bg-red-500/10 transition-colors"
                 >
                   <LogOut size={20} /> Déconnexion
                 </button>
-
               </div>
+
             </div>
             {/* ── FIN SIDEBAR ── */}
 
