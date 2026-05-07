@@ -167,9 +167,9 @@ export default function Map({ sensors = [], onRouteFound, navMode, currentStep, 
       const source = mapInstanceRef.current.getSource('route')
       if (source) source.setData(route.geometry)
 
-      const coords = route.geometry.coordinates
-      const bounds = coords.reduce((b, c) => b.extend(c), new maplibregl.LngLatBounds(coords[0], coords[0]))
-      mapInstanceRef.current.fitBounds(bounds, { padding: 80, duration: 800 })
+      //const coords = route.geometry.coordinates
+      //const bounds = coords.reduce((b, c) => b.extend(c), new maplibregl.LngLatBounds(coords[0], coords[0]))
+      //mapInstanceRef.current.fitBounds(bounds, { padding: 80, duration: 800 })
 
       const steps = route.legs?.[0]?.steps || []
       stepsRef.current = steps
