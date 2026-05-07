@@ -30,6 +30,8 @@ export default function SettingsPage() {
     units: 'km',
     avoid_tolls: false,
     avoid_highways: false,
+    show_fuel: false,
+    show_elec: false,
     fav_home: '', fav_home_lat: null, fav_home_lng: null,
     fav_work: '', fav_work_lat: null, fav_work_lng: null,
     fav_3_name: '', fav_3_lat: null, fav_3_lng: null,
@@ -46,6 +48,10 @@ export default function SettingsPage() {
         setSettings({
           gps_voice: data.gps_voice ?? true,
           units: data.units ?? 'km',
+          avoid_tolls: data.avoid_tolls ?? false,
+          avoid_highways: data.avoid_highways ?? false,
+          show_fuel: data.show_fuel ?? false,
+          show_elec: data.show_elec ?? false,
           fav_home: data.fav_home || '',
           fav_home_lat: data.fav_home_lat,
           fav_home_lng: data.fav_home_lng,
@@ -61,8 +67,6 @@ export default function SettingsPage() {
           fav_5_name: data.fav_5_name || '',
           fav_5_lat: data.fav_5_lat,
           fav_5_lng: data.fav_5_lng,
-          avoid_tolls: data.avoid_tolls ?? false,
-          avoid_highways: data.avoid_highways ?? false,
         })
       }
       setLoading(false)
@@ -104,6 +108,15 @@ export default function SettingsPage() {
     return settings[`fav_${key}_name`]
   }
 
+  const Toggle = ({ value, onChange }) => (
+    <button
+      onClick={onChange}
+      className={`w-14 h-7 rounded-full transition-all duration-300 relative ${value ? 'bg-[#00FF66]' : 'bg-white/20'}`}
+    >
+      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${value ? 'left-8' : 'left-1'}`} />
+    </button>
+  )
+
   const save = async () => {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
@@ -112,6 +125,8 @@ export default function SettingsPage() {
       units: settings.units,
       avoid_tolls: settings.avoid_tolls,
       avoid_highways: settings.avoid_highways,
+      show_fuel: settings.show_fuel,
+      show_elec: settings.show_elec,
       fav_home: settings.fav_home,
       fav_home_lat: settings.fav_home_lat,
       fav_home_lng: settings.fav_home_lng,
@@ -128,6 +143,21 @@ export default function SettingsPage() {
       fav_5_lat: settings.fav_5_lat,
       fav_5_lng: settings.fav_5_lng,
     }).eq('id', user.id)
+
+    // Mettre à jour les settings globaux et recharger les stations
+    if (typeof window !== 'undefined') {
+      window.__fyndzz_settings = {
+        ...window.__fyndzz_settings,
+        show_fuel: settings.show_fuel,
+        show_elec: settings.show_elec,
+        gps_voice: settings.gps_voice,
+        units: settings.units,
+        avoid_tolls: settings.avoid_tolls,
+        avoid_highways: settings.avoid_highways,
+      }
+      window.__fyndzz_reload_stations?.()
+    }
+
     setSaving(false)
     setSuccessMsg('Paramètres sauvegardés ✓')
     setTimeout(() => setSuccessMsg(''), 3000)
@@ -135,7 +165,7 @@ export default function SettingsPage() {
 
   if (loading) return (
     <div className={`min-h-screen ${BRAND_GRADIENT} flex items-center justify-center`}>
-      <div className="w-10 h-10 border-3 border-white/20 border-t-[#00FF66] rounded-full animate-spin" />
+      <div className="w-10 h-10 border-2 border-white/20 border-t-[#00FF66] rounded-full animate-spin" />
     </div>
   )
 
@@ -149,9 +179,7 @@ export default function SettingsPage() {
         </Link>
         <span className="font-black text-lg">Paramètres</span>
         <div className="flex-1" />
-        {successMsg && (
-          <span className="text-[#00FF66] text-sm font-bold">{successMsg}</span>
-        )}
+        {successMsg && <span className="text-[#00FF66] text-sm font-bold">{successMsg}</span>}
         <button
           onClick={save}
           disabled={saving}
@@ -178,37 +206,25 @@ export default function SettingsPage() {
                     </div>
                     <span className="font-bold text-white/80">{label}</span>
                     {value && (
-                      <button
-                        onClick={() => clearFav(key)}
-                        className="ml-auto text-white/30 hover:text-red-400 text-xs font-bold transition-colors"
-                      >
+                      <button onClick={() => clearFav(key)} className="ml-auto text-white/30 hover:text-red-400 text-xs font-bold transition-colors">
                         Supprimer
                       </button>
                     )}
                   </div>
-
                   {value ? (
                     <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
                       <MapPin size={14} style={{ color }} />
                       <span className="text-sm text-white/80 truncate">{value}</span>
-                      <button
-                        onClick={() => { setSearchingFav(key); setFavSearch('') }}
-                        className="ml-auto text-white/40 hover:text-white text-xs transition-colors"
-                      >
+                      <button onClick={() => { setSearchingFav(key); setFavSearch('') }} className="ml-auto text-white/40 hover:text-white text-xs transition-colors">
                         Modifier
                       </button>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => { setSearchingFav(key); setFavSearch('') }}
-                      className="w-full flex items-center gap-2 bg-white/05 border border-dashed border-white/20 rounded-xl px-3 py-2 text-white/40 hover:text-white hover:border-white/40 transition-all text-sm"
-                    >
+                    <button onClick={() => { setSearchingFav(key); setFavSearch('') }} className="w-full flex items-center gap-2 bg-white/05 border border-dashed border-white/20 rounded-xl px-3 py-2 text-white/40 hover:text-white hover:border-white/40 transition-all text-sm">
                       <Search size={14} />
                       Ajouter une adresse...
                     </button>
                   )}
-
-                  {/* Recherche inline */}
                   {searchingFav === key && (
                     <div className="mt-3">
                       <input
@@ -222,11 +238,7 @@ export default function SettingsPage() {
                       {favSuggestions.length > 0 && (
                         <div className="mt-2 bg-[#1a1060] border border-white/10 rounded-xl overflow-hidden">
                           {favSuggestions.map((s, i) => (
-                            <button
-                              key={i}
-                              onClick={() => selectFav(key, s)}
-                              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/05 last:border-0 text-left"
-                            >
+                            <button key={i} onClick={() => selectFav(key, s)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/05 last:border-0 text-left">
                               <MapPin size={14} className="text-white/40 flex-shrink-0" />
                               <div className="min-w-0">
                                 <div className="text-sm font-bold text-white truncate">{s.display_name.split(',')[0]}</div>
@@ -236,10 +248,7 @@ export default function SettingsPage() {
                           ))}
                         </div>
                       )}
-                      <button
-                        onClick={() => { setSearchingFav(null); setFavSuggestions([]) }}
-                        className="mt-2 text-xs text-white/30 hover:text-white transition-colors"
-                      >
+                      <button onClick={() => { setSearchingFav(null); setFavSuggestions([]) }} className="mt-2 text-xs text-white/30 hover:text-white transition-colors">
                         Annuler
                       </button>
                     </div>
@@ -250,68 +259,74 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        {/* ── VOIX GPS ── */}
+        {/* ── NAVIGATION ── */}
         <section>
           <h2 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">Navigation</h2>
-          <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {settings.gps_voice
-                ? <Volume2 size={20} className="text-[#00FF66]" />
-                : <VolumeX size={20} className="text-white/40" />
-              }
-              <div>
-                <div className="font-bold text-white">Instructions vocales</div>
-                <div className="text-xs text-white/40">Guidage vocal pendant la navigation</div>
+          <div className="space-y-3">
+            <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {settings.gps_voice ? <Volume2 size={20} className="text-[#00FF66]" /> : <VolumeX size={20} className="text-white/40" />}
+                <div>
+                  <div className="font-bold text-white">Instructions vocales</div>
+                  <div className="text-xs text-white/40">Guidage vocal pendant la navigation</div>
+                </div>
               </div>
+              <Toggle value={settings.gps_voice} onChange={() => setSettings(p => ({ ...p, gps_voice: !p.gps_voice }))} />
             </div>
-            <button
-              onClick={() => setSettings(p => ({ ...p, gps_voice: !p.gps_voice }))}
-              className={`w-14 h-7 rounded-full transition-all duration-300 relative ${settings.gps_voice ? 'bg-[#00FF66]' : 'bg-white/20'}`}
-            >
-              <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${settings.gps_voice ? 'left-8' : 'left-1'}`} />
-            </button>
+
+            <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#FFB800]/20 flex items-center justify-center"><span className="text-lg">🚧</span></div>
+                <div>
+                  <div className="font-bold text-white">Éviter les péages</div>
+                  <div className="text-xs text-white/40">Itinéraires sans péage</div>
+                </div>
+              </div>
+              <Toggle value={settings.avoid_tolls} onChange={() => setSettings(p => ({ ...p, avoid_tolls: !p.avoid_tolls }))} />
+            </div>
+
+            <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#FF4D6D]/20 flex items-center justify-center"><span className="text-lg">🛣️</span></div>
+                <div>
+                  <div className="font-bold text-white">Éviter les autoroutes</div>
+                  <div className="text-xs text-white/40">Privilégier les routes secondaires</div>
+                </div>
+              </div>
+              <Toggle value={settings.avoid_highways} onChange={() => setSettings(p => ({ ...p, avoid_highways: !p.avoid_highways }))} />
+            </div>
           </div>
         </section>
 
-        {/* Éviter les péages */}
-        <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#FFB800]/20 flex items-center justify-center">
-              <span className="text-lg">🚧</span>
+        {/* ── CARTE ── */}
+        <section>
+          <h2 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">Carte</h2>
+          <div className="space-y-3">
+            <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#FFB800]/20 flex items-center justify-center"><span className="text-lg">⛽</span></div>
+                <div>
+                  <div className="font-bold text-white">Stations essence</div>
+                  <div className="text-xs text-white/40">Afficher sur la carte avec les prix</div>
+                </div>
+              </div>
+              <Toggle value={settings.show_fuel} onChange={() => setSettings(p => ({ ...p, show_fuel: !p.show_fuel }))} />
             </div>
-            <div>
-              <div className="font-bold text-white">Éviter les péages</div>
-              <div className="text-xs text-white/40">Itinéraires sans péage</div>
+
+            <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#3D2CD5]/30 flex items-center justify-center"><span className="text-lg">⚡</span></div>
+                <div>
+                  <div className="font-bold text-white">Bornes électriques</div>
+                  <div className="text-xs text-white/40">Afficher les bornes de recharge</div>
+                </div>
+              </div>
+              <Toggle value={settings.show_elec} onChange={() => setSettings(p => ({ ...p, show_elec: !p.show_elec }))} />
             </div>
           </div>
-          <button
-            onClick={() => setSettings(p => ({ ...p, avoid_tolls: !p.avoid_tolls }))}
-            className={`w-14 h-7 rounded-full transition-all duration-300 relative ${settings.avoid_tolls ? 'bg-[#00FF66]' : 'bg-white/20'}`}
-          >
-            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${settings.avoid_tolls ? 'left-8' : 'left-1'}`} />
-          </button>
-        </div>
+        </section>
 
-        {/* Éviter les autoroutes */}
-        <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#FF4D6D]/20 flex items-center justify-center">
-              <span className="text-lg">🛣️</span>
-            </div>
-            <div>
-              <div className="font-bold text-white">Éviter les autoroutes</div>
-              <div className="text-xs text-white/40">Privilégier les routes secondaires</div>
-            </div>
-          </div>
-          <button
-            onClick={() => setSettings(p => ({ ...p, avoid_highways: !p.avoid_highways }))}
-            className={`w-14 h-7 rounded-full transition-all duration-300 relative ${settings.avoid_highways ? 'bg-[#00FF66]' : 'bg-white/20'}`}
-          >
-            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${settings.avoid_highways ? 'left-8' : 'left-1'}`} />
-          </button>
-        </div>
-
-        {/* ── UNITÉS ── */}
+        {/* ── AFFICHAGE ── */}
         <section>
           <h2 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">Affichage</h2>
           <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">

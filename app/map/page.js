@@ -59,11 +59,13 @@ export default function MapPage() {
     supabase.auth.getUser().then(async ({ data }) => {
       setUser(data.user)
       if (data.user) {
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
-          .select('first_name, last_name, gps_voice, units, fav_home, fav_home_lat, fav_home_lng, fav_work, fav_work_lat, fav_work_lng, fav_3_name, fav_3_lat, fav_3_lng, fav_4_name, fav_4_lat, fav_4_lng, fav_5_name, fav_5_lat, fav_5_lng')
+          .select('first_name, last_name, gps_voice, units, fav_home, fav_home_lat, fav_home_lng, fav_work, fav_work_lat, fav_work_lng, fav_3_name, fav_3_lat, fav_3_lng, fav_4_name, fav_4_lat, fav_4_lng, fav_5_name, fav_5_lat, fav_5_lng, avoid_tolls, avoid_highways, show_fuel, show_elec, recent_destinations')
           .eq('id', data.user.id)
           .single()
+        console.log('profile:', profile)
+        console.log('error:', error)
 
         if (profile) {
           // Initiales
@@ -79,6 +81,8 @@ export default function MapPage() {
             units: profile.units ?? 'km',
             avoid_tolls: profile.avoid_tolls ?? false,
             avoid_highways: profile.avoid_highways ?? false,
+            show_fuel: profile.show_fuel ?? false,
+            show_elec: profile.show_elec ?? false,
           }
 
           // Favoris
@@ -582,7 +586,7 @@ export default function MapPage() {
                       <MapPin size={14} className="text-[#3D2CD5]" /> {routeInfo.street}
                     </div>
                   </div>
-                  <button onClick={() => setRouteInfo(null)} className="p-2 bg-slate-100 rounded-full text-slate-400 hover:bg-slate-200 transition-colors"><X size={18}/></button>
+                  <button onClick={() => { setRouteInfo(null); window.__fyndzz_clear_route?.() }} className="p-2 bg-slate-100 rounded-full text-slate-400 hover:bg-slate-200 transition-colors"><X size={18}/></button>
                 </div>
 
                 <div className="flex gap-4">
