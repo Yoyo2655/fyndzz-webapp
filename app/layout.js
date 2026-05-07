@@ -14,7 +14,29 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: 'Welcome to Fyndzz',
   description: 'Find available parking spots in real time.',
-};
+  openGraph: {
+    title: 'Fyndzz — Trouvez une place en temps réel',
+    description: 'Des capteurs IoT connectés en temps réel pour trouver une place de stationnement sans tourner.',
+    url: 'https://fyndzz.vercel.app',
+    siteName: 'Fyndzz',
+    images: [
+      {
+        url: 'https://fyndzz.vercel.app/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Fyndzz',
+      }
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Fyndzz — Trouvez une place en temps réel',
+    description: 'Des capteurs IoT pour trouver une place de stationnement sans tourner.',
+    images: ['https://fyndzz.vercel.app/og-image.png'],
+  },
+}
 
 export default function RootLayout({ children }) {
   return (
