@@ -65,8 +65,8 @@ export default function LegalPage() {
               Le service Fyndzz est édité par la société Fyndzz SAS, société par actions simplifiée au capital de 1 000 euros, en cours d'immatriculation au Registre du Commerce et des Sociétés de Paris.
             </p>
             <p style={para}><strong style={{ color: '#fff' }}>Siège social :</strong> Paris, France</p>
-            <p style={para}><strong style={{ color: '#fff' }}>Email de contact :</strong> hello@fyndzz.io</p>
-            <p style={para}><strong style={{ color: '#fff' }}>Directeur de la publication :</strong> Le représentant légal de Fyndzz SAS</p>
+            <p style={para}><strong style={{ color: '#fff' }}>Email de contact :</strong> contact@fyndzz.fr</p>
+            <p style={para}><strong style={{ color: '#fff' }}>Directeur de la publication :</strong> Yoni ATTAL, représentant légal et Président Directeur Général de Fyndzz SAS</p>
 
             <div style={sectionTitle}>2. Hébergement</div>
             <p style={para}>
@@ -105,7 +105,7 @@ export default function LegalPage() {
 
             <div style={sectionTitle}>6. Droit applicable</div>
             <p style={para}>
-              Le présent site est soumis au droit français. En cas de litige, les tribunaux français seront seuls compétents. Pour toute réclamation, vous pouvez contacter Fyndzz SAS à l'adresse hello@fyndzz.io avant toute action judiciaire.
+              Le présent site est soumis au droit français. En cas de litige, les tribunaux français seront seuls compétents. Pour toute réclamation, vous pouvez contacter Fyndzz SAS à l'adresse contact@fyndzz.fr avant toute action judiciaire.
             </p>
           </div>
         )}
@@ -140,7 +140,7 @@ export default function LegalPage() {
             </p>
             <div style={subTitle}>2.3 Sécurité du compte</div>
             <p style={para}>
-              Vous êtes seul responsable de la confidentialité de vos identifiants de connexion. Toute utilisation du service réalisée depuis votre compte est réputée être effectuée par vous. En cas de suspicion d'utilisation frauduleuse, vous devez immédiatement contacter Fyndzz SAS à l'adresse hello@fyndzz.io.
+              Vous êtes seul responsable de la confidentialité de vos identifiants de connexion. Toute utilisation du service réalisée depuis votre compte est réputée être effectuée par vous. En cas de suspicion d'utilisation frauduleuse, vous devez immédiatement contacter Fyndzz SAS à l'adresse contact@fyndzz.fr.
             </p>
 
             <div style={sectionTitle}>3. Utilisation du service</div>

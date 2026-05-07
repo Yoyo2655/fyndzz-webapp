@@ -96,7 +96,7 @@ export default function LandingPage() {
         </h1>
 
         <p style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.6)', lineHeight: '1.75', maxWidth: '560px', margin: '0 auto 2.5rem', fontWeight: '300' }}>
-          Fyndzz© est une application mobile propulsée par l’IA qui aide les Fyndzzers – conducteurs utilisateurs de Fyndzz© – à trouver des places de stationnement disponibles dans la rue en temps réel. <br/>
+          Fyndzz© est une application mobile propulsée par l’IA qui aide les Fyndzzers – conducteurs utilisateurs de Fyndzz© – à trouver des places de stationnement dans la rue disponibles en temps réel. <br/>
           Grâce à des données intelligentes et à une technologie de capteurs nouvelle génération, Fyndzz© optimise la recherche de stationnement, réduit les embouteillages et améliore la mobilité urbaine. 
         </p>
 
