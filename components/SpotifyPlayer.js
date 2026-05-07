@@ -8,6 +8,7 @@ export default function SpotifyPlayer() {
   const [playing, setPlaying] = useState(false)
   const [volume, setVolume] = useState(50)
   const [loading, setLoading] = useState(false)
+  const [needsPremium, setNeedsPremium] = useState(false)
 
   const checkConnected = useCallback(async () => {
     const token = await getValidToken()
@@ -17,6 +18,11 @@ export default function SpotifyPlayer() {
 
   const fetchCurrentTrack = useCallback(async () => {
     const data = await spotifyAPI('/me/player')
+    if (data === null) {
+      // 403 = pas Premium
+      setNeedsPremium(true)
+      return
+    }
     if (data?.item) {
       setTrack({
         name: data.item.name,
@@ -130,7 +136,7 @@ export default function SpotifyPlayer() {
         </>
       ) : (
         <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '12px', padding: '8px 0' }}>
-          Aucune lecture en cours
+            {needsPremium ? '⚠️ Spotify Premium requis' : 'Aucune lecture en cours'}
         </div>
       )}
     </div>
