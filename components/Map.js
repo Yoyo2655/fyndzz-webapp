@@ -210,6 +210,21 @@ export default function Map({ sensors = [], onRouteFound, navMode, currentStep, 
         loadFuelStations(pos.lat, pos.lng, s.show_fuel ?? false, s.show_elec ?? false)
       }
 
+      window.__fyndzz_reload_sensors = () => {
+        const source = mapInstanceRef.current?.getSource('sensors')
+        if (!source) return
+        const s = window.__fyndzz_settings || {}
+        const show = s.show_sensors ?? true
+        source.setData({
+          type: 'FeatureCollection',
+          features: show ? (window.__fyndzz_sensors || []).map(sen => ({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [sen.lng, sen.lat] },
+            properties: { id: sen.id, street: sen.street, is_free: sen.is_free, color: sen.is_free ? '#00FF66' : '#FF4D6D' }
+          })) : []
+        })
+      }
+
       mapInstanceRef.current.on('load', () => {
         if (!mapInstanceRef.current.getSource('route')) {
           mapInstanceRef.current.addSource('route', {
@@ -388,13 +403,14 @@ export default function Map({ sensors = [], onRouteFound, navMode, currentStep, 
     const updateSensors = () => {
       const source = mapInstanceRef.current?.getSource('sensors')
       if (!source) { setTimeout(updateSensors, 500); return }
+      const show = window.__fyndzz_settings?.show_sensors ?? true
       source.setData({
         type: 'FeatureCollection',
-        features: sensors.map(s => ({
+        features: show ? sensors.map(s => ({
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
           properties: { id: s.id, street: s.street, is_free: s.is_free, color: s.is_free ? '#00FF66' : '#FF4D6D' }
-        }))
+        })) : []
       })
     }
     updateSensors()

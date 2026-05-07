@@ -61,7 +61,7 @@ export default function MapPage() {
       if (data.user) {
         const { data: profile, error } = await supabase
           .from('profiles')
-          .select('first_name, last_name, gps_voice, units, fav_home, fav_home_lat, fav_home_lng, fav_work, fav_work_lat, fav_work_lng, fav_3_name, fav_3_lat, fav_3_lng, fav_4_name, fav_4_lat, fav_4_lng, fav_5_name, fav_5_lat, fav_5_lng, avoid_tolls, avoid_highways, show_fuel, show_elec, recent_destinations')
+          .select('first_name, last_name, gps_voice, units, fav_home, fav_home_lat, fav_home_lng, fav_work, fav_work_lat, fav_work_lng, fav_3_name, fav_3_lat, fav_3_lng, fav_4_name, fav_4_lat, fav_4_lng, fav_5_name, fav_5_lat, fav_5_lng, avoid_tolls, avoid_highways, show_fuel, show_elec, recent_destinations, show_sensors')  // ← ajoute show_sensors
           .eq('id', data.user.id)
           .single()
         console.log('profile:', profile)
@@ -83,6 +83,7 @@ export default function MapPage() {
             avoid_highways: profile.avoid_highways ?? false,
             show_fuel: profile.show_fuel ?? false,
             show_elec: profile.show_elec ?? false,
+            show_sensors: profile.show_sensors ?? true,
           }
 
           // Favoris

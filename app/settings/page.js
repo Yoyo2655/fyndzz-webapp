@@ -37,6 +37,7 @@ export default function SettingsPage() {
     fav_3_name: '', fav_3_lat: null, fav_3_lng: null,
     fav_4_name: '', fav_4_lat: null, fav_4_lng: null,
     fav_5_name: '', fav_5_lat: null, fav_5_lng: null,
+    show_sensors: true,
   })
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function SettingsPage() {
           avoid_highways: data.avoid_highways ?? false,
           show_fuel: data.show_fuel ?? false,
           show_elec: data.show_elec ?? false,
+          show_sensors: data.show_sensors ?? true,
           fav_home: data.fav_home || '',
           fav_home_lat: data.fav_home_lat,
           fav_home_lng: data.fav_home_lng,
@@ -127,6 +129,7 @@ export default function SettingsPage() {
       avoid_highways: settings.avoid_highways,
       show_fuel: settings.show_fuel,
       show_elec: settings.show_elec,
+      show_sensors: settings.show_sensors,
       fav_home: settings.fav_home,
       fav_home_lat: settings.fav_home_lat,
       fav_home_lng: settings.fav_home_lng,
@@ -154,8 +157,10 @@ export default function SettingsPage() {
         units: settings.units,
         avoid_tolls: settings.avoid_tolls,
         avoid_highways: settings.avoid_highways,
+        show_sensors: settings.show_sensors,
       }
       window.__fyndzz_reload_stations?.()
+      window.__fyndzz_reload_sensors?.()
     }
 
     setSaving(false)
@@ -301,6 +306,19 @@ export default function SettingsPage() {
         {/* ── CARTE ── */}
         <section>
           <h2 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">Carte</h2>
+          <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#00FF66]/20 flex items-center justify-center">
+                <span className="text-lg">🟢</span>
+              </div>
+              <div>
+                <div className="font-bold text-white">Capteurs de stationnement</div>
+                <div className="text-xs text-white/40">Afficher les places libres/occupées</div>
+              </div>
+            </div>
+            <Toggle value={settings.show_sensors} onChange={() => setSettings(p => ({ ...p, show_sensors: !p.show_sensors }))} />
+          </div>
+
           <div className="space-y-3">
             <div className="bg-white/08 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
