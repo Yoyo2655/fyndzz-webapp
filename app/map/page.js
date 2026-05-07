@@ -7,31 +7,18 @@ import Image from 'next/image'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import SimulateGPS from '@/components/SimulateGPS'
+import SpotifyPlayer from '@/components/SpotifyPlayer'
 import { 
-  Search, 
-  Menu, 
-  X, 
-  Navigation, 
-  Mic, 
-  ChevronUp, 
-  Navigation2, 
-  User, 
-  Settings, 
-  LogOut,
-  MapPin,
-  Clock,
-  Zap,
-  ArrowRightLeft
+  Search, Menu, X, Navigation, Mic, ChevronUp, Navigation2, 
+  User, Settings, LogOut, MapPin, Clock, Zap, ArrowRightLeft
 } from 'lucide-react'
 
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
 
-// --- CONSTANTES DESIGN FYNDZZ ---
-const BRAND_GRADIENT = "bg-gradient-to-b from-[#160C6B] to-[#3D2CD5]";
-const ACCENT_GREEN = "#00FF66";
+const BRAND_GRADIENT = "bg-gradient-to-b from-[#160C6B] to-[#3D2CD5]"
+const ACCENT_GREEN = "#00FF66"
 
 export default function MapPage() {
-  // ─── ÉTAT ET LOGIQUE (CONSERVÉS À L'IDENTIQUE) ───
   const [sensors, setSensors] = useState([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState(null)
@@ -42,7 +29,17 @@ export default function MapPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [initials, setInitials] = useState('?')
+  const [plannerOpen, setPlannerOpen] = useState(false)
+  const [plannerFrom, setPlannerFrom] = useState('')
+  const [plannerTo, setPlannerTo] = useState('')
+  const [plannerFromCoords, setPlannerFromCoords] = useState(null)
+  const [plannerToCoords, setPlannerToCoords] = useState(null)
+  const [plannerSuggestions, setPlannerSuggestions] = useState([])
+  const [plannerFocused, setPlannerFocused] = useState(null)
   const debounceRef = useRef(null)
+  const debounceFromRef = useRef(null)
+  const debounceToRef = useRef(null)
 
   const free = sensors.filter(s => s.is_free).length
   const taken = sensors.length - free
@@ -59,23 +56,19 @@ export default function MapPage() {
     supabase.auth.getUser().then(async ({ data }) => {
       setUser(data.user)
       if (data.user) {
-        const { data: profile, error } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
-          .select('first_name, last_name, gps_voice, units, fav_home, fav_home_lat, fav_home_lng, fav_work, fav_work_lat, fav_work_lng, fav_3_name, fav_3_lat, fav_3_lng, fav_4_name, fav_4_lat, fav_4_lng, fav_5_name, fav_5_lat, fav_5_lng, avoid_tolls, avoid_highways, show_fuel, show_elec, recent_destinations, show_sensors')  // ← ajoute show_sensors
+          .select('first_name, last_name, gps_voice, units, fav_home, fav_home_lat, fav_home_lng, fav_work, fav_work_lat, fav_work_lng, fav_3_name, fav_3_lat, fav_3_lng, fav_4_name, fav_4_lat, fav_4_lng, fav_5_name, fav_5_lat, fav_5_lng, avoid_tolls, avoid_highways, show_fuel, show_elec, show_sensors')
           .eq('id', data.user.id)
           .single()
-        console.log('profile:', profile)
-        console.log('error:', error)
 
         if (profile) {
-          // Initiales
           if (profile.first_name || profile.last_name) {
             setInitials(`${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase())
           } else {
             setInitials(data.user.email?.slice(0, 2).toUpperCase() || '?')
           }
 
-          // Settings globaux
           window.__fyndzz_settings = {
             gps_voice: profile.gps_voice ?? true,
             units: profile.units ?? 'km',
@@ -86,7 +79,6 @@ export default function MapPage() {
             show_sensors: profile.show_sensors ?? true,
           }
 
-          // Favoris
           window.__fyndzz_favs = [
             profile.fav_home ? { label: 'Maison', name: profile.fav_home, lat: profile.fav_home_lat, lng: profile.fav_home_lng } : null,
             profile.fav_work ? { label: 'Travail', name: profile.fav_work, lat: profile.fav_work_lat, lng: profile.fav_work_lng } : null,
@@ -132,16 +124,10 @@ export default function MapPage() {
   const handleSearchInput = (value) => {
     setSearch(value)
     clearTimeout(debounceRef.current)
-    if (!value.trim() || value.length < 4) {
-      setSuggestions([])
-      setShowSuggestions(false)
-      return
-    }
+    if (!value.trim() || value.length < 4) { setSuggestions([]); setShowSuggestions(false); return }
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5&countrycodes=fr&addressdetails=1`
-        )
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5&countrycodes=fr&addressdetails=1`)
         const data = await res.json()
         setSuggestions(data)
         setShowSuggestions(true)
@@ -153,16 +139,13 @@ export default function MapPage() {
     setSearch(suggestion.display_name.split(',')[0])
     setShowSuggestions(false)
     setSuggestions([])
-    window.__fyndzz_destination = {
-      lat: parseFloat(suggestion.lat),
-      lng: parseFloat(suggestion.lon)
-    }
+    window.__fyndzz_destination = { lat: parseFloat(suggestion.lat), lng: parseFloat(suggestion.lon) }
     window.__fyndzz_search_trigger?.()
   }
 
   const speak = useCallback((text) => {
     if (!window.speechSynthesis || !text) return
-    if (window.__fyndzz_settings?.gps_voice === false) return // ← ajoute ça
+    if (window.__fyndzz_settings?.gps_voice === false) return
     window.speechSynthesis.cancel()
     const utt = new SpeechSynthesisUtterance(text)
     utt.lang = 'fr-FR'
@@ -235,13 +218,10 @@ export default function MapPage() {
   const searchPlanner = async (value, field) => {
     if (field === 'from') setPlannerFrom(value)
     else setPlannerTo(value)
-    
-    const debounceRef = field === 'from' ? debounceFromRef : debounceToRef
-    clearTimeout(debounceRef.current)
-    
+    const ref = field === 'from' ? debounceFromRef : debounceToRef
+    clearTimeout(ref.current)
     if (!value.trim() || value.length < 4) { setPlannerSuggestions([]); return }
-    
-    debounceRef.current = setTimeout(async () => {
+    ref.current = setTimeout(async () => {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=4&countrycodes=fr`)
         const data = await res.json()
@@ -269,25 +249,14 @@ export default function MapPage() {
 
   const co2Saved = routeInfo ? Math.round(routeInfo.dist * 0.00012 * 100) / 100 : 0
   const price = routeInfo ? (Math.ceil(routeInfo.mins / 30) * 1.2).toFixed(2) : 0
-  const [initials, setInitials] = useState('?')
   const currentStepData = routeInfo?.steps?.[currentStep]
   const totalSteps = routeInfo?.steps?.length || 0
-  const walkDistLabel = routeInfo?.walkDist ? (routeInfo.walkDist > 1000 ? `${(routeInfo.walkDist / 1000).toFixed(1)}km` : `${routeInfo.walkDist}m`) : null
-  const [plannerOpen, setPlannerOpen] = useState(false)
-  const [plannerFrom, setPlannerFrom] = useState('')
-  const [plannerTo, setPlannerTo] = useState('')
-  const [plannerFromCoords, setPlannerFromCoords] = useState(null)
-  const [plannerToCoords, setPlannerToCoords] = useState(null)
-  const [plannerSuggestions, setPlannerSuggestions] = useState([])
-  const [plannerFocused, setPlannerFocused] = useState(null) // 'from' | 'to'
-  const debounceFromRef = useRef(null)
-  const debounceToRef = useRef(null)
 
   return (
     <ProtectedRoute>
       <div className="relative h-screen w-screen overflow-hidden bg-[#160C6B] font-sans selection:bg-[#00FF66]">
-        
-        {/* ── CARTE (Z-INDEX 1) ── */}
+
+        {/* ── CARTE ── */}
         <div className="absolute inset-0 z-0">
           <Map
             sensors={sensors}
@@ -301,24 +270,21 @@ export default function MapPage() {
           )}
         </div>
 
-        {/* ══════════════ MODE NAVIGATION (Z-INDEX 50) ══════════════ */}
+        {/* ══════════════ MODE NAVIGATION ══════════════ */}
         {navMode && (
           <div className="absolute inset-0 z-50 pointer-events-none flex flex-col">
-            {/* Bandeau d'instruction (Haut) */}
+
+            {/* Bandeau haut */}
             <div className={`pointer-events-auto p-5 pt-[calc(1.25rem+env(safe-area-inset-top))] ${BRAND_GRADIENT} rounded-b-[2.5rem] shadow-2xl border-b border-white/10 animate-in slide-in-from-top duration-500`}>
               <div className="max-w-xl mx-auto flex items-center gap-4">
                 <div className="w-14 h-14 bg-[#00FF66] rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-[#00FF66]/30">
                   {getStepIcon(currentStepData)}
                 </div>
                 <div className="flex-1">
-                  <div className="text-white font-black text-xl leading-tight">
-                    {formatStep(currentStepData)}
-                  </div>
+                  <div className="text-white font-black text-xl leading-tight">{formatStep(currentStepData)}</div>
                   {currentStepData?.distance > 0 && (
                     <div className="text-white/60 font-bold text-sm mt-1">
-                      <span className="text-[#00FF66]">
-                        {formatDist(currentStepData.distance)}
-                      </span>
+                      <span className="text-[#00FF66]">{formatDist(currentStepData.distance)}</span>
                       <span className="mx-2 opacity-30">|</span>
                       Étape {currentStep + 1}/{totalSteps}
                     </div>
@@ -329,72 +295,65 @@ export default function MapPage() {
                 </button>
               </div>
               <div className="max-w-xl mx-auto mt-4 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-[#00FF66] transition-all duration-700" 
-                  style={{ width: `${totalSteps > 0 ? ((currentStep + 1) / totalSteps) * 100 : 0}%` }}
-                />
+                <div className="h-full bg-[#00FF66] transition-all duration-700" style={{ width: `${totalSteps > 0 ? ((currentStep + 1) / totalSteps) * 100 : 0}%` }} />
               </div>
             </div>
 
             <div className="flex-1" />
 
-            {/* Panneau Stats GPS (Bas) */}
+            {/* Panneau bas */}
             <div className="pointer-events-auto bg-white/95 backdrop-blur-xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] rounded-t-[3rem] shadow-[0_-15px_40px_-10px_rgba(22,12,107,0.2)] border-t border-slate-100 animate-in slide-in-from-bottom duration-500">
-               <div className="max-w-xl mx-auto flex flex-col gap-6">
-                  <div className="flex justify-around items-center">
-                    <div className="text-center">
-                      <div className="text-3xl font-black text-[#160C6B]">{routeInfo?.mins} min</div>
-                      <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">Temps</div>
-                    </div>
-                    <div className="w-[1px] h-10 bg-slate-100" />
-                    <div className="text-center">
-                      <div className="text-2xl font-black text-slate-800">
-                        {formatDist(routeInfo?.dist || 0)}
-                      </div>
-                      <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">Distance</div>
-                    </div>
-                    <div className="w-[1px] h-10 bg-slate-100" />
-                    <div className="text-center">
-                      <div className="text-2xl font-black text-[#00FF66]">-{co2Saved}kg</div>
-                      <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">CO₂ Évité</div>
-                    </div>
+              <div className="max-w-xl mx-auto flex flex-col gap-6">
+                <div className="flex justify-around items-center">
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-[#160C6B]">{routeInfo?.mins} min</div>
+                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">Temps</div>
                   </div>
-                  
-                  <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#3D2CD5] rounded-xl flex items-center justify-center text-white">
-                        <MapPin size={20} />
-                      </div>
-                      <div className="font-bold text-slate-700 truncate max-w-[200px]">
-                        {routeInfo?.street}
-                      </div>
-                    </div>
-                    <div className="text-amber-500 font-black text-lg">{price}€</div>
+                  <div className="w-[1px] h-10 bg-slate-100" />
+                  <div className="text-center">
+                    <div className="text-2xl font-black text-slate-800">{formatDist(routeInfo?.dist || 0)}</div>
+                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">Distance</div>
                   </div>
-               </div>
+                  <div className="w-[1px] h-10 bg-slate-100" />
+                  <div className="text-center">
+                    <div className="text-2xl font-black text-[#00FF66]">-{co2Saved}kg</div>
+                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">CO₂ Évité</div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#3D2CD5] rounded-xl flex items-center justify-center text-white">
+                      <MapPin size={20} />
+                    </div>
+                    <div className="font-bold text-slate-700 truncate max-w-[200px]">{routeInfo?.street}</div>
+                  </div>
+                  <div className="text-amber-500 font-black text-lg">{price}€</div>
+                </div>
+              </div>
             </div>
+
           </div>
         )}
 
-        {/* ══════════════ MODE NORMAL (Z-INDEX 40) ══════════════ */}
+        {/* ══════════════ MODE NORMAL ══════════════ */}
         {!navMode && (
           <div className="absolute inset-0 z-40 pointer-events-none flex flex-col">
-            
-            {/* Header Flottant (Waze Style) */}
+
+            {/* Header flottant */}
             <div className="pointer-events-auto p-4 flex items-center gap-3 max-w-2xl w-full mx-auto mt-4">
-              <button 
+              <button
                 onClick={() => setSidebarOpen(true)}
                 className={`w-14 h-14 flex items-center justify-center rounded-2xl text-white shadow-xl hover:scale-105 active:scale-95 transition-all ${BRAND_GRADIENT}`}
               >
                 <Menu size={24} />
               </button>
-              
+
               <div className="flex-1 relative">
                 <div className="bg-white h-14 rounded-2xl shadow-xl flex items-center px-5 gap-3 border border-slate-100">
-                  <Image src="/Logo-blue-RBG_Fyndzz.png" alt="Fyndzz" width={48} height={48} style={{ objectFit: 'contain', flexShrink: 0, opacity: 1 }} />
+                  <Image src="/Logo-blue-RBG_Fyndzz.png" alt="Fyndzz" width={48} height={48} style={{ objectFit: 'contain', flexShrink: 0 }} />
                   <form onSubmit={handleSearch} className="flex-1">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={search}
                       onChange={e => handleSearchInput(e.target.value)}
                       onFocus={() => {
@@ -402,52 +361,31 @@ export default function MapPage() {
                         else if (!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0) setShowSuggestions(true)
                       }}
                       onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                      placeholder="Where to ?" 
+                      placeholder="Où va-t-on ?"
                       className="w-full outline-none text-slate-800 font-bold placeholder-slate-400 bg-transparent text-lg"
                     />
                   </form>
                   {search && !searching && (
                     <>
-                      <button
-                        onClick={() => { setSearch(''); setSuggestions([]); setShowSuggestions(false) }}
-                        className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
-                      >
+                      <button onClick={() => { setSearch(''); setSuggestions([]); setShowSuggestions(false) }} className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0">
                         <X size={18} />
                       </button>
-                      <button
-                        onClick={handleSearch}
-                        className="text-white bg-[#3D2CD5] p-2 rounded-xl flex-shrink-0 hover:scale-105 active:scale-95 transition-all"
-                      >
+                      <button onClick={handleSearch} className="text-white bg-[#3D2CD5] p-2 rounded-xl flex-shrink-0 hover:scale-105 active:scale-95 transition-all">
                         <Navigation size={16} fill="currentColor" />
                       </button>
                     </>
                   )}
-                  {searching && (
-                    <div className="w-5 h-5 border-2 border-[#3D2CD5] border-t-transparent animate-spin rounded-full flex-shrink-0" />
-                  )}
+                  {searching && <div className="w-5 h-5 border-2 border-[#3D2CD5] border-t-transparent animate-spin rounded-full flex-shrink-0" />}
                 </div>
 
-                {/* Suggestions + Favoris */}
-                {(showSuggestions && (suggestions.length > 0 || (!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0))) ? (
+                {/* Suggestions */}
+                {(showSuggestions && (suggestions.length > 0 || (!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0))) && (
                   <div className="absolute top-16 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50">
-                    
-                    {/* Favoris — affichés quand la barre est vide */}
                     {!search && typeof window !== 'undefined' && window.__fyndzz_favs?.length > 0 && (
                       <>
-                        <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                          Lieux enregistrés
-                        </div>
+                        <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lieux enregistrés</div>
                         {window.__fyndzz_favs.map((fav, i) => (
-                          <button
-                            key={i}
-                            onMouseDown={() => {
-                              setSearch(fav.name)
-                              setShowSuggestions(false)
-                              window.__fyndzz_destination = { lat: fav.lat, lng: fav.lng }
-                              window.__fyndzz_search_trigger?.()
-                            }}
-                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left"
-                          >
+                          <button key={i} onMouseDown={() => { setSearch(fav.name); setShowSuggestions(false); window.__fyndzz_destination = { lat: fav.lat, lng: fav.lng }; window.__fyndzz_search_trigger?.() }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left">
                             <div className="w-8 h-8 bg-[#3D2CD5]/10 rounded-xl flex items-center justify-center flex-shrink-0 text-sm">
                               {fav.label === 'Maison' ? '🏠' : fav.label === 'Travail' ? '💼' : '📍'}
                             </div>
@@ -460,29 +398,19 @@ export default function MapPage() {
                         {suggestions.length > 0 && <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest border-t border-slate-50">Résultats</div>}
                       </>
                     )}
-
-                    {/* Suggestions Nominatim */}
-                    {suggestions.map((s, i) => {
-                      const main = s.display_name.split(',')[0]
-                      const secondary = s.display_name.split(',').slice(1, 3).join(',').trim()
-                      return (
-                        <button
-                          key={i}
-                          onMouseDown={() => selectSuggestion(s)}
-                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left"
-                        >
-                          <div className="w-8 h-8 bg-[#3D2CD5]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <MapPin size={16} className="text-[#3D2CD5]" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-slate-800 text-sm truncate">{main}</div>
-                            <div className="text-slate-400 text-xs truncate">{secondary}</div>
-                          </div>
-                        </button>
-                      )
-                    })}
+                    {suggestions.map((s, i) => (
+                      <button key={i} onMouseDown={() => selectSuggestion(s)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left">
+                        <div className="w-8 h-8 bg-[#3D2CD5]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <MapPin size={16} className="text-[#3D2CD5]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-slate-800 text-sm truncate">{s.display_name.split(',')[0]}</div>
+                          <div className="text-slate-400 text-xs truncate">{s.display_name.split(',').slice(1, 3).join(',').trim()}</div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                ) : null}
+                )}
               </div>
 
               <Link href="/profile" className="w-14 h-14 rounded-2xl shadow-xl overflow-hidden border-2 border-white hover:scale-105 transition-transform bg-white flex items-center justify-center flex-shrink-0">
@@ -492,8 +420,10 @@ export default function MapPage() {
               </Link>
             </div>
 
-            {/* Sidebar / Drawer (Gauche) */}
+            {/* ── SIDEBAR ── */}
             <div className={`pointer-events-auto absolute inset-y-0 left-0 w-80 shadow-2xl z-50 transform transition-transform duration-500 ease-out p-6 flex flex-col rounded-r-[3rem] ${BRAND_GRADIENT} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+              
+              {/* Header sidebar */}
               <div className="flex items-center justify-between mb-8">
                 <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={140} height={40} className="object-contain" />
                 <button onClick={() => setSidebarOpen(false)} className="p-2 bg-white/10 rounded-full text-white/60 hover:bg-white/20 transition-colors">
@@ -501,8 +431,10 @@ export default function MapPage() {
                 </button>
               </div>
 
+              {/* Contenu scrollable */}
               <div className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                {/* Stats Section */}
+
+                {/* Stats */}
                 <div className="bg-white/10 p-5 rounded-3xl text-white border border-white/10">
                   <h3 className="text-xs font-black uppercase tracking-widest opacity-60 mb-4">Temps Réel</h3>
                   <div className="grid grid-cols-2 gap-4">
@@ -520,61 +452,61 @@ export default function MapPage() {
                       <span>Occupation</span><span>{pct}%</span>
                     </div>
                     <div className="h-1.5 bg-white/10 rounded-full">
-                      <div className="h-full rounded-full" style={{ 
-                        width: `${pct}%`,
-                        background: pct > 70 ? '#FF4D6D' : pct > 50 ? '#FFB800' : '#00FF66'
-                      }} />
+                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: pct > 70 ? '#FF4D6D' : pct > 50 ? '#FFB800' : '#00FF66' }} />
                     </div>
                   </div>
                 </div>
 
-                {/* Street List */}
+                {/* Par rue */}
                 <div className="space-y-3">
                   <h3 className="text-white/40 font-black text-[10px] uppercase tracking-widest">Places par rue</h3>
-                  {Object.entries(byStreet).map(([street, data]) => (
-                    <div key={street} className="flex flex-col gap-1.5 p-3 hover:bg-white/10 rounded-2xl transition-colors">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-white text-sm truncate max-w-[150px]">{street}</span>
-                        {(() => {
-                          const ratio = data.free / data.total
-                          const color = ratio <= 0.2 ? '#FF4D6D' : ratio <= 0.5 ? '#FFB800' : '#00FF66'
-                          return (
-                            <span className="text-[10px] font-black px-2 py-0.5 rounded-md" style={{ color, background: `${color}20` }}>
-                              {data.free}/{data.total}
-                            </span>
-                          )
-                        })()}
+                  {Object.entries(byStreet).map(([street, data]) => {
+                    const ratio = data.free / data.total
+                    const color = ratio <= 0.2 ? '#FF4D6D' : ratio <= 0.5 ? '#FFB800' : '#00FF66'
+                    return (
+                      <div key={street} className="flex flex-col gap-1.5 p-3 hover:bg-white/10 rounded-2xl transition-colors">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-white text-sm truncate max-w-[150px]">{street}</span>
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md" style={{ color, background: `${color}20` }}>
+                            {data.free}/{data.total}
+                          </span>
+                        </div>
+                        <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-full" style={{ width: `${ratio * 100}%`, background: color }} />
+                        </div>
                       </div>
-                      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full" style={{ 
-                          width: `${(data.free / data.total) * 100}%`,
-                          background: data.free / data.total <= 0.2 ? '#FF4D6D' : data.free / data.total <= 0.5 ? '#FFB800' : '#00FF66'
-                        }} />
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
+
               </div>
 
+              {/* Footer sidebar */}
               <div className="mt-6 pt-6 border-t border-white/10 space-y-2">
+
+                {/* Spotify */}
+                <div className="mb-2">
+                  <SpotifyPlayer />
+                </div>
+
                 <Link href="/settings" className="flex items-center gap-4 p-4 rounded-2xl font-bold text-white/70 hover:bg-white/10 transition-colors">
                   <Settings size={20} /> Paramètres
                 </Link>
+
                 <button
-                  onClick={async () => {
-                    await supabase.auth.signOut()
-                    window.location.href = '/'
-                  }}
+                  onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}
                   className="w-full flex items-center gap-4 p-4 rounded-2xl font-bold text-red-400 hover:bg-red-500/10 transition-colors"
                 >
                   <LogOut size={20} /> Déconnexion
                 </button>
+
               </div>
             </div>
+            {/* ── FIN SIDEBAR ── */}
 
             <div className="flex-1" />
 
-            {/* Barre d'info "Route trouvée" (Waze ETA Bubble) */}
+            {/* Route trouvée */}
             {routeInfo && (
               <div className="pointer-events-auto mx-4 mb-24 max-w-xl self-center bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(22,12,107,0.25)] border border-slate-100 p-6 flex flex-col gap-6 animate-in zoom-in duration-300">
                 <div className="flex items-center justify-between">
@@ -587,24 +519,22 @@ export default function MapPage() {
                       <MapPin size={14} className="text-[#3D2CD5]" /> {routeInfo.street}
                     </div>
                   </div>
-                  <button onClick={() => { setRouteInfo(null); window.__fyndzz_clear_route?.() }} className="p-2 bg-slate-100 rounded-full text-slate-400 hover:bg-slate-200 transition-colors"><X size={18}/></button>
+                  <button onClick={() => { setRouteInfo(null); window.__fyndzz_clear_route?.() }} className="p-2 bg-slate-100 rounded-full text-slate-400 hover:bg-slate-200 transition-colors">
+                    <X size={18} />
+                  </button>
                 </div>
-
                 <div className="flex gap-4">
-                   <div className="flex-1 grid grid-cols-2 gap-2">
-                      <div className="bg-emerald-50 p-3 rounded-2xl flex flex-col">
-                        <span className="text-emerald-600 font-black text-xs uppercase">CO₂</span>
-                        <span className="text-emerald-700 font-black">-{co2Saved}kg</span>
-                      </div>
-                      <div className="bg-slate-50 p-3 rounded-2xl flex flex-col">
-                        <span className="text-slate-400 font-black text-xs uppercase">Distance</span>
-                        <span className="text-slate-700 font-black">{formatDist(routeInfo.dist)}</span>
-                      </div>
-                   </div>
-                   <button 
-                    onClick={startNavigation}
-                    className={`${BRAND_GRADIENT} text-white px-8 h-16 rounded-2xl font-black text-xl shadow-xl shadow-[#3D2CD5]/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3`}
-                  >
+                  <div className="flex-1 grid grid-cols-2 gap-2">
+                    <div className="bg-emerald-50 p-3 rounded-2xl flex flex-col">
+                      <span className="text-emerald-600 font-black text-xs uppercase">CO₂</span>
+                      <span className="text-emerald-700 font-black">-{co2Saved}kg</span>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded-2xl flex flex-col">
+                      <span className="text-slate-400 font-black text-xs uppercase">Distance</span>
+                      <span className="text-slate-700 font-black">{formatDist(routeInfo.dist)}</span>
+                    </div>
+                  </div>
+                  <button onClick={startNavigation} className={`${BRAND_GRADIENT} text-white px-8 h-16 rounded-2xl font-black text-xl shadow-xl shadow-[#3D2CD5]/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3`}>
                     <span>Y ALLER</span>
                     <Navigation size={22} fill="currentColor" />
                   </button>
@@ -612,73 +542,48 @@ export default function MapPage() {
               </div>
             )}
 
-            {/* Bottom Nav Bar (Waze Mobile Style) */}
+            {/* Bottom bar */}
             <div className="pointer-events-auto bg-white/95 backdrop-blur-xl h-20 border-t border-slate-100 flex items-center justify-around px-6 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] rounded-t-[2.5rem]">
               <Link href="/profile" className="flex flex-col items-center gap-1 group">
                 <User size={22} className="text-slate-400 group-hover:text-[#3D2CD5] transition-colors" />
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider group-hover:text-[#3D2CD5]">Profil</span>
               </Link>
-              
               <Link href="/map" className="relative -mt-10 group">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-90 border-4 border-white ${BRAND_GRADIENT}`}>
                   <Navigation size={28} className="text-[#00FF66]" fill="currentColor" />
                 </div>
               </Link>
-
               <Link href="/payment" className="flex flex-col items-center gap-1 group">
                 <Zap size={22} className="text-slate-400 group-hover:text-[#00FF66] transition-colors" />
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider group-hover:text-[#00FF66]">Premium</span>
               </Link>
             </div>
+
           </div>
         )}
 
-        {/* Bouton Planner */}
+        {/* Planner */}
         {!navMode && (
           <>
             <button
-              className={`absolute right-6 bottom-48 z-40 p-4 rounded-2xl shadow-xl transition-all hover:scale-110 active:scale-90 border-2 border-white ${
-                plannerOpen ? 'bg-[#160C6B] text-white' : 'bg-[#00FF66] text-[#160C6B]'
-              }`}
-              // Modification ici pour alterner entre true et false (fermer/ouvrir)
               onClick={() => setPlannerOpen(!plannerOpen)}
+              className={`absolute right-6 bottom-48 z-40 p-4 rounded-2xl shadow-xl transition-all hover:scale-110 active:scale-90 border-2 border-white ${plannerOpen ? 'bg-[#160C6B] text-white' : 'bg-[#00FF66] text-[#160C6B]'}`}
             >
               {plannerOpen ? <X size={24} /> : <ArrowRightLeft size={24} />}
             </button>
 
-            {/* Panneau Planner */}
             {plannerOpen && (
-              <div className="absolute inset-x-4 bottom-36 z-50 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden"
-                style={{ maxWidth: '480px', margin: '0 auto', left: '50%', transform: 'translateX(-50%)', right: 'auto', width: 'calc(100% - 2rem)' }}
-              >
-                {/* Header */}
+              <div className="absolute inset-x-4 bottom-36 z-50 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden" style={{ maxWidth: '480px', margin: '0 auto', left: '50%', transform: 'translateX(-50%)', right: 'auto', width: 'calc(100% - 2rem)' }}>
                 <div className="flex items-center justify-between px-5 pt-5 pb-3">
                   <span className="font-black text-[#160C6B] text-sm uppercase tracking-widest">Planifier un trajet</span>
-                  <button onClick={() => setPlannerOpen(false)} className="p-1.5 bg-slate-100 rounded-full text-slate-400">
-                    <X size={16} />
-                  </button>
+                  <button onClick={() => setPlannerOpen(false)} className="p-1.5 bg-slate-100 rounded-full text-slate-400"><X size={16} /></button>
                 </div>
-
-                {/* Champs */}
                 <div className="px-4 pb-4 space-y-2">
-                  {/* Départ */}
                   <div className="relative">
                     <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
                       <div className="w-3 h-3 rounded-full border-2 border-[#00FF66] flex-shrink-0" />
-                      <input
-                        type="text"
-                        value={plannerFrom}
-                        onChange={e => searchPlanner(e.target.value, 'from')}
-                        onFocus={() => setPlannerFocused('from')}
-                        onBlur={() => setTimeout(() => setPlannerFocused(null), 150)}
-                        placeholder="Point de départ..."
-                        className="flex-1 bg-transparent outline-none text-slate-700 font-bold text-sm placeholder-slate-400"
-                      />
-                      {plannerFrom && (
-                        <button onClick={() => { setPlannerFrom(''); setPlannerFromCoords(null) }}>
-                          <X size={14} className="text-slate-400" />
-                        </button>
-                      )}
+                      <input type="text" value={plannerFrom} onChange={e => searchPlanner(e.target.value, 'from')} onFocus={() => setPlannerFocused('from')} onBlur={() => setTimeout(() => setPlannerFocused(null), 150)} placeholder="Point de départ..." className="flex-1 bg-transparent outline-none text-slate-700 font-bold text-sm placeholder-slate-400" />
+                      {plannerFrom && <button onClick={() => { setPlannerFrom(''); setPlannerFromCoords(null) }}><X size={14} className="text-slate-400" /></button>}
                     </div>
                     {plannerFocused === 'from' && plannerSuggestions.filter(s => s.field === 'from').length > 0 && (
                       <div className="absolute top-14 left-0 right-0 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden">
@@ -694,28 +599,12 @@ export default function MapPage() {
                       </div>
                     )}
                   </div>
-
-                  {/* Ligne verticale */}
                   <div className="w-px h-3 bg-slate-200 ml-6" />
-
-                  {/* Destination */}
                   <div className="relative">
                     <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
                       <div className="w-3 h-3 rounded-full bg-[#160C6B] flex-shrink-0" />
-                      <input
-                        type="text"
-                        value={plannerTo}
-                        onChange={e => searchPlanner(e.target.value, 'to')}
-                        onFocus={() => setPlannerFocused('to')}
-                        onBlur={() => setTimeout(() => setPlannerFocused(null), 150)}
-                        placeholder="Destination..."
-                        className="flex-1 bg-transparent outline-none text-slate-700 font-bold text-sm placeholder-slate-400"
-                      />
-                      {plannerTo && (
-                        <button onClick={() => { setPlannerTo(''); setPlannerToCoords(null) }}>
-                          <X size={14} className="text-slate-400" />
-                        </button>
-                      )}
+                      <input type="text" value={plannerTo} onChange={e => searchPlanner(e.target.value, 'to')} onFocus={() => setPlannerFocused('to')} onBlur={() => setTimeout(() => setPlannerFocused(null), 150)} placeholder="Destination..." className="flex-1 bg-transparent outline-none text-slate-700 font-bold text-sm placeholder-slate-400" />
+                      {plannerTo && <button onClick={() => { setPlannerTo(''); setPlannerToCoords(null) }}><X size={14} className="text-slate-400" /></button>}
                     </div>
                     {plannerFocused === 'to' && plannerSuggestions.filter(s => s.field === 'to').length > 0 && (
                       <div className="absolute top-14 left-0 right-0 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden">
@@ -731,15 +620,8 @@ export default function MapPage() {
                       </div>
                     )}
                   </div>
-
-                  {/* Bouton voir le trajet */}
-                  <button
-                    onClick={launchPlanner}
-                    disabled={!plannerToCoords}
-                    className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all mt-2 ${plannerToCoords ? 'bg-gradient-to-r from-[#160C6B] to-[#3D2CD5] text-white shadow-lg hover:scale-[1.02] active:scale-95' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}
-                  >
-                    Voir le trajet
-                    <Navigation size={16} fill="currentColor" />
+                  <button onClick={launchPlanner} disabled={!plannerToCoords} className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all mt-2 ${plannerToCoords ? 'bg-gradient-to-r from-[#160C6B] to-[#3D2CD5] text-white shadow-lg hover:scale-[1.02] active:scale-95' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
+                    Voir le trajet <Navigation size={16} fill="currentColor" />
                   </button>
                 </div>
               </div>
@@ -747,9 +629,9 @@ export default function MapPage() {
           </>
         )}
 
-        {/* Bouton Recentrer Flottant (Toujours visible au dessus de la carte) */}
+        {/* Recentrer */}
         {!navMode && (
-          <button 
+          <button
             className="absolute right-6 bottom-32 z-40 bg-white p-4 rounded-2xl shadow-xl text-[#3D2CD5] hover:scale-110 active:scale-90 transition-all border border-slate-100"
             onClick={() => {
               const pos = window.__fyndzz_userpos
@@ -770,6 +652,7 @@ export default function MapPage() {
             .bottom-bar { padding-bottom: env(safe-area-inset-bottom); }
           }
         `}</style>
+
       </div>
     </ProtectedRoute>
   )
