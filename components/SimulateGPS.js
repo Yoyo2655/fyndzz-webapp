@@ -32,7 +32,7 @@ export default function SimulateGPS({ onStepAdvance, routeInfo }) {
           if (onStepAdvance) onStepAdvance(i)
         }
         i++
-      }, 2000)
+      }, 6000)
 
       window.__fyndzz_simulate_stop = () => {
         clearInterval(interval)
