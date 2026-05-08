@@ -7,6 +7,17 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://fyndzz.vercel.app',
     cleartext: true
+  },
+  plugins: {
+    Geolocation: {
+      permissions: ['location']
+    },
+    SplashScreen: {
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      backgroundColor: '#160C6B',
+      showSpinner: false,
+    }
   }
 }
 
