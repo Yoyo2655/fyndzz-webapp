@@ -274,6 +274,41 @@ export default function MapPage() {
     (!search && typeof window !== 'undefined' && (window.__fyndzz_favs?.length > 0 || window.__fyndzz_recents?.length > 0))
   )
 
+  // Demander permission notifs push (Capacitor)
+  const initPush = async () => {
+    try {
+      const { PushNotifications } = await import('@capacitor/push-notifications')
+      
+      // Demander permission
+      const permission = await PushNotifications.requestPermissions()
+      
+      if (permission.receive === 'granted') {
+        await PushNotifications.register()
+      }
+
+      // Récupérer le token FCM
+      PushNotifications.addListener('registration', async (token) => {
+        console.log('FCM Token:', token.value)
+        // Sauvegarder le token en base pour envoyer des notifs plus tard
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          await supabase.from('profiles').update({
+            fcm_token: token.value
+          }).eq('id', user.id)
+        }
+      })
+
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        console.log('Notification reçue:', notification)
+      })
+
+    } catch (e) {
+      // Web — pas de push natif
+    }
+  }
+
+  initPush()
+
   return (
     <ProtectedRoute>
       <div className="relative h-screen w-screen overflow-hidden bg-[#160C6B] font-sans selection:bg-[#00FF66]">
