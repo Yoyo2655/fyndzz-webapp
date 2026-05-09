@@ -42,7 +42,7 @@ export default function LegalPage() {
           Documents légaux
         </h1>
         <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.85rem', marginBottom: '2rem' }}>
-          Dernière mise à jour : 1er janvier 2025
+          Dernière mise à jour : 10 mai 2026
         </p>
 
         {/* TABS */}
