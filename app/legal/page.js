@@ -182,7 +182,7 @@ export default function LegalPage() {
             </ul>
             <div style={subTitle}>4.3 Remboursements</div>
             <p style={para}>
-              Toute demande de remboursement doit être adressée à hello@fyndzz.io dans un délai de 48 heures suivant le paiement. Fyndzz SAS examine chaque demande au cas par cas. Aucun remboursement n'est accordé pour les sessions de stationnement déjà entamées, sauf en cas de dysfonctionnement avéré du service imputable à Fyndzz SAS.
+              Toute demande de remboursement doit être adressée à contact@fyndzz.fr dans un délai de 48 heures suivant le paiement. Fyndzz SAS examine chaque demande au cas par cas. Aucun remboursement n'est accordé pour les sessions de stationnement déjà entamées, sauf en cas de dysfonctionnement avéré du service imputable à Fyndzz SAS.
             </p>
 
             <div style={sectionTitle}>5. Disponibilité du service</div>
@@ -224,7 +224,7 @@ export default function LegalPage() {
 
             <div style={sectionTitle}>1. Responsable du traitement</div>
             <p style={para}>
-              Le responsable du traitement des données personnelles est Fyndzz SAS. Pour toute question relative à la protection de vos données, vous pouvez nous contacter à : hello@fyndzz.io
+              Le responsable du traitement des données personnelles est Fyndzz SAS. Pour toute question relative à la protection de vos données, vous pouvez nous contacter à : contact@fyndzz.fr
             </p>
 
             <div style={sectionTitle}>2. Données collectées</div>
@@ -281,7 +281,7 @@ export default function LegalPage() {
               <li style={{ marginBottom: '0.4rem' }}><strong style={{ color: '#fff' }}>Droit de retrait du consentement :</strong> retirer votre consentement à tout moment</li>
             </ul>
             <p style={para}>
-              Pour exercer vos droits, contactez-nous à hello@fyndzz.io. Nous répondrons dans un délai maximum d'un mois. Vous pouvez également introduire une réclamation auprès de la CNIL (Commission Nationale de l'Informatique et des Libertés) sur cnil.fr.
+              Pour exercer vos droits, contactez-nous à contact@fyndzz.fr. Nous répondrons dans un délai maximum d'un mois. Vous pouvez également introduire une réclamation auprès de la CNIL (Commission Nationale de l'Informatique et des Libertés) sur cnil.fr.
             </p>
 
             <div style={sectionTitle}>7. Sécurité des données</div>
@@ -299,7 +299,7 @@ export default function LegalPage() {
         {/* Footer légal */}
         <div style={{ marginTop: '3rem', padding: '1.5rem', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
           <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 0 }}>
-            Pour toute question : <a href="mailto:hello@fyndzz.io" style={{ color: '#00FF66', textDecoration: 'none' }}>hello@fyndzz.io</a>
+            Pour toute question : <a href="mailto:contact@fyndzz.fr" style={{ color: '#00FF66', textDecoration: 'none' }}>contact@fyndzz.fr</a>
             {' · '}
             <Link href="/" style={{ color: '#00FF66', textDecoration: 'none' }}>Retour à l'accueil</Link>
           </p>
