@@ -245,7 +245,7 @@ const COUNTRIES = [
 ]
 
 const formatPlate = (value) => {
-  const clean = value.replace(/[^A-Z0-9]/g, '').toUpperCase()
+  const clean = value.toUpperCase().replace(/[^A-Z0-9]/g, '')
   if (clean.length <= 2) return clean
   if (clean.length <= 5) return clean.slice(0, 2) + '-' + clean.slice(2)
   return clean.slice(0, 2) + '-' + clean.slice(2, 5) + '-' + clean.slice(5, 7)
