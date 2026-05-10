@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import PostHogProvider from '@/components/PostHogProvider'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,14 +20,7 @@ export const metadata = {
     description: 'Des capteurs IoT connectés en temps réel pour trouver une place de stationnement sans tourner.',
     url: 'https://fyndzz.vercel.app',
     siteName: 'Fyndzz',
-    images: [
-      {
-        url: 'https://fyndzz.vercel.app/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Fyndzz',
-      }
-    ],
+    images: [{ url: 'https://fyndzz.vercel.app/og-image.png', width: 1200, height: 630, alt: 'Fyndzz' }],
     locale: 'fr_FR',
     type: 'website',
   },
@@ -40,11 +34,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col">
+        <PostHogProvider>{children}</PostHogProvider>
+      </body>
     </html>
-  );
+  )
 }
