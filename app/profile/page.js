@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import { addSPTZ } from '@/lib/sptz'
 
 
 const COLORS = [
@@ -111,7 +112,15 @@ export default function ProfilePage() {
     }).eq('id', user.id)
     setSaving(false)
     if (error) showError('Erreur lors de la sauvegarde')
-    else showSuccess('Informations mises à jour ✓')
+    else {
+      showSuccess('Informations mises à jour ✓')
+      // Bonus profil complété (une seule fois)
+      if (!profile?.sptz_profile_bonus) {
+        await addSPTZ(user.id, 25, '✅ Profil complété')
+        await supabase.from('profiles').update({ sptz_profile_bonus: true }).eq('id', user.id)
+        setProfile(prev => ({ ...prev, sptz_profile_bonus: true }))
+      }
+    }
   }
 
   const saveVehicles = async () => {
@@ -239,7 +248,7 @@ export default function ProfilePage() {
             <div style={{ fontWeight: '700', fontSize: '1.2rem' }}>{profile?.first_name} {profile?.last_name}</div>
             <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '0.2rem' }}>{profile?.email}</div>
             <div style={{ marginTop: '0.5rem', background: 'rgba(0,255,102,0.1)', border: '1px solid rgba(0,255,102,0.25)', color: '#00FF66', fontSize: '0.7rem', fontWeight: '700', padding: '0.25rem 0.8rem', borderRadius: '100px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Fyndzzer
+                {profile?.sptz_total >= 5000 ? 'Fyndzzer Elite' : profile?.sptz_total >= 2000 ? 'Fyndzzer Expert' : profile?.sptz_total >= 500 ? 'Fyndzzer Pro' : 'Fyndzzer'}
             </div>
         </div>
 
