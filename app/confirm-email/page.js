@@ -8,6 +8,7 @@ import Image from 'next/image'
 export default function ConfirmEmailPage() {
   const [resent, setResent] = useState(false)
   const [resending, setResending] = useState(false)
+  const [countdown, setCountdown] = useState(0)
 
   const resendEmail = async () => {
     setResending(true)
@@ -17,6 +18,18 @@ export default function ConfirmEmailPage() {
     }
     setResent(true)
     setResending(false)
+    setCountdown(60)
+
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          setResent(false)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
   }
 
   return (
@@ -51,19 +64,19 @@ export default function ConfirmEmailPage() {
 
         <button
           onClick={resendEmail}
-          disabled={resending || resent}
+          disabled={resending || countdown > 0}
           style={{
             marginTop: '1rem',
             background: 'none',
             border: '1px solid rgba(255,255,255,0.2)',
             borderRadius: '10px',
             padding: '0.7rem 1.5rem',
-            color: resent ? '#00FF66' : 'rgba(255,255,255,0.6)',
-            cursor: resent ? 'default' : 'pointer',
+            color: countdown > 0 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.6)',
+            cursor: countdown > 0 ? 'not-allowed' : 'pointer',
             fontSize: '0.85rem'
           }}
         >
-          {resent ? '✅ Email renvoyé !' : resending ? 'Envoi...' : '📧 Renvoyer l\'email'}
+          {resending ? 'Envoi...' : countdown > 0 ? `⏳ Renvoyer dans ${countdown}s` : '📧 Renvoyer l\'email'}
         </button>
       </div>
     </div>
