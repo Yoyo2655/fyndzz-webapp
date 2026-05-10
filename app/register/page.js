@@ -358,6 +358,17 @@ export default function RegisterPage() {
                 </div>
               )}
 
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginBottom: '1rem', lineHeight: '1.5' }}>
+                En créant un compte, vous acceptez nos{' '}
+                <Link href="/legal" style={{ color: '#00FF66', textDecoration: 'underline' }}>
+                  Conditions Générales d&apos;Utilisation
+                </Link>{' '}
+                et notre{' '}
+                <Link href="/legal" style={{ color: '#00FF66', textDecoration: 'underline' }}>
+                  Politique de Confidentialité
+                </Link>.
+              </div>
+
               <div style={{ display: 'flex', gap: '0.8rem' }}>
                 <button type="button" onClick={() => setStep(2)} style={{
                   flex: 1, padding: '0.9rem',
