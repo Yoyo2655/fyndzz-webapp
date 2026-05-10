@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getLevel, getNextLevel, getUnlockedBadges, getNextBadge, REWARDS, spendSPTZ } from '@/lib/sptz'
+import { posthog } from '@/lib/posthog'
 
 const TARIF_MINUTE = 0.04
 const FORFAITS = [
@@ -81,6 +82,7 @@ export default function PaymentPage() {
   }
 
   const checkout = async (cents, minutes, payMode) => {
+    posthog.capture('payment_initiated', { amount_cents: cents, duration_minutes: minutes, mode: payMode, street })
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     try {
@@ -103,6 +105,7 @@ export default function PaymentPage() {
       setRewardMsg(`❌ ${result.error}`)
     } else {
       setSptzData(prev => ({ ...prev, balance: prev.balance - reward.cost }))
+      posthog.capture('sptz_reward_claimed', { reward_id: reward.id, cost: reward.cost })
       setRewardMsg(`✅ ${reward.label} — votre récompense a été enregistrée !`)
     }
     setTimeout(() => setRewardMsg(''), 4000)

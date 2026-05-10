@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Home, Briefcase, MapPin, Volume2, VolumeX, Ruler, Save, Search } from 'lucide-react'
 import { getSpotifyAuthUrl } from '@/lib/spotify'
+import { posthog } from '@/lib/posthog'
 
 const BRAND_GRADIENT = "bg-gradient-to-b from-[#160C6B] to-[#3D2CD5]"
 
@@ -176,7 +177,13 @@ export default function SettingsPage() {
       window.__fyndzz_reload_stations?.()
       window.__fyndzz_reload_sensors?.()
     }
-
+    posthog.capture('settings_saved', {
+      gps_voice: settings.gps_voice,
+      units: settings.units,
+      avoid_highways: settings.avoid_highways,
+      show_fuel: settings.show_fuel,
+      show_elec: settings.show_elec,
+    })
     setSaving(false)
     setSuccessMsg('Paramètres sauvegardés ✓')
     setTimeout(() => setSuccessMsg(''), 3000)

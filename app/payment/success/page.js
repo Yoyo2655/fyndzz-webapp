@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { addSPTZ } from '@/lib/sptz'
+import { posthog } from '@/lib/posthog'
 
 function SuccessContent() {
   const searchParams = useSearchParams()
@@ -46,6 +47,7 @@ function SuccessContent() {
 
       const result = await addSPTZ(user.id, basePoints, '🅿️ Trajet complété')
       if (result) {
+        posthog.capture('payment_completed', { sptz_earned: basePoints + (result.streakBonus || 0), multiplier })
         setSptzEarned(basePoints + (result.streakBonus || 0))
         setNewBadges(result.newBadges || [])
         setStreakBonus(result.streakBonus || 0)

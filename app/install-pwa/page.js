@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { posthog } from '@/lib/posthog'
 
 export default function InstallPWA() {
   const [activeTab, setActiveTab] = useState('android')
@@ -209,7 +210,7 @@ export default function InstallPWA() {
               <div><strong>Astuce</strong> — Sur certains Android, une bannière <span className="pwa-pill">Installer Fyndzz</span> apparaît directement en bas de l&apos;écran dès votre première visite. Appuyez dessus pour installer encore plus vite !</div>
             </div>
             <div className="pwa-cta-wrap">
-              <a href="https://fyndzz.vercel.app" className="pwa-cta">Ouvrir Fyndzz dans Chrome →</a>
+              <a href="https://fyndzz.vercel.app" className="pwa-cta" onClick={() => posthog.capture('pwa_cta_clicked', { platform: activeTab })}>Ouvrir Fyndzz dans Chrome →</a>
             </div>
           </div>
         )}
@@ -258,7 +259,7 @@ export default function InstallPWA() {
               <div><strong>iOS 16.4+</strong> — Sur les versions récentes d&apos;iOS, les notifications push sont supportées. Acceptez la demande d&apos;autorisation lors du premier lancement pour recevoir les alertes de places disponibles.</div>
             </div>
             <div className="pwa-cta-wrap">
-              <a href="https://fyndzz.vercel.app" className="pwa-cta">Ouvrir Fyndzz dans Safari →</a>
+              <a href="https://fyndzz.vercel.app" className="pwa-cta" onClick={() => posthog.capture('pwa_cta_clicked', { platform: activeTab })}>Ouvrir Fyndzz dans Safari →</a>
             </div>
           </div>
         )}

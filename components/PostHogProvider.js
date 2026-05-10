@@ -10,7 +10,7 @@ export default function PostHogProvider({ children }) {
 
   useEffect(() => {
     initPostHog()
-    // Identifier l'utilisateur connecté
+    posthog.capture('app_opened')
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
         posthog.identify(data.user.id, { email: data.user.email })
@@ -19,7 +19,6 @@ export default function PostHogProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    // Tracker les changements de page
     posthog.capture('$pageview', { path: pathname })
   }, [pathname])
 

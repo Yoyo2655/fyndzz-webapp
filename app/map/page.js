@@ -12,6 +12,7 @@ import {
   Search, Menu, X, Navigation, Mic, ChevronUp, Navigation2, 
   User, Settings, LogOut, MapPin, Clock, Zap, ArrowRightLeft
 } from 'lucide-react'
+import { posthog } from '@/lib/posthog'
 
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
 
@@ -120,6 +121,7 @@ export default function MapPage() {
   const handleSearch = async (e) => {
     if (e) e.preventDefault()
     if (!search.trim()) return
+    posthog.capture('search_destination', { destination: search })
     setSearching(true)
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(search)}&limit=1`)
@@ -168,9 +170,14 @@ export default function MapPage() {
     setCurrentStep(newStep)
     const step = routeInfo?.steps?.[newStep]
     if (step) speak(formatStep(step))
+    const steps = routeInfo?.steps?.length || 0
+    if (newStep === steps - 1) {
+      posthog.capture('navigation_completed', { street: routeInfo?.street })
+    }
   }, [routeInfo, speak])
 
   const startNavigation = () => {
+    posthog.capture('navigation_started', { street: routeInfo?.street, mins: routeInfo?.mins })
     setNavMode(true)
     setCurrentStep(0)
     const firstStep = routeInfo?.steps?.[0]
@@ -183,6 +190,7 @@ export default function MapPage() {
   }
 
   const stopNavigation = () => {
+    posthog.capture('navigation_cancelled', { step: currentStep, total_steps: totalSteps, pct_completed: Math.round((currentStep/totalSteps)*100) })
     setNavMode(false)
     setRouteInfo(null)
     setCurrentStep(0)
@@ -317,7 +325,11 @@ export default function MapPage() {
         <div className="absolute inset-0 z-0">
           <Map
             sensors={sensors}
-            onRouteFound={(info) => { setRouteInfo(info); setNavMode(false) }}
+            onRouteFound={(info) => {
+              setRouteInfo(info)
+              setNavMode(false)
+              posthog.capture('route_found', { street: info.street, duration_mins: info.mins, dist_km: (info.dist / 1000).toFixed(1) })
+            }}
             navMode={navMode}
             currentStep={currentStep}
             onStepAdvance={handleStepAdvance}
@@ -399,7 +411,7 @@ export default function MapPage() {
             {/* Header flottant */}
             <div className="pointer-events-auto p-4 flex items-center gap-3 max-w-2xl w-full mx-auto mt-4">
               <button
-                onClick={() => setSidebarOpen(true)}
+                onClick={() => { setSidebarOpen(true); posthog.capture('sidebar_opened') }}
                 className={`w-14 h-14 flex items-center justify-center rounded-2xl text-white shadow-xl hover:scale-105 active:scale-95 transition-all ${BRAND_GRADIENT}`}
               >
                 <Menu size={24} />
@@ -444,7 +456,7 @@ export default function MapPage() {
                       <>
                         <div className="px-4 pt-3 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lieux enregistrés</div>
                         {window.__fyndzz_favs.map((fav, i) => (
-                          <button key={i} onMouseDown={() => { setSearch(fav.name); setShowSuggestions(false); window.__fyndzz_destination = { lat: fav.lat, lng: fav.lng }; window.__fyndzz_search_trigger?.() }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left">
+                          <button key={i} onMouseDown={() => { setSearch(fav.name); setShowSuggestions(false); window.__fyndzz_destination = { lat: fav.lat, lng: fav.lng }; window.__fyndzz_search_trigger?.(); posthog.capture('favorite_used', { label: fav.label }) }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left">
                             <div className="w-8 h-8 bg-[#3D2CD5]/10 rounded-xl flex items-center justify-center flex-shrink-0 text-sm">
                               {fav.label === 'Maison' ? '🏠' : fav.label === 'Travail' ? '💼' : '📍'}
                             </div>
