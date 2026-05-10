@@ -280,5 +280,14 @@ Grâce à `server.url`, les modifs Next.js sont auto-reflétées sans rebuild AP
 - Analytics PostHog (13 events custom, autocapture off)
 - Webhook Stripe (/api/stripe/webhook)
 - Sécurité renforcée (rate limiting, token admin header, montant recalculé serveur, security headers)
+- Domaine custom fyndzz.fr (one.com → Vercel)
+- SMTP custom via Resend (noreply@fyndzz.fr)
+- Register amélioré (vérif mdp temps réel, indicatifs +203 pays, formatage plaque auto, liste pays complète)
+- Page confirm-email (/confirm-email)
+- Onboarding tour (spotlight effect, 4 étapes, stocké en base onboarding_done)
+- Templates emails Supabase personnalisés (confirm + reset password)
+- Vérification mdp dans reset-password/page.js
+- Trigger Supabase handle_new_user (infos via raw_user_meta_data)
+- Policy INSERT ajoutée sur profiles
 - QR Code install-pwa (à générer)
 - MAJ CONTEXT.md + README.md + CLAUDE.md + LICENSE

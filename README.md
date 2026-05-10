@@ -143,6 +143,7 @@ L'app pointe vers `https://fyndzz.fr` — mises à jour automatiques sans rebuil
 - RLS Supabase sur toutes les tables
 - Security headers HTTP (X-Frame-Options, X-Content-Type-Options...)
 - Webhook Stripe signé avec `STRIPE_WEBHOOK_SECRET`
+- **Email** : Resend (noreply@fyndzz.fr, EU)
 
 ---
 

@@ -102,6 +102,7 @@ NEXT_PUBLIC_SPOTIFY_REDIRECT_URI=https://fyndzz.fr/spotify-callback
 ADMIN_PASSWORD=...
 NEXT_PUBLIC_POSTHOG_KEY=phc_...
 NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+RESEND_API_KEY=re_...
 ```
 
 ---
@@ -121,6 +122,7 @@ alter table profiles add column if not exists sptz_streak integer default 0;
 alter table profiles add column if not exists sptz_last_trip date;
 alter table profiles add column if not exists sptz_badges jsonb default '[]';
 alter table profiles add column if not exists sptz_profile_bonus boolean default false;
+alter table profiles add column if not exists onboarding_done boolean default false;
 ```
 
 ### Table `sensors` — 568 capteurs IDF
