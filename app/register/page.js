@@ -83,7 +83,7 @@ export default function RegisterPage() {
       })
     }
 
-    router.push('/map')
+    router.push('/confirm-email')
   }
 
   const inputStyle = {
