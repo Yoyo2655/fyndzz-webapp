@@ -384,6 +384,7 @@ export default function RegisterPage() {
       return
     }
 
+    localStorage.setItem('fyndzz_pending_email', form.email)
     router.push('/confirm-email')
     setLoading(false)
   }

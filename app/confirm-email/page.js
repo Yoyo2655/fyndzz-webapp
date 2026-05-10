@@ -1,7 +1,24 @@
+'use client'
+
+import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
 
 export default function ConfirmEmailPage() {
+  const [resent, setResent] = useState(false)
+  const [resending, setResending] = useState(false)
+
+  const resendEmail = async () => {
+    setResending(true)
+    const email = typeof window !== 'undefined' ? localStorage.getItem('fyndzz_pending_email') : null
+    if (email) {
+      await supabase.auth.resend({ type: 'signup', email })
+    }
+    setResent(true)
+    setResending(false)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #3D2CD5 0%, #160C6B 100%)', fontFamily: 'sans-serif', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div style={{ textAlign: 'center', maxWidth: '400px' }}>
@@ -32,6 +49,22 @@ export default function ConfirmEmailPage() {
           </Link>
         </div>
 
+        <button
+          onClick={resendEmail}
+          disabled={resending || resent}
+          style={{
+            marginTop: '1rem',
+            background: 'none',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: '10px',
+            padding: '0.7rem 1.5rem',
+            color: resent ? '#00FF66' : 'rgba(255,255,255,0.6)',
+            cursor: resent ? 'default' : 'pointer',
+            fontSize: '0.85rem'
+          }}
+        >
+          {resent ? '✅ Email renvoyé !' : resending ? 'Envoi...' : '📧 Renvoyer l\'email'}
+        </button>
       </div>
     </div>
   )
