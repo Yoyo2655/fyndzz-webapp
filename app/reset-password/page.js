@@ -12,14 +12,22 @@ export default function ResetPasswordPage() {
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
   const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (password !== confirm) { setError('Les mots de passe ne correspondent pas'); return }
-    if (password.length < 6) { setError('Le mot de passe doit faire au moins 6 caractères'); return }
+    if (password !== confirm) {
+      setPasswordError('Les mots de passe ne correspondent pas')
+      return
+    }
+    if (password.length < 6) {
+      setPasswordError('Le mot de passe doit faire au moins 6 caractères')
+      return
+    }
     setLoading(true)
     setError('')
+    setPasswordError('')
     const { error } = await supabase.auth.updateUser({ password })
     if (error) setError(error.message)
     else {
@@ -71,13 +79,20 @@ export default function ResetPasswordPage() {
                   <input
                     type="password"
                     value={value}
-                    onChange={e => set(e.target.value)}
+                    onChange={e => {
+                      set(e.target.value)
+                      if (label === 'Nouveau mot de passe') {
+                        setPasswordError(confirm && e.target.value !== confirm ? 'Les mots de passe ne correspondent pas' : '')
+                      } else {
+                        setPasswordError(e.target.value && password !== e.target.value ? 'Les mots de passe ne correspondent pas' : '')
+                      }
+                    }}
                     placeholder={placeholder}
                     required
                     style={{
                       width: '100%', padding: '0.9rem 1rem',
                       background: 'rgba(255,255,255,0.08)',
-                      border: '1px solid rgba(255,255,255,0.15)',
+                      border: `1px solid ${passwordError ? 'rgba(255,77,109,0.5)' : 'rgba(255,255,255,0.15)'}`,
                       borderRadius: '10px', color: '#fff',
                       fontSize: '0.95rem', outline: 'none',
                       boxSizing: 'border-box'
@@ -85,6 +100,12 @@ export default function ResetPasswordPage() {
                   />
                 </div>
               ))}
+
+              {passwordError && (
+                <div style={{ fontSize: '0.82rem', color: '#FF4D6D', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '-0.5rem' }}>
+                  ⚠️ {passwordError}
+                </div>
+              )}
 
               {error && (
                 <div style={{ background: 'rgba(255,77,109,0.15)', border: '1px solid rgba(255,77,109,0.3)', borderRadius: '8px', padding: '0.75rem 1rem', fontSize: '0.85rem', color: '#FF4D6D' }}>
