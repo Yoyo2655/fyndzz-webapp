@@ -18,9 +18,11 @@ Fyndzz est une application mobile-first propulsée par l'IoT qui aide les conduc
 - **🔄 Recalcul dynamique** — Redirige si une meilleure place se libère
 - **⛽ Stations & bornes** — Prix carburants en temps réel + bornes électriques
 - **🎵 Spotify** — Contrôle de la musique depuis la carte (Premium requis)
-- **💳 Paiement Stripe** — Forfaits de stationnement intégrés
+- **💳 Paiement Stripe** — Forfaits de stationnement intégrés + webhook
+- **⚡ Spotzz Points (SPTZ)** — Système de fidélité style battle pass
 - **📱 PWA + Android** — Installable comme app native via Capacitor
 - **🔔 Push Notifications** — Firebase Cloud Messaging (Android)
+- **📊 Analytics** — PostHog (events custom, RGPD EU)
 
 ---
 
@@ -31,23 +33,17 @@ Fyndzz est une application mobile-first propulsée par l'IoT qui aide les conduc
 - Compte Supabase
 - Compte Stripe (mode test)
 - Compte Spotify Developer (optionnel)
-- Compte Firebase (optionnel, pour push notifications)
+- Compte Firebase (optionnel)
+- Compte PostHog EU (optionnel)
 
 ### Installation
 
 ```bash
-# Cloner le repo
 git clone https://github.com/Yoyo2655/fyndzz-webapp.git
 cd fyndzz
-
-# Installer les dépendances
 npm install
-
-# Configurer les variables d'environnement
 cp .env.example .env.local
 # Éditer .env.local avec vos clés
-
-# Lancer en développement
 npm run dev
 ```
 
@@ -62,6 +58,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 # Stripe
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 NEXT_PUBLIC_APP_URL=https://fyndzz.vercel.app
 
 # Spotify (optionnel)
@@ -71,6 +68,10 @@ NEXT_PUBLIC_SPOTIFY_REDIRECT_URI=https://fyndzz.vercel.app/spotify-callback
 
 # Admin Dashboard
 ADMIN_PASSWORD=your_secure_admin_password
+
+# PostHog (optionnel)
+NEXT_PUBLIC_POSTHOG_KEY=phc_...
+NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
 ```
 
 ---
@@ -79,39 +80,69 @@ ADMIN_PASSWORD=your_secure_admin_password
 
 ### Setup Supabase
 
-Exécuter dans le SQL Editor Supabase :
-
 ```sql
--- Capteurs IoT
--- Importer sensors_final.sql (568 capteurs Île-de-France)
-
--- Simulation automatique des capteurs
+-- Capteurs IoT (importer sensors_final.sql)
 select cron.schedule('fluctuate-sensors', '30 seconds', 'select fluctuate_sensors()');
 
--- Colonnes optionnelles
+-- Colonnes profiles
 alter table profiles add column if not exists recent_destinations jsonb default '[]';
 alter table profiles add column if not exists show_fuel boolean default false;
 alter table profiles add column if not exists show_elec boolean default false;
 alter table profiles add column if not exists show_sensors boolean default true;
 alter table profiles add column if not exists fcm_token text;
+alter table profiles add column if not exists sptz_total integer default 0;
+alter table profiles add column if not exists sptz_balance integer default 0;
+alter table profiles add column if not exists sptz_streak integer default 0;
+alter table profiles add column if not exists sptz_last_trip date;
+alter table profiles add column if not exists sptz_badges jsonb default '[]';
+alter table profiles add column if not exists sptz_profile_bonus boolean default false;
+
+-- Tables SPTZ
+create table if not exists sptz_transactions (id uuid primary key default gen_random_uuid(), user_id uuid references profiles(id) on delete cascade, amount integer not null, reason text not null, created_at timestamptz default now());
+create table if not exists sptz_rewards (id uuid primary key default gen_random_uuid(), user_id uuid references profiles(id) on delete cascade, reward_type text not null, cost integer not null, status text default 'pending', created_at timestamptz default now());
+
+alter table sptz_transactions enable row level security;
+alter table sptz_rewards enable row level security;
 ```
+
+---
+
+## ⚡ Spotzz Points (SPTZ)
+
+Système de fidélité style battle pass :
+
+| Action | Points |
+|--------|--------|
+| Trajet complété | 10 SPTZ |
+| Véhicule électrique | ×2 |
+| Streak 7 jours | +50 SPTZ |
+| Profil complété | 25 SPTZ |
+
+**Paliers :** Fyndzzer → Pro (500) → Expert (2000) → Elite (5000)
+
+**Badges tous les 250 SPTZ :** 🅿️ ⚡ 🔥 🎯 🚀 💎 🌟 👑 🏆 🦁
 
 ---
 
 ## 📱 App Mobile (Capacitor)
 
 ```bash
-# Synchroniser
 npx cap sync
-
-# Ouvrir Android Studio
-npx cap open android
-
-# Ouvrir Xcode (Mac uniquement)
-npx cap open ios
+npx cap open android  # Android Studio
+npx cap open ios      # Xcode (Mac uniquement)
 ```
 
-L'app pointe directement vers `https://fyndzz.vercel.app` — les mises à jour du code web sont automatiquement reflétées sans rebuild APK.
+L'app pointe vers `https://fyndzz.vercel.app` — mises à jour automatiques sans rebuild APK.
+
+---
+
+## 🛡️ Sécurité
+
+- Auth admin avec token côté serveur + rate limiting
+- Montants Stripe recalculés côté serveur
+- RLS Supabase sur toutes les tables
+- Security headers HTTP (X-Frame-Options, X-Content-Type-Options...)
+- Webhook Stripe signé avec `STRIPE_WEBHOOK_SECRET`
 
 ---
 
@@ -124,42 +155,29 @@ L'app pointe directement vers `https://fyndzz.vercel.app` — les mises à jour 
 | MapLibre GL JS | Rendu cartographique |
 | OSRM | Calcul d'itinéraires |
 | Nominatim | Géocodage |
-| Stripe | Paiements |
+| Stripe | Paiements + Webhook |
 | Capacitor | App mobile native |
 | Firebase | Push notifications |
 | Spotify API | Contrôle musique |
+| PostHog | Analytics |
 | Vercel | Déploiement |
 | next-pwa | PWA |
 
 ---
 
-## 📁 Structure
-
-```
-fyndzz/
-├── app/              # Pages Next.js (App Router)
-├── components/       # Composants réutilisables
-├── lib/              # Utilitaires (supabase, osrm, spotify)
-├── public/           # Assets statiques (logos, images)
-├── assets/           # Assets Capacitor (icônes app)
-├── android/          # Projet Android (gitignored)
-└── ios/              # Projet iOS (gitignored)
-```
-
----
-
 ## ⚠️ Points importants
 
-- **`avoid_tolls`** : Ne jamais activer — OSRM public retourne erreur 400 avec `exclude=toll`
+- **`avoid_tolls`** : Ne jamais activer — OSRM public retourne erreur 400
 - **Spotify** : Nécessite Spotify Premium pour le contrôle de lecture
-- **Admin** : Accessible via `/admin` avec le mot de passe configuré dans `ADMIN_PASSWORD`
-- **RLS** : Le dashboard admin utilise `SUPABASE_SERVICE_ROLE_KEY` côté serveur uniquement
+- **Admin** : `/admin` protégé par `ADMIN_PASSWORD` (jamais NEXT_PUBLIC_)
+- **RLS** : `SUPABASE_SERVICE_ROLE_KEY` côté serveur uniquement
 
 ---
 
 ## 🌐 Liens
 
 - **App** : https://fyndzz.vercel.app
+- **Install PWA** : https://fyndzz.vercel.app/install-pwa
 - **Instagram** : https://www.instagram.com/fyndzz.ai/
 - **LinkedIn** : https://www.linkedin.com/company/fyndzz
 
@@ -167,4 +185,4 @@ fyndzz/
 
 ## 📄 Licence
 
-© 2026 Fyndzz · Paris 🇫🇷 · Tous droits réservés
+© 2026 Fyndzz · Paris 🇫🇷 · Tous droits réservés — voir [LICENSE](./LICENSE)

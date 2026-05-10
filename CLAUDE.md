@@ -23,6 +23,7 @@ Fyndzz est une app web/mobile de stationnement intelligent IoT développée par 
 - **Nominatim** pour le géocodage
 - **Tailwind CSS** pour le styling (classes utilitaires)
 - **Capacitor** pour l'app mobile (pointe vers fyndzz.vercel.app via server.url)
+- **PostHog** pour les analytics (EU cloud, autocapture désactivé)
 
 ---
 
@@ -32,64 +33,67 @@ Fyndzz est une app web/mobile de stationnement intelligent IoT développée par 
 ```js
 // ❌ JAMAIS — provoque erreur 400 sur OSRM public
 excludes.push('toll')
-
-// ✅ OK — supporté par OSRM public
+// ✅ OK
 excludes.push('motorway')
 ```
 
 ### 2. Variables d'environnement sensibles
 ```env
-# ❌ JAMAIS préfixer avec NEXT_PUBLIC_ pour les secrets
-NEXT_PUBLIC_ADMIN_PASSWORD=xxx  # exposé côté client !
+# ❌ JAMAIS NEXT_PUBLIC_ pour les secrets
+NEXT_PUBLIC_ADMIN_PASSWORD=xxx
+NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=xxx
 
-# ✅ Toujours côté serveur uniquement
+# ✅ Côté serveur uniquement
 ADMIN_PASSWORD=xxx
 SUPABASE_SERVICE_ROLE_KEY=xxx
 SPOTIFY_CLIENT_SECRET=xxx
+STRIPE_SECRET_KEY=xxx
+STRIPE_WEBHOOK_SECRET=xxx
 ```
 
 ### 3. Next.js config
 ```js
-// ❌ JAMAIS ajouter — désactive les API routes
+// ❌ JAMAIS — désactive les API routes
 const nextConfig = { output: 'export' }
-
-// ✅ Garder la config actuelle
-const nextConfig = { /* sans output: 'export' */ }
 ```
 
 ### 4. Supabase RLS
-- Le client Supabase normal (`@/lib/supabase`) ne peut lire que les données de l'utilisateur connecté (RLS)
-- Pour l'admin ou les opérations serveur, utiliser `SUPABASE_SERVICE_ROLE_KEY` dans une API route
+- Client normal → RLS appliqué (user voit seulement ses données)
+- Admin/serveur → `SUPABASE_SERVICE_ROLE_KEY` dans API route uniquement
 - Ne JAMAIS exposer `SUPABASE_SERVICE_ROLE_KEY` côté client
 
-### 5. Spotify
-- L'API `/me/player` nécessite Spotify Premium
-- Toujours afficher un message clair si 403 (pas Premium)
+### 5. Stripe
+- `amount_cents` → TOUJOURS recalculé côté serveur, jamais faire confiance au client
+- Webhook signé avec `STRIPE_WEBHOOK_SECRET`
+
+### 6. Spotify
+- Premium requis pour `/me/player` → afficher message si 403
 - Token stocké dans localStorage (pas Supabase)
+
+### 7. Admin
+- `/api/admin/data` → vérifie `x-admin-token` header côté serveur
+- `/api/admin/auth` → rate limiting 5 tentatives / 15 min
+- Jamais de logs de secrets
 
 ---
 
 ## Architecture des composants clés
 
 ### Map.js
-Le composant le plus complexe. Points importants :
 - Initialisé une seule fois via `if (mapInstanceRef.current) return`
-- `loadFuelStations` est définie DANS le useEffect (closure)
-- Les fonctions `window.__fyndzz_*` sont exposées pour communication inter-composants
-- `fitBounds` est commenté/désactivé intentionnellement (la carte ne bouge pas au calcul de trajet)
-- `show_sensors` vérifié à chaque update dans le useEffect des capteurs
+- `loadFuelStations` définie DANS le useEffect (closure)
+- `fitBounds` commenté intentionnellement
+- `show_sensors` vérifié à chaque update
 
 ### Variables globales window.__fyndzz_*
-Communication entre Map.js (isolé via dynamic import) et page.js :
 ```js
-window.__fyndzz_settings    // settings utilisateur chargés depuis Supabase
-window.__fyndzz_favs        // array des favoris [{label, name, lat, lng}]
-window.__fyndzz_recents     // array destinations récentes (max 4)
-window.__fyndzz_sensors     // array capteurs actuels
-window.__fyndzz_userpos     // {lat, lng} position GPS actuelle
-window.__fyndzz_destination // {lat, lng} destination sélectionnée
+window.__fyndzz_settings    // { gps_voice, units, avoid_tolls, avoid_highways, show_fuel, show_elec, show_sensors }
+window.__fyndzz_favs        // [{label, name, lat, lng}]
+window.__fyndzz_recents     // [{name, lat, lng}] max 4
+window.__fyndzz_sensors     // array capteurs
+window.__fyndzz_userpos     // {lat, lng}
+window.__fyndzz_destination // {lat, lng}
 window.__fyndzz_map         // instance MapLibre
-// Fonctions
 window.__fyndzz_search_trigger()
 window.__fyndzz_clear_route()
 window.__fyndzz_reload_stations()
@@ -98,46 +102,54 @@ window.__fyndzz_move_to(lat, lng)
 window.__fyndzz_go_to_station(lat, lng)
 ```
 
-### lib/osrm.js
+### lib/sptz.js — Fonctions SPTZ
 ```js
-// getRoute — toujours avec try/catch et vérification res.ok
-export async function getRoute(from, to) {
-  // Récupère settings depuis window.__fyndzz_settings
-  // Seul avoid_highways (motorway) est supporté, PAS avoid_tolls
-  // Retourne null si erreur (jamais throw)
-}
+addSPTZ(userId, amount, reason)     // Ajouter des points + check badges + streak
+spendSPTZ(userId, rewardId)         // Dépenser des points
+getLevel(total)                     // { name, color }
+getNextLevel(total)                 // { name, threshold } | null
+getUnlockedBadges(total)            // array badges débloqués
+getNextBadge(total)                 // prochain badge | null
+REWARDS                             // array des récompenses disponibles
+```
 
-// getNearestFree — pré-filtre haversine puis OSRM /table
-export async function getNearestFree(sensors, destination) {
-  // Top 5 par distance vol d'oiseau
-  // Puis distance réelle via OSRM /table
-  // Retourne le capteur avec la distance route la plus courte
+### lib/posthog.js
+```js
+// autocapture: false — TOUJOURS garder ainsi
+// Sinon explose la limite 1M events/mois
+export const initPostHog = () => {
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+    autocapture: false,
+    capture_pageview: false, // géré manuellement dans PostHogProvider
+  })
 }
 ```
 
 ---
 
-## Colonnes Supabase — État actuel
-
-### Table `profiles` — colonnes non standard à vérifier
-Ces colonnes ont été ajoutées progressivement et peuvent manquer sur certains environnements :
+## Colonnes Supabase — À vérifier si manquantes
 
 ```sql
--- À exécuter si besoin
 alter table profiles add column if not exists show_fuel boolean default false;
 alter table profiles add column if not exists show_elec boolean default false;
 alter table profiles add column if not exists show_sensors boolean default true;
 alter table profiles add column if not exists recent_destinations jsonb default '[]';
 alter table profiles add column if not exists fcm_token text;
+alter table profiles add column if not exists sptz_total integer default 0;
+alter table profiles add column if not exists sptz_balance integer default 0;
+alter table profiles add column if not exists sptz_streak integer default 0;
+alter table profiles add column if not exists sptz_last_trip date;
+alter table profiles add column if not exists sptz_badges jsonb default '[]';
+alter table profiles add column if not exists sptz_profile_bonus boolean default false;
 ```
 
-**Ne jamais** inclure `recent_destinations` dans un select sans avoir vérifié que la colonne existe — ça provoque une erreur qui fait planter tout le chargement du profil.
+**⚠️ Ne jamais inclure `recent_destinations` dans un select sans vérifier que la colonne existe.**
 
 ---
 
 ## Patterns courants
 
-### Charger le profil dans map/page.js
+### Charger le profil complet dans map/page.js
 ```js
 const { data: profile } = await supabase
   .from('profiles')
@@ -146,105 +158,81 @@ const { data: profile } = await supabase
   .single()
 ```
 
-### Mettre à jour window.__fyndzz_settings après save
+### Ajouter des SPTZ après paiement
 ```js
-window.__fyndzz_settings = {
-  ...window.__fyndzz_settings,
-  show_fuel: settings.show_fuel,
-  show_elec: settings.show_elec,
-  show_sensors: settings.show_sensors,
-  // ... autres settings
-}
-window.__fyndzz_reload_stations?.()
-window.__fyndzz_reload_sensors?.()
+import { addSPTZ } from '@/lib/sptz'
+// Dans payment/success/page.js
+const multiplier = activeEnergy === 'Électrique' ? 2 : 1
+const result = await addSPTZ(user.id, 10 * multiplier, '🅿️ Trajet complété')
+// result = { newTotal, newBadges, streakBonus }
 ```
 
-### Toggle component réutilisable
-```jsx
-const Toggle = ({ value, onChange }) => (
-  <button
-    onClick={onChange}
-    className={`w-14 h-7 rounded-full transition-all duration-300 relative ${value ? 'bg-[#00FF66]' : 'bg-white/20'}`}
-  >
-    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all duration-300 ${value ? 'left-8' : 'left-1'}`} />
-  </button>
-)
+### Appel API admin sécurisé
+```js
+// Côté client (admin/page.js)
+const res = await fetch('/api/admin/data', {
+  headers: { 'x-admin-token': password }
+})
+
+// Côté serveur (api/admin/data/route.js)
+const adminToken = req.headers.get('x-admin-token')
+if (adminToken !== process.env.ADMIN_PASSWORD) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+}
+```
+
+### Recalcul montant Stripe côté serveur
+```js
+// api/stripe/route.js — TOUJOURS recalculer, jamais faire confiance au client
+const FORFAITS = { 30: 120, 60: 200, 120: 350, 240: 600 }
+const safeCents = mode === 'fixed'
+  ? FORFAITS[duration_minutes] || 120
+  : Math.round(duration_minutes * 4)
+```
+
+### PostHog event
+```js
+import { posthog } from '@/lib/posthog'
+posthog.capture('event_name', { prop1: value1, prop2: value2 })
 ```
 
 ---
 
 ## Design — Règles de style
 
-### Gradient brand (toujours utiliser BRAND_GRADIENT)
 ```js
+// Gradient brand
 const BRAND_GRADIENT = "bg-gradient-to-b from-[#160C6B] to-[#3D2CD5]"
-// ou en CSS inline :
+// ou inline :
 background: 'linear-gradient(180deg, #3D2CD5 0%, #160C6B 100%)'
-```
 
-### Couleurs
-```
-Navy fond : #160C6B
-Violet : #3D2CD5
-Vert accent : #00FF66
-Rouge erreur : #FF4D6D
-Orange : #FFB800
-```
-
-### Cards style (sidebar/settings)
-```jsx
-<div className="bg-white/08 border border-white/10 rounded-2xl p-4">
-```
-
-### Sections titres (settings)
-```jsx
-<h2 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">
-  Titre Section
-</h2>
+// Couleurs
+#160C6B  // Navy fond
+#3D2CD5  // Violet
+#00FF66  // Vert accent
+#FF4D6D  // Rouge erreur
+#FFB800  // Orange/amber
 ```
 
 ---
 
-## Capacitor — Config actuelle
+## Capacitor
 
 ```ts
-// capacitor.config.ts
 const config: CapacitorConfig = {
   appId: 'com.fyndzz.app',
   appName: 'Fyndzz',
   webDir: 'out',
-  server: {
-    url: 'https://fyndzz.vercel.app',
-    cleartext: true
-  },
+  server: { url: 'https://fyndzz.vercel.app', cleartext: true },
   plugins: {
-    SplashScreen: {
-      launchShowDuration: 2000,
-      launchAutoHide: true,
-      backgroundColor: '#160C6B',
-      showSpinner: false,
-    },
-    PushNotifications: {
-      presentationOptions: ['badge', 'sound', 'alert']
-    },
-    Geolocation: {
-      permissions: ['location']
-    }
+    SplashScreen: { launchShowDuration: 2000, backgroundColor: '#160C6B', showSpinner: false },
+    PushNotifications: { presentationOptions: ['badge', 'sound', 'alert'] },
+    Geolocation: { permissions: ['location'] }
   }
 }
 ```
 
-**Important** : Grâce à `server.url`, les modifications du code Next.js sont automatiquement reflétées dans l'app Android sans rebuild APK. Un rebuild n'est nécessaire que pour les changements natifs (permissions, plugins, icônes).
-
----
-
-## Admin Dashboard
-
-- URL : `/admin`
-- Mot de passe : variable `ADMIN_PASSWORD` (serveur uniquement, jamais NEXT_PUBLIC_)
-- Vérifié via `/api/admin/auth` (POST)
-- Données via `/api/admin/data` (GET) avec service_role key
-- Session stockée dans `sessionStorage` (clé : `fyndzz_admin`)
+Grâce à `server.url`, les modifs Next.js sont auto-reflétées sans rebuild APK.
 
 ---
 
@@ -252,48 +240,45 @@ const config: CapacitorConfig = {
 
 | Feature | Status | Raison |
 |---------|--------|--------|
-| Éviter les péages | ❌ Désactivé | OSRM public → erreur 400 |
-| Spotify sans Premium | ❌ Impossible | API Spotify nécessite Premium |
-| Données parking mairies | ❌ Pas d'API publique | Nécessite contrats B2B |
-| Simulation GPS prod | ⚠️ Dev only | SimulateGPS.js wrappé dans NODE_ENV |
-| Webhook Stripe | 🔄 À implémenter | Pas encore fait |
-
----
-
-## Workflow de développement
-
-1. Coder en local (`npm run dev`)
-2. Tester sur `localhost:3000`
-3. `git add . && git commit -m "..." && git push`
-4. Vercel déploie automatiquement
-5. L'app Android se met à jour automatiquement (server.url)
+| Éviter les péages | ❌ | OSRM public → erreur 400 |
+| Spotify sans Premium | ❌ | API → 403 |
+| Données parking mairies | ❌ | Pas d'API publique |
+| Simulation GPS prod | ⚠️ Dev only | NODE_ENV check |
+| Parrainage SPTZ | 🔄 À implémenter | Pas encore fait |
 
 ---
 
 ## Historique des sessions de développement
 
 ### Session 1 (30 avril 2026)
-- Setup initial Next.js + Supabase + MapLibre + Stripe
+- Setup Next.js + Supabase + MapLibre + Stripe
 - Auth (register 3 étapes, login, profil, sécurité)
 - 80 capteurs IoT Paris 16ème + simulation pg_cron
-- Navigation GPS style Waze
-- Paiement Stripe (forfaits)
+- Navigation GPS style Waze + instructions vocales
+- Paiement Stripe (forfaits + à la minute)
 - PWA (manifest + service worker + splash screen)
-- Page profil (4 onglets : infos, véhicules, stats, sécurité)
-- ProtectedRoute côté client
+- Page profil (4 onglets)
 - 404 custom, mentions légales
 
 ### Session 2 (8 mai 2026)
 - Fix bug nearest sensor (haversine → OSRM /table)
-- Stations essence + bornes électriques (API gouvernementale)
+- Stations essence + bornes électriques
 - Settings complets (favoris, toggles, unités)
-- Extension capteurs 488 nouveaux (Île-de-France complète = 568 total)
-- Fix mot de passe oublié / reset password
-- Spotify integration (sidebar)
-- Landing page redesign
-- SEO / Open Graph tags
-- Admin dashboard (/admin)
+- 488 nouveaux capteurs (568 total IDF)
+- Fix mot de passe oublié / reset
+- Spotify integration
+- Landing page redesign + SEO/OG
+- Admin dashboard
 - Historique destinations récentes (max 4)
 - App mobile Capacitor (Android)
 - Firebase push notifications setup
-- Réseaux sociaux dans le footer
+- Réseaux sociaux footer
+
+### Session 3 (10 mai 2026)
+- Système SPTZ complet (lib/sptz.js + onglet payment + success page + profile)
+- Page install-pwa (/install-pwa)
+- Analytics PostHog (13 events custom, autocapture off)
+- Webhook Stripe (/api/stripe/webhook)
+- Sécurité renforcée (rate limiting, token admin header, montant recalculé serveur, security headers)
+- QR Code install-pwa (à générer)
+- MAJ CONTEXT.md + README.md + CLAUDE.md + LICENSE
