@@ -8,6 +8,7 @@ import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import SimulateGPS from '@/components/SimulateGPS'
 import SpotifyPlayer from '@/components/SpotifyPlayer'
+import OnboardingTour from '@/components/OnboardingTour'
 import { 
   Search, Menu, X, Navigation, Mic, ChevronUp, Navigation2, 
   User, Settings, LogOut, MapPin, Clock, Zap, ArrowRightLeft
@@ -411,6 +412,7 @@ export default function MapPage() {
             {/* Header flottant */}
             <div className="pointer-events-auto p-4 flex items-center gap-3 max-w-2xl w-full mx-auto mt-4">
               <button
+                aria-label="menu"
                 onClick={() => { setSidebarOpen(true); posthog.capture('sidebar_opened') }}
                 className={`w-14 h-14 flex items-center justify-center rounded-2xl text-white shadow-xl hover:scale-105 active:scale-95 transition-all ${BRAND_GRADIENT}`}
               >
@@ -621,7 +623,7 @@ export default function MapPage() {
                       <span className="text-slate-700 font-black">{formatDist(routeInfo.dist)}</span>
                     </div>
                   </div>
-                  <button onClick={startNavigation} className={`${BRAND_GRADIENT} text-white px-8 h-16 rounded-2xl font-black text-xl shadow-xl shadow-[#3D2CD5]/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3`}>
+                  <button onClick={startNavigation} data-tour="go" className={`${BRAND_GRADIENT} text-white px-8 h-16 rounded-2xl font-black text-xl shadow-xl shadow-[#3D2CD5]/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3`}>
                     <span>Y ALLER</span>
                     <Navigation size={22} fill="currentColor" />
                   </button>
@@ -640,7 +642,7 @@ export default function MapPage() {
                   <Navigation size={28} className="text-[#00FF66]" fill="currentColor" />
                 </div>
               </Link>
-              <Link href="/payment" className="flex flex-col items-center gap-1 group">
+              <Link href="/payment" data-tour="sptz" className="flex flex-col items-center gap-1 group">
                 <Zap size={22} className="text-slate-400 group-hover:text-[#00FF66] transition-colors" />
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider group-hover:text-[#00FF66]">Premium</span>
               </Link>
@@ -741,6 +743,7 @@ export default function MapPage() {
         `}</style>
 
       </div>
+      <OnboardingTour />
     </ProtectedRoute>
   )
 }
