@@ -4,7 +4,7 @@
 
 Fyndzz est une application mobile-first propulsée par l'IoT qui aide les conducteurs à trouver des places de stationnement disponibles en temps réel. Grâce à des capteurs intelligents et une navigation GPS style Waze, Fyndzz optimise la recherche de stationnement, réduit les embouteillages et améliore la mobilité urbaine.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black)](https://fyndzz.vercel.app)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black)](https://fyndzz.fr)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green)](https://supabase.com)
 
@@ -59,12 +59,12 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-NEXT_PUBLIC_APP_URL=https://fyndzz.vercel.app
+NEXT_PUBLIC_APP_URL=https://fyndzz.fr
 
 # Spotify (optionnel)
 NEXT_PUBLIC_SPOTIFY_CLIENT_ID=your_client_id
 SPOTIFY_CLIENT_SECRET=your_client_secret
-NEXT_PUBLIC_SPOTIFY_REDIRECT_URI=https://fyndzz.vercel.app/spotify-callback
+NEXT_PUBLIC_SPOTIFY_REDIRECT_URI=https://fyndzz.fr/spotify-callback
 
 # Admin Dashboard
 ADMIN_PASSWORD=your_secure_admin_password
@@ -132,7 +132,7 @@ npx cap open android  # Android Studio
 npx cap open ios      # Xcode (Mac uniquement)
 ```
 
-L'app pointe vers `https://fyndzz.vercel.app` — mises à jour automatiques sans rebuild APK.
+L'app pointe vers `https://fyndzz.fr` — mises à jour automatiques sans rebuild APK.
 
 ---
 
@@ -176,8 +176,8 @@ L'app pointe vers `https://fyndzz.vercel.app` — mises à jour automatiques san
 
 ## 🌐 Liens
 
-- **App** : https://fyndzz.vercel.app
-- **Install PWA** : https://fyndzz.vercel.app/install-pwa
+- **App** : https://fyndzz.fr
+- **Install PWA** : https://fyndzz.fr/install-pwa
 - **Instagram** : https://www.instagram.com/fyndzz.ai/
 - **LinkedIn** : https://www.linkedin.com/company/fyndzz
 

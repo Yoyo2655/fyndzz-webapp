@@ -27,10 +27,10 @@ Fyndzz est une application mobile-first de stationnement intelligent basée sur 
 - **Musique** : Spotify Web API (contrôle lecture, Premium requis)
 
 ### URLs
-- **Production** : https://fyndzz.vercel.app
+- **Production** : https://fyndzz.fr
 - **Repo** : github.com/Yoyo2655/fyndzz-webapp
 - **Local** : C:\YONI\Centrale\Fyndzz\webapp\fyndzz
-- **Admin** : https://fyndzz.vercel.app/admin
+- **Admin** : https://fyndzz.fr/admin
 
 ---
 
@@ -95,10 +95,10 @@ SUPABASE_SERVICE_ROLE_KEY=...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-NEXT_PUBLIC_APP_URL=https://fyndzz.vercel.app
+NEXT_PUBLIC_APP_URL=https://fyndzz.fr
 NEXT_PUBLIC_SPOTIFY_CLIENT_ID=...
 SPOTIFY_CLIENT_SECRET=...
-NEXT_PUBLIC_SPOTIFY_REDIRECT_URI=https://fyndzz.vercel.app/spotify-callback
+NEXT_PUBLIC_SPOTIFY_REDIRECT_URI=https://fyndzz.fr/spotify-callback
 ADMIN_PASSWORD=...
 NEXT_PUBLIC_POSTHOG_KEY=phc_...
 NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
@@ -189,4 +189,4 @@ create table sptz_rewards (id uuid primary key default gen_random_uuid(), user_i
 ## Réseaux sociaux
 - Instagram : https://www.instagram.com/fyndzz.ai/
 - LinkedIn : https://www.linkedin.com/company/fyndzz
-- Website : https://fyndzz.vercel.app
+- Website : https://fyndzz.fr

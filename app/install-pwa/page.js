@@ -180,7 +180,7 @@ export default function InstallPWA() {
                 <div className="pwa-step-num">02</div>
                 <div className="pwa-step-body">
                   <div className="pwa-step-title">Accédez à l&apos;application</div>
-                  <div className="pwa-step-desc">Tapez <strong>fyndzz.vercel.app</strong> dans la barre d&apos;adresse et attendez que la page se charge complètement.</div>
+                  <div className="pwa-step-desc">Tapez <strong>fyndzz.fr</strong> dans la barre d&apos;adresse et attendez que la page se charge complètement.</div>
                 </div>
               </div>
               <div className="pwa-step">
@@ -210,7 +210,7 @@ export default function InstallPWA() {
               <div><strong>Astuce</strong> — Sur certains Android, une bannière <span className="pwa-pill">Installer Fyndzz</span> apparaît directement en bas de l&apos;écran dès votre première visite. Appuyez dessus pour installer encore plus vite !</div>
             </div>
             <div className="pwa-cta-wrap">
-              <a href="https://fyndzz.vercel.app" className="pwa-cta" onClick={() => posthog.capture('pwa_cta_clicked', { platform: activeTab })}>Ouvrir Fyndzz dans Chrome →</a>
+              <a href="https://fyndzz.fr" className="pwa-cta" onClick={() => posthog.capture('pwa_cta_clicked', { platform: activeTab })}>Ouvrir Fyndzz dans Chrome →</a>
             </div>
           </div>
         )}
@@ -229,7 +229,7 @@ export default function InstallPWA() {
                 <div className="pwa-step-num">02</div>
                 <div className="pwa-step-body">
                   <div className="pwa-step-title">Accédez à l&apos;application</div>
-                  <div className="pwa-step-desc">Tapez <strong>fyndzz.vercel.app</strong> dans la barre d&apos;adresse de Safari et attendez le chargement complet.</div>
+                  <div className="pwa-step-desc">Tapez <strong>fyndzz.fr</strong> dans la barre d&apos;adresse de Safari et attendez le chargement complet.</div>
                 </div>
               </div>
               <div className="pwa-step">
@@ -259,7 +259,7 @@ export default function InstallPWA() {
               <div><strong>iOS 16.4+</strong> — Sur les versions récentes d&apos;iOS, les notifications push sont supportées. Acceptez la demande d&apos;autorisation lors du premier lancement pour recevoir les alertes de places disponibles.</div>
             </div>
             <div className="pwa-cta-wrap">
-              <a href="https://fyndzz.vercel.app" className="pwa-cta" onClick={() => posthog.capture('pwa_cta_clicked', { platform: activeTab })}>Ouvrir Fyndzz dans Safari →</a>
+              <a href="https://fyndzz.fr" className="pwa-cta" onClick={() => posthog.capture('pwa_cta_clicked', { platform: activeTab })}>Ouvrir Fyndzz dans Safari →</a>
             </div>
           </div>
         )}
@@ -271,7 +271,7 @@ export default function InstallPWA() {
           <img src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" />
         </div>
         <div className="pwa-footer-social">
-          <a href="https://fyndzz.vercel.app" target="_blank" rel="noopener noreferrer" className="pwa-social-btn">
+          <a href="https://fyndzz.fr" target="_blank" rel="noopener noreferrer" className="pwa-social-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>

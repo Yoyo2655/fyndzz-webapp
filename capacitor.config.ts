@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Fyndzz',
   webDir: 'out',
   server: {
-    url: 'https://fyndzz.vercel.app',
+    url: 'https://fyndzz.fr',
     cleartext: true
   },
   plugins: {

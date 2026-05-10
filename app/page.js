@@ -214,7 +214,7 @@ export default function LandingPage() {
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           
           {/* Website */}
-          <a href="https://fyndzz.vercel.app" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', textDecoration: 'none' }}
+          <a href="https://fyndzz.fr" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', textDecoration: 'none' }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,255,102,0.15)'}
             onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
           >

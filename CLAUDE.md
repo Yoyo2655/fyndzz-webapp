@@ -9,7 +9,7 @@ Ce fichier explique à Claude tout ce qu'il faut savoir pour travailler efficace
 Fyndzz est une app web/mobile de stationnement intelligent IoT développée par Yoyo (Yoni ATTAL). Claude joue le rôle d'advisor technique full-stack et implémente directement le code.
 
 **Repo** : github.com/Yoyo2655/fyndzz-webapp  
-**Prod** : https://fyndzz.vercel.app  
+**Prod** : https://fyndzz.fr  
 **Local** : C:\YONI\Centrale\Fyndzz\webapp\fyndzz  
 
 ---
@@ -22,7 +22,7 @@ Fyndzz est une app web/mobile de stationnement intelligent IoT développée par 
 - **OSRM public** pour le routage (router.project-osrm.org)
 - **Nominatim** pour le géocodage
 - **Tailwind CSS** pour le styling (classes utilitaires)
-- **Capacitor** pour l'app mobile (pointe vers fyndzz.vercel.app via server.url)
+- **Capacitor** pour l'app mobile (pointe vers fyndzz.fr via server.url)
 - **PostHog** pour les analytics (EU cloud, autocapture désactivé)
 
 ---
@@ -223,7 +223,7 @@ const config: CapacitorConfig = {
   appId: 'com.fyndzz.app',
   appName: 'Fyndzz',
   webDir: 'out',
-  server: { url: 'https://fyndzz.vercel.app', cleartext: true },
+  server: { url: 'https://fyndzz.fr', cleartext: true },
   plugins: {
     SplashScreen: { launchShowDuration: 2000, backgroundColor: '#160C6B', showSpinner: false },
     PushNotifications: { presentationOptions: ['badge', 'sound', 'alert'] },
