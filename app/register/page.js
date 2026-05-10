@@ -52,7 +52,24 @@ export default function RegisterPage() {
 
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
-      password: form.password
+      password: form.password,
+      options: {
+        data: {
+          first_name: form.first_name,
+          last_name: form.last_name,
+          phone: form.phone,
+          address: form.address,
+          postal_code: form.postal_code,
+          city: form.city,
+          country: form.country,
+          plate: form.plate,
+          vehicle_brand: form.vehicle_brand,
+          vehicle_model: form.vehicle_model,
+          vehicle_year: form.vehicle_year,
+          vehicle_color: form.vehicle_color,
+          vehicle_energy: form.vehicle_energy,
+        }
+      }
     })
 
     if (signUpError) {
@@ -61,29 +78,8 @@ export default function RegisterPage() {
       return
     }
 
-    const userId = data.user?.id
-    if (userId) {
-      await supabase.from('profiles').insert({
-        id: userId,
-        first_name: form.first_name,
-        last_name: form.last_name,
-        full_name: `${form.first_name} ${form.last_name}`,
-        email: form.email,
-        phone: form.phone,
-        address: form.address,
-        postal_code: form.postal_code,
-        city: form.city,
-        country: form.country,
-        plate: form.plate,
-        vehicle_brand: form.vehicle_brand,
-        vehicle_model: form.vehicle_model,
-        vehicle_year: form.vehicle_year,
-        vehicle_color: form.vehicle_color,
-        vehicle_energy: form.vehicle_energy
-      })
-    }
-
     router.push('/confirm-email')
+    setLoading(false)
   }
 
   const inputStyle = {
