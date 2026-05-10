@@ -6,7 +6,13 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export async function GET() {
+export async function GET(req) {
+  // Vérifier le token admin depuis le header
+  const adminToken = req.headers.get('x-admin-token')
+  if (adminToken !== process.env.ADMIN_PASSWORD) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const [
     { data: users, count: userCount },
     { data: sensors },

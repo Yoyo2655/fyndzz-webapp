@@ -53,7 +53,9 @@ export default function AdminPage() {
 
   const loadData = async () => {
     setLoading(true)
-    const res = await fetch('/api/admin/data')
+    const res = await fetch('/api/admin/data', {
+      headers: { 'x-admin-token': password }
+    })
     const { users, userCount, sensors, payments, allPayments } = await res.json()
 
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()

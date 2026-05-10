@@ -2,9 +2,22 @@ import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
+const FORFAITS = {
+  30: 120,
+  60: 200,
+  120: 350,
+  240: 600,
+}
+const TARIF_MINUTE = 4 // centimes
+
 export async function POST(req) {
   try {
-    const { amount_cents, duration_minutes, mode, street, user_id, sensor_id } = await req.json()
+    const { amount_cents: clientAmount, duration_minutes, mode, street, user_id, sensor_id } = await req.json()
+
+    // Recalculer le montant côté serveur (ignorer la valeur du client)
+    const safeCents = mode === 'fixed'
+      ? FORFAITS[duration_minutes] || 120
+      : Math.round(duration_minutes * TARIF_MINUTE)
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -17,7 +30,7 @@ export async function POST(req) {
               : `Stationnement à la minute — ${street}`,
             description: 'Payé via Fyndzz'
           },
-          unit_amount: amount_cents,
+          unit_amount: safeCents,
         },
         quantity: 1,
       }],
