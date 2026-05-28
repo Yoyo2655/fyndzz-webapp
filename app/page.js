@@ -3,8 +3,26 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
+import PhotoSection from '@/components/PhotoSection'
+import NavBar from '@/components/NavBar'
+import Footer from '@/components/Footer'
+
+/* ============================================================
+   PALETTE FYNDZZ
+   FOND (inchangé)   : violet #3D2CD5 → navy #160C6B
+   ACCENT (inchangé) : green #00FF66 · ink #0A0040
+   PASTILLES (fournies) :
+     orange  #FF914D
+     violet  #4A3AAA
+     indigo  #2A1A8A
+     magenta #8814CE
+   ============================================================ */
+const C = {
+  violet: '#3D2CD5', navy: '#160C6B', navyDeep: '#0d0a3e',
+  green: '#00FF66', ink: '#0A0040',
+  pOrange: '#FF914D', pViolet: '#4A3AAA', pIndigo: '#2A1A8A', pMagenta: '#8814CE',
+}
 
 export default function LandingPage() {
   const router = useRouter()
@@ -25,22 +43,17 @@ export default function LandingPage() {
   }, [])
 
   if (showSplash) return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 9999,
-      background: 'linear-gradient(180deg, #160C6B 0%, #0d0a3e 100%)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      animation: 'fadeOut 0.4s ease 1.8s both'
-    }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: `linear-gradient(180deg, ${C.navy} 0%, ${C.navyDeep} 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeOut 0.4s ease 1.8s both' }}>
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ position: 'absolute', width: '160px', height: '160px', borderRadius: '50%', border: '3px solid rgba(0,255,102,0.6)', animation: 'ring1 1.5s ease-out 0.2s both' }} />
-        <div style={{ position: 'absolute', width: '200px', height: '200px', borderRadius: '50%', border: '2px solid rgba(0,255,102,0.3)', animation: 'ring2 1.5s ease-out 0.4s both' }} />
-        <div style={{ position: 'absolute', width: '240px', height: '240px', borderRadius: '50%', border: '1px solid rgba(0,255,102,0.15)', animation: 'ring2 1.5s ease-out 0.6s both' }} />
-        <div style={{ width: '110px', height: '110px', borderRadius: '28px', background: 'linear-gradient(135deg, #3D2CD5, #160C6B)', border: '2px solid rgba(0,255,102,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(0,255,102,0.2)', animation: 'logoIn 0.5s ease 0.1s both' }}>
-          <img src="/Logo-RBG_Fyndzz.png" style={{ width: '70px', height: '70px', objectFit: 'contain' }} alt="Fyndzz" />
+        <div style={{ position: 'absolute', width: 160, height: 160, borderRadius: '50%', border: '3px solid rgba(0,255,102,0.6)', animation: 'ring1 1.5s ease-out 0.2s both' }} />
+        <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: '50%', border: '2px solid rgba(0,255,102,0.3)', animation: 'ring2 1.5s ease-out 0.4s both' }} />
+        <div style={{ position: 'absolute', width: 240, height: 240, borderRadius: '50%', border: '1px solid rgba(0,255,102,0.15)', animation: 'ring2 1.5s ease-out 0.6s both' }} />
+        <div style={{ width: 110, height: 110, borderRadius: 28, background: `linear-gradient(135deg, ${C.violet}, ${C.navy})`, border: '2px solid rgba(0,255,102,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(0,255,102,0.2)', animation: 'logoIn 0.5s ease 0.1s both' }}>
+          <img src="/Logo-RBG_Fyndzz.png" style={{ width: 70, height: 70, objectFit: 'contain' }} alt="Fyndzz" />
         </div>
       </div>
       <div style={{ position: 'absolute', bottom: '15%', textAlign: 'center', animation: 'logoIn 0.5s ease 0.3s both' }}>
-        <img src="/Titre-RBG_Fyndzz.png" style={{ height: '48px', objectFit: 'contain' }} alt="fyndzz" />
+        <img src="/Titre-RBG_Fyndzz.png" style={{ height: 48, objectFit: 'contain' }} alt="fyndzz" />
       </div>
       <style>{`
         @keyframes ring1 { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
@@ -52,223 +65,204 @@ export default function LandingPage() {
   )
 
   if (checking) return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #3D2CD5 0%, #160C6B 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #00FF66', animation: 'spin 0.8s linear infinite' }} />
+    <div style={{ minHeight: '100vh', background: `linear-gradient(180deg, ${C.violet} 0%, ${C.navy} 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.1)', borderTop: `3px solid ${C.green}`, animation: 'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   )
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(180deg, #3D2CD5 0%, #160C6B 100%)',
-      fontFamily: 'sans-serif', color: '#fff',
-      overflow: 'hidden', position: 'relative'
-    }}>
+    <div style={{ minHeight: '100vh', background: `linear-gradient(180deg, ${C.violet} 0%, ${C.navy} 100%)`, color: '#fff', fontFamily: 'system-ui, sans-serif', overflow: 'hidden', position: 'relative' }}>
 
-      {/* Orbes déco */}
-      <div style={{ position: 'absolute', top: '-200px', right: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'rgba(0,255,102,0.05)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-100px', left: '-100px', width: '400px', height: '400px', borderRadius: '50%', background: 'rgba(61,44,213,0.3)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+      {/* orbes déco (comme ton code d'origine) */}
+      <div style={{ position: 'absolute', top: -200, right: -100, width: 600, height: 600, borderRadius: '50%', background: 'rgba(0,255,102,0.05)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: -100, left: -100, width: 400, height: 400, borderRadius: '50%', background: 'rgba(61,44,213,0.3)', filter: 'blur(60px)', pointerEvents: 'none' }} />
 
-      {/* NAV */}
-      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.2rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={130} height={36} style={{ objectFit: 'contain' }} />
-        <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-          <Link href="/login" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '500', padding: '0.5rem 1.2rem', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}>
-            Connexion
-          </Link>
-          <Link href="/register" style={{ background: '#00FF66', color: '#0A0040', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '700', padding: '0.5rem 1.2rem', borderRadius: '8px' }}>
-            S'inscrire
-          </Link>
-        </div>
-      </nav>
+      <NavBar />
 
-      {/* HERO */}
-      <section style={{ maxWidth: '900px', margin: '0 auto', padding: '5rem 2rem 3rem', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,255,102,0.1)', border: '1px solid rgba(0,255,102,0.25)', borderRadius: '100px', padding: '0.35rem 1rem', fontSize: '0.75rem', fontWeight: '700', color: '#00FF66', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '2rem' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00FF66', animation: 'pulse 2s infinite' }} />
-          568 capteurs actifs en Île-de-France
-        </div>
+      <main style={{ maxWidth: 1180, margin: '0 auto', padding: '0 24px', position: 'relative' }}>
 
-        <h1 style={{ fontSize: 'clamp(2.4rem, 6vw, 4rem)', fontWeight: '800', lineHeight: '1.05', letterSpacing: '-0.03em', marginBottom: '1.5rem' }}>
-          Oubliez le stress du stationnement<br/>
-           <span style={{ color: '#00FF66' }}>Find it !  Park it !</span>
-        </h1>
+        {/* ===== HERO MOSAIC ===== */}
+        <section style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18, padding: '32px 0' }} className="fz-mosaic">
+          {/* gros bloc indigo profond */}
+          <div style={{ ...blockBase, background: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})`, border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem', opacity: 0.85, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8, color: C.green }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: C.green, animation: 'pulse 2s infinite' }} />
+              568 capteurs actifs en Île-de-France
+            </div>
+            <h1 style={{ fontSize: 'clamp(2rem, 3.6vw, 3.1rem)', fontWeight: 800, lineHeight: 1.04, letterSpacing: '-0.02em' }}>
+              Oubliez le stress du stationnement.
+            </h1>
+            <p style={{ fontSize: '1.05rem', lineHeight: 1.55, marginTop: 14, maxWidth: '90%', opacity: 0.85 }}>
+              Fyndzz vous guide en temps réel vers une place libre dans la rue. <strong style={{ color: C.green }}>Find it. Park it.</strong>
+            </p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 26 }}>
+              <Link href="/register" style={{ ...btn, background: C.green, color: C.ink }}>Créer un compte gratuit →</Link>
+              <Link href="/login" style={{ ...btn, background: 'transparent', color: '#fff', border: '1.5px solid rgba(255,255,255,0.3)' }}>Se connecter</Link>
+            </div>
+          </div>
 
-        <p style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.6)', lineHeight: '1.75', maxWidth: '560px', margin: '0 auto 2.5rem', fontWeight: '300' }}>
-          Fyndzz© est une application mobile propulsée par l’IA qui aide les Fyndzzers – conducteurs utilisateurs de Fyndzz© – à trouver des places de stationnement dans la rue disponibles en temps réel. <br/>
-          Grâce à des données intelligentes et à une technologie de capteurs nouvelle génération, Fyndzz© optimise la recherche de stationnement, réduit les embouteillages et améliore la mobilité urbaine. 
-        </p>
+          {/* 2 mini blocs */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div style={{ ...miniBase, background: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})`, border: '1px solid rgba(255,255,255,0.1)' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Find it.</h3>
+              <p style={{ fontSize: '0.95rem', lineHeight: 1.5, opacity: 0.88 }}>Des capteurs détectent les places libres en direct, rue par rue.</p>
+              <Link href="#how" style={{ marginTop: 16, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 4, color: C.green }}>Comment ça marche →</Link>
+            </div>
+            <div style={{ ...miniBase, background: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})`, border: '1px solid rgba(255,255,255,0.1)' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Park it.</h3>
+              <p style={{ fontSize: '0.95rem', lineHeight: 1.5, opacity: 0.92 }}>Navigation jusqu'à la place. Une meilleure se libère ? On recalcule.</p>
+              <Link href="/register" style={{ marginTop: 16, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 4, color: '#fff' }}>Voir la carte →</Link>
+            </div>
+          </div>
+        </section>
 
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/register" style={{ background: '#00FF66', color: '#0A0040', textDecoration: 'none', padding: '0.9rem 2rem', borderRadius: '10px', fontWeight: '700', fontSize: '0.95rem' }}>
-            Créer un compte gratuit →
-          </Link>
-          <Link href="/login" style={{ color: '#fff', textDecoration: 'none', padding: '0.9rem 2rem', borderRadius: '10px', fontWeight: '600', fontSize: '0.95rem', border: '1px solid rgba(255,255,255,0.2)' }}>
-            Se connecter
-          </Link>
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section style={{ maxWidth: '800px', margin: '2rem auto', padding: '0 2rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '2rem' }}>
+        {/* ===== STATS (glass, comme ton code) ===== */}
+        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '10px 0 40px' }} className="fz-stats">
           {[
-            { num: '+500', label: 'Capteurs IoT actifs' },
-            { num: 'Île-de-France', label: 'Zone couverte' },
-            { num: '~8 min', label: 'Économisées / trajet' },
-            { num: '−34%', label: 'CO₂ évité' },
-          ].map(({ num, label }) => (
-            <div key={label} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.8rem)', fontWeight: '800', color: '#00FF66', letterSpacing: '-0.02em' }}>{num}</div>
-              <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.3rem' }}>{label}</div>
+            { n: '+500', l: 'Capteurs IoT actifs' },
+            { n: 'Île-de-France', l: 'Zone couverte' },
+            { n: '~8 min', l: 'Économisées / trajet' },
+            { n: '−34%', l: 'CO₂ évité' },
+          ].map(({ n, l }) => (
+            <div key={l} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 18, padding: 24, textAlign: 'center' }}>
+              <div style={{ fontWeight: 800, fontSize: '1.7rem', color: C.green, letterSpacing: '-0.02em' }}>{n}</div>
+              <div style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>{l}</div>
             </div>
           ))}
-        </div>
-      </section>
+        </section>
 
-      {/* COMMENT ÇA MARCHE */}
-      <section style={{ maxWidth: '900px', margin: '4rem auto', padding: '0 2rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#00FF66', marginBottom: '0.8rem' }}>Le concept</div>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: '800', letterSpacing: '-0.02em' }}>Comment ça marche ?</h2>
-        </div>
+        {/* ===== PHOTO 1 — cadre arrondi ===== */}
+        <PhotoSection
+          variant="framed"
+          eyebrow="Au volant"
+          title="Pensé pour la vraie vie en ville."
+          text="Vous indiquez votre destination, Fyndzz s'occupe du reste. Pas d'yeux rivés sur l'écran à chercher : un guidage clair qui vous mène à la place, pendant que vous gardez les mains sur le volant."
+          src="/photos/driver.jpg"
+          alt="Conducteur utilisant Fyndzz au volant"
+        />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
-          {[
-            {
-              step: '01', icon: '📡',
-              title: 'Capteurs temps réel',
-              desc: 'Une flotte de capteurs installés en ville signale l\'occupation des places de stationnement en temps réel.'
-            },
-            {
-              step: '02', icon: '🧭',
-              title: 'Guidage intelligent',
-              desc: 'À 10 minutes de votre destination, Fyndzz© active le mode parking et calcule l\'itinéraire optimal vers la place disponible la plus proche.'
-            },
-            {
-              step: '03', icon: '🅿️',
-              title: 'Vous vous garez',
-              desc: 'Navigation GPS turn-by-turn jusqu\'à la place. Si une meilleure se libère en chemin, Fyndzz© vous redirige automatiquement. Zéro stress.'
-            },
-          ].map(({ step, icon, title, desc }) => (
-            <div key={step} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '1.8rem', transition: 'border-color 0.3s' }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#00FF66', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '1rem' }}>Étape {step}</div>
-              <div style={{ fontSize: '2rem', marginBottom: '0.8rem' }}>{icon}</div>
-              <div style={{ fontWeight: '700', fontSize: '1rem', marginBottom: '0.5rem' }}>{title}</div>
-              <div style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.55)', lineHeight: '1.6' }}>{desc}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* POURQUOI FYNDZZ */}
-      <section style={{ maxWidth: '900px', margin: '0 auto 4rem', padding: '0 2rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#00FF66', marginBottom: '0.8rem' }}>Pourquoi Fyndzz</div>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: '800', letterSpacing: '-0.02em' }}>Pas juste un GPS parking.</h2>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem' }}>
-          {[
-            { icon: '⚡', title: 'Données vraiment temps réel', desc: 'Pas de données périmées. Chaque capteur met à jour l\'état de la place en direct, toutes les 30 secondes.' },
-            { icon: '🔮', title: 'Anticipation automatique', desc: 'Fyndzz© active le mode parking 10 minutes avant votre arrivée — pas quand vous êtes déjà là à chercher.' },
-            { icon: '🔄', title: 'Recalcul dynamique', desc: 'Votre place vient d\'être prise ? Fyndzz© trouve immédiatement la suivante et recalcule sans que vous ne touchiez à rien.' },
-            { icon: '🌿', title: 'Moins de CO₂ et moins de temps perdu', desc: 'Fini les tours de pâtés de maisons : Fyndzz© vous fait gagner en moyenne 8 minutes par trajet ce qui représente 34% de CO2 économisé !' },
-          ].map(({ icon, title, desc }) => (
-            <div key={title} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-              <div style={{ fontSize: '1.6rem', flexShrink: 0 }}>{icon}</div>
-              <div>
-                <div style={{ fontWeight: '700', fontSize: '0.95rem', marginBottom: '0.4rem' }}>{title}</div>
-                <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', lineHeight: '1.6' }}>{desc}</div>
+        {/* ===== HOW ===== */}
+        <section id="how" style={{ padding: '50px 0' }}>
+          <SecHead tag="Le concept" title="Comment ça marche ?" sub="Trois étapes, zéro tour de pâté de maisons." />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }} className="fz-3">
+            {[
+              { step: 'ÉTAPE 01', t: 'Capteurs temps réel', d: "Une flotte de capteurs signale l'occupation des places en direct, toutes les 30 secondes.", bg: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})` },
+              { step: 'ÉTAPE 02', t: 'Guidage intelligent', d: 'À 10 min de votre destination, Fyndzz active le mode parking et calcule la place la plus proche.', bg: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})` },
+              { step: 'ÉTAPE 03', t: 'Vous vous garez', d: 'Navigation turn-by-turn. Une place mieux placée se libère ? On vous redirige tout seul.', bg: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})` },
+            ].map(({ step, t, d, bg }) => (
+              <div key={step} style={{ borderRadius: 22, padding: 34, color: '#fff', minHeight: 230, background: bg, border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ fontWeight: 800, opacity: 0.6, fontSize: '0.8rem', letterSpacing: '0.1em', color: C.green }}>{step}</div>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: '18px 0 8px' }}>{t}</h3>
+                <p style={{ fontSize: '0.95rem', lineHeight: 1.55, opacity: 0.9 }}>{d}</p>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
 
-      {/* CTA FINAL */}
-      <section style={{ textAlign: 'center', padding: '4rem 2rem 6rem', maxWidth: '600px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '1rem' }}>
-          Prêt à ne plus chercher ?
-        </h2>
-        <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2rem', fontSize: '0.95rem' }}>
-          Créez un compte gratuitement et accédez à la carte en temps réel.
-        </p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/register" style={{ background: '#00FF66', color: '#0A0040', textDecoration: 'none', padding: '1rem 2.5rem', borderRadius: '10px', fontWeight: '700', fontSize: '1rem' }}>
-            Créer un compte gratuit →
-          </Link>
-          <Link href="/login" style={{ color: '#fff', textDecoration: 'none', padding: '1rem 2rem', borderRadius: '10px', fontWeight: '600', fontSize: '0.95rem', border: '1px solid rgba(255,255,255,0.2)' }}>
-            Se connecter
-          </Link>
-        </div>
-      </section>
+        {/* ===== PHOTO 2 — bord à bord, photo à droite ===== */}
+        <PhotoSection
+          variant="bleed"
+          reverse
+          eyebrow="Le réseau"
+          title="Une couche de capteurs posée sur la ville."
+          text="Plus de 500 capteurs déployés en Île-de-France remontent l'état des places en continu. Une donnée réelle, vivante, qui se met à jour pendant que vous roulez."
+          src="/photos/city-street.jpg"
+          alt="Rue parisienne avec stationnement"
+        />
 
-      {/* FOOTER */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '2rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-        
-        <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={110} height={30} style={{ objectFit: 'contain' }} />
+        {/* ===== WHY (glass) ===== */}
+        <section style={{ padding: '0 0 50px' }}>
+          <SecHead tag="Pourquoi Fyndzz" title="Pas juste un GPS parking." />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }} className="fz-2">
+            {[
+              { t: 'Vraiment temps réel', d: "Pas de données périmées. Chaque capteur met à jour l'état de la place toutes les 30 s." },
+              { t: 'Anticipation automatique', d: "Le mode parking s'active 10 min avant l'arrivée — pas une fois sur place à galérer." },
+              { t: 'Recalcul dynamique', d: "Votre place vient d'être prise ? Fyndzz trouve la suivante sans que vous touchiez à rien." },
+              { t: 'Moins de CO₂', d: '8 minutes gagnées en moyenne par trajet, soit ~34% de CO₂ économisé.' },
+            ].map(({ t, d }) => (
+              <div key={t} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 26 }}>
+                <div style={{ width: 40, height: 4, borderRadius: 4, background: C.green, marginBottom: 16 }} />
+                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: 6 }}>{t}</h4>
+                <p style={{ fontSize: '0.92rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}>{d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        {/* Réseaux sociaux */}
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          
-          {/* Website */}
-          <a href="https://fyndzz.fr" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', textDecoration: 'none' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,255,102,0.15)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-          </a>
+        {/* ===== PHOTO 3 — fond plein largeur, texte par-dessus ===== */}
+        <PhotoSection
+          variant="overlay"
+          eyebrow="L'impact"
+          title="Moins de tours. Moins de CO₂."
+          text="Chaque trajet sans chercher, c'est ~8 minutes gagnées et 34% de CO₂ en moins. Multiplié par des milliers de conducteurs, c'est une ville qui respire."
+          cta={{ label: 'Rejoindre les Fyndzzers →', href: '/register' }}
+          src="/photos/aerial-traffic.jpg"
+          alt="Vue aérienne de la circulation urbaine"
+        />
 
-          {/* Instagram */}
-          <a href="https://www.instagram.com/fyndzz.ai/" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', textDecoration: 'none' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(193,53,132,0.2)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-            </svg>
-          </a>
+        {/* ===== CTA ===== */}
+        <section style={{ paddingBottom: 40 }}>
+          <CtaBig title="Prêt à ne plus chercher ?" sub="Créez un compte gratuitement et accédez à la carte en temps réel.">
+            <Link href="/register" style={{ ...btn, background: C.green, color: C.ink, padding: '14px 30px', fontSize: '1rem' }}>Créer un compte gratuit →</Link>
+          </CtaBig>
+        </section>
+      </main>
 
-          {/* LinkedIn */}
-          <a href="https://www.linkedin.com/company/fyndzz" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', textDecoration: 'none' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(10,102,194,0.2)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,0.7)">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-              <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
-            </svg>
-          </a>
-
-        </div>
-
-        {/* Bas du footer */}
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Link href="/legal" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>
-            Mentions légales & CGU
-          </Link>
-          <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
-          <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.25)' }}>© 2026 Fyndzz · Paris 🇫🇷</span>
-        </div>
-
-      </footer>
-
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        @media (max-width: 600px) { nav { padding: 1rem; } }
-        @media (max-width: 500px) {
-          div[style*="repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
-          div[style*="repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
-          div[style*="repeat(2, 1fr)"] { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
+      <Footer />
+      <GlobalStyle />
     </div>
   )
 }
+
+/* ============================================================
+   COMPOSANTS PARTAGÉS
+   ============================================================ */
+
+
+function SecHead({ tag, title, sub }) {
+  return (
+    <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto 44px' }}>
+      <span style={{ fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: C.green }}>{tag}</span>
+      <h2 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 800, marginTop: 12, letterSpacing: '-0.02em' }}>{title}</h2>
+      {sub && <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '1.05rem', marginTop: 14, lineHeight: 1.6 }}>{sub}</p>}
+    </div>
+  )
+}
+
+function CtaBig({ title, sub, children }) {
+  return (
+    <div style={{ background: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})`, borderRadius: 30, padding: 64, textAlign: 'center', color: '#fff', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }} className="fz-pad">
+      <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'rgba(0,255,102,0.12)', filter: 'blur(70px)', top: -120, right: -80, pointerEvents: 'none' }} />
+      <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, position: 'relative' }}>{title}</h2>
+      <p style={{ fontSize: '1.1rem', opacity: 0.8, margin: '16px auto 28px', maxWidth: 440, position: 'relative' }}>{sub}</p>
+      <div style={{ position: 'relative', display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>{children}</div>
+    </div>
+  )
+}
+
+
+function GlobalStyle() {
+  return (
+    <style>{`
+      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+      @media (max-width: 860px) {
+        .fz-mosaic { grid-template-columns: 1fr !important; }
+        .fz-3, .fz-2 { grid-template-columns: 1fr !important; }
+        .fz-stats { grid-template-columns: repeat(2, 1fr) !important; }
+        .fz-pad { padding: 34px !important; }
+        .fz-split { grid-template-columns: 1fr !important; }
+        .fz-split-img { order: 1 !important; min-height: 240px !important; }
+        .fz-overlay-text { max-width: 100% !important; text-align: left !important; margin-left: 0 !important; padding: 32px !important; }
+      }
+      @media (max-width: 600px) {
+        .fz-lnk { display: none !important; }
+        nav { padding: 1rem !important; }
+      }
+    `}</style>
+  )
+}
+
+const blockBase = { borderRadius: 26, padding: 42, position: 'relative', overflow: 'hidden' }
+const miniBase = { flex: 1, borderRadius: 26, padding: 30, display: 'flex', flexDirection: 'column', justifyContent: 'center' }
+const btn = { display: 'inline-flex', alignItems: 'center', gap: 7, fontWeight: 700, borderRadius: 10, padding: '11px 20px', fontSize: '0.9rem', textDecoration: 'none' }
