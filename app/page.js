@@ -137,7 +137,7 @@ export default function LandingPage() {
           variant="framed"
           eyebrow="Au volant"
           title="Pensé pour la vraie vie en ville."
-          text="Vous indiquez votre destination, Fyndzz s'occupe du reste. Pas d'yeux rivés sur l'écran à chercher : un guidage clair qui vous mène à la place, pendant que vous gardez les mains sur le volant."
+          text="Vous indiquez votre destination, Fyndzz s'occupe du reste. Pas de regard furtif à droite à gauche ni d'yeux rivés sur l'écran à chercher où se trouve la place: un guidage clair qui vous mène à l'emplacement, pendant que vous gardez les mains sur le volant."
           src="/photos/driver.jpg"
           alt="Conducteur utilisant Fyndzz au volant"
         />
