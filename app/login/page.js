@@ -44,13 +44,15 @@ export default function LoginPage() {
       }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Image
-            src="/Logo-et-Titre-paysage-RBG_Fyndzz.png"
-            alt="Fyndzz"
-            width={200}
-            height={48}
-            style={{ objectFit: 'contain', display: 'block', margin: '0 auto' }}
-          />
+          <Link href="/">
+            <Image
+              src="/Logo-et-Titre-paysage-RBG_Fyndzz.png"
+              alt="Fyndzz"
+              width={200}
+              height={48}
+              style={{ objectFit: 'contain', display: 'block', margin: '0 auto', cursor: 'pointer' }}
+            />
+          </Link>
           <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.88rem', marginTop: '0.5rem' }}>
             Connexion à votre compte
           </div>

@@ -440,7 +440,9 @@ export default function RegisterPage() {
         backdropFilter: 'blur(20px)', margin: '0 1rem'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={200} height={48} style={{ objectFit: 'contain', display: 'block', margin: '0 auto' }} />
+          <Link href="/">
+            <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={200} height={48} style={{ objectFit: 'contain', display: 'block', margin: '0 auto', cursor: 'pointer' }} />
+          </Link>
           <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.88rem', marginTop: '0.5rem' }}>Créer votre compte</div>
         </div>
 
