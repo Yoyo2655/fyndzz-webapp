@@ -117,7 +117,7 @@ export default function HistoryPage() {
           <div style={{ background: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})`, borderRadius: 30, padding: 60, textAlign: 'center', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }} className="fz-pad">
             <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'rgba(0,255,102,0.12)', filter: 'blur(70px)', bottom: -140, left: -80, pointerEvents: 'none' }} />
             <div style={{ position: 'relative' }}>
-              <div style={{ fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.9, marginBottom: 16 }}>Notre mission</div>
+              <div style={{ fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.9, marginBottom: 16, color: C.green }}>Notre mission</div>
               <h2 style={{ fontSize: 'clamp(1.8rem, 3.4vw, 2.8rem)', fontWeight: 800, maxWidth: 760, margin: '0 auto', letterSpacing: '-0.02em' }}>
                 Rendre chaque place visible, pour que personne ne perde plus son temps à chercher.
               </h2>

@@ -195,11 +195,50 @@ export default function LandingPage() {
           variant="overlay"
           eyebrow="L'impact"
           title="Moins de tours. Moins de pollution."
-          text="Chaque trajet avec Fyndzz, c'est en moyenne 8 minutes gagnées, moins d’émissions de CO₂, moins de bruit et moins de circulation inutile. Multiplié par des milliers de conducteurs, c'est une ville qui respire."
+          text="Chaque trajet avec Fyndzz, c'est en moyenne 8 minutes gagnées, moins d'émissions de CO₂, moins de bruit et moins de circulation inutile. Multiplié par des milliers de conducteurs, c'est une ville qui respire."
           cta={{ label: 'Rejoindre les Fyndzzers →', href: '/register' }}
           src="/photos/aerial-traffic.jpg"
           alt="Vue aérienne de la circulation urbaine"
         />
+
+        {/* ===== SPTZ TEASER ===== */}
+        <section style={{ padding: '50px 0' }}>
+          <div style={{ background: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})`, borderRadius: 26, padding: '50px 42px', border: '1px solid rgba(255,255,255,0.1)', position: 'relative', overflow: 'hidden' }} className="fz-pad">
+            <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', background: 'rgba(0,255,102,0.1)', filter: 'blur(60px)', top: -80, right: -40, pointerEvents: 'none' }} />
+            <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }} className="fz-split">
+              {/* texte */}
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: C.green, marginBottom: 14 }}>Programme de fidélité</div>
+                <h2 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 14 }}>
+                  Garez-vous. Gagnez des points. Débloquez des récompenses.
+                </h2>
+                <p style={{ fontSize: '1.02rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.8)', marginBottom: 24 }}>
+                  Chaque trajet vous rapporte des <strong style={{ color: C.green }}>Spotzz Points (SPTZ)</strong>. Grimpez les paliers, collectionnez les badges, et débloquez du stationnement gratuit.
+                </p>
+                <Link href="/sptz" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: C.green, color: C.ink, fontWeight: 700, borderRadius: 10, padding: '12px 24px', fontSize: '0.95rem', textDecoration: 'none' }}>
+                  Découvrir le programme →
+                </Link>
+              </div>
+              {/* mini aperçu visuel des badges */}
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', marginBottom: 20 }}>
+                  {['🅿️', '⚡', '🔥', '🎯', '🚀', '💎', '🌟', '👑', '🏆', '🦁'].map((b, i) => (
+                    <div key={i} style={{ width: 48, height: 48, borderRadius: 14, background: i < 4 ? 'rgba(0,255,102,0.15)' : 'rgba(255,255,255,0.08)', border: `1px solid ${i < 4 ? 'rgba(0,255,102,0.3)' : 'rgba(255,255,255,0.12)'}`, display: 'grid', placeItems: 'center', fontSize: '1.3rem', opacity: i < 4 ? 1 : 0.45 }}>
+                      {b}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {[{ n: 'Fyndzzer', active: true }, { n: 'Pro', active: false }, { n: 'Expert', active: false }, { n: 'Elite', active: false }].map(p => (
+                    <span key={p.n} style={{ padding: '5px 14px', borderRadius: 100, fontSize: '0.78rem', fontWeight: 700, background: p.active ? 'rgba(0,255,102,0.2)' : 'rgba(255,255,255,0.06)', border: `1px solid ${p.active ? 'rgba(0,255,102,0.4)' : 'rgba(255,255,255,0.1)'}`, color: p.active ? C.green : 'rgba(255,255,255,0.4)' }}>
+                      {p.n}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* ===== CTA ===== */}
         <section style={{ paddingBottom: 40 }}>
