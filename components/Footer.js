@@ -10,7 +10,9 @@ export default function Footer() {
   return (
     <footer style={{ position: 'relative', zIndex: 5, borderTop: '1px solid rgba(255,255,255,0.08)', padding: '2rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
 
-      <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={110} height={30} style={{ objectFit: 'contain' }} />
+      <Link href="/">
+        <Image src="/Logo-et-Titre-paysage-RBG_Fyndzz.png" alt="Fyndzz" width={110} height={30} style={{ objectFit: 'contain' }} />
+      </Link>
 
       {/* Réseaux sociaux */}
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
