@@ -38,7 +38,7 @@ export default function CompanyPage() {
               Fyndzz construit l'infrastructure de stationnement intelligente des villes. Notre mission : rendre chaque place visible, en temps réel.
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 26 }}>
-              <Link href="/history" style={{ ...btn, background: '#fff', color: C.ink }}>Découvrir notre histoire</Link>
+              <Link href="/history" style={{ ...btn, background: C.green , color: C.ink }}>Découvrir notre histoire</Link>
             </div>
           </div>
 
