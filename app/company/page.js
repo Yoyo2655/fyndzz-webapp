@@ -127,12 +127,14 @@ export default function CompanyPage() {
         {/* ===== TEAM ===== */}
         <section style={{ padding: '0 0 50px' }}>
           <SecHead tag="L'équipe" title="Les Fyndzzers derrière Fyndzz." />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="fz-team">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="fz-team">
             {[
-              { name: 'Prénom Nom', role: 'CEO & Co-fondateur' },
-              { name: 'Prénom Nom', role: 'CTO & Co-fondateur' },
-              { name: 'Prénom Nom', role: 'Head of Hardware' },
-              { name: 'Prénom Nom', role: 'Head of Growth' },
+              { name: 'Yoni ATTAL', role: 'CEO & Fondateur' },
+              { name: 'Akram MERIK', role: 'CTO' },
+              { name: 'Léa SEBAG', role: 'COO' },
+              { name: 'Lucien PIERROT', role: 'Growth & Partnerships Manager' },
+              { name: 'Valentin ZHOU', role: 'Product Manager' },
+              { name: 'Matis BROSSA', role: 'CFO' },
             ].map((m, i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, overflow: 'hidden', textAlign: 'center', paddingBottom: 18 }}>
                 {/* Remplace par <Image src="/team/xxx.jpg" .../> */}
