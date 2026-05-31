@@ -107,7 +107,7 @@ export default function LandingPage() {
             <div style={{ ...miniBase, background: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})`, border: '1px solid rgba(255,255,255,0.1)' }}>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Find it.</h3>
               <p style={{ fontSize: '0.95rem', lineHeight: 1.5, opacity: 0.88 }}>Des capteurs détectent les places libres en direct, rue par rue.</p>
-              <Link href="#how" style={{ marginTop: 16, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 4, color: C.green }}>Comment ça marche →</Link>
+              <Link href="/how" style={{ marginTop: 16, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 4, color: C.green }}>Comment ça marche →</Link>
             </div>
             <div style={{ ...miniBase, background: `linear-gradient(150deg, ${C.pMagenta}, ${C.pOrange})`, border: '1px solid rgba(255,255,255,0.1)' }}>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Park it.</h3>

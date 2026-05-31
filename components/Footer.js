@@ -53,6 +53,8 @@ export default function Footer() {
         <Link href="/company" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>L'entreprise</Link>
         <span style={sep}>·</span>
         <Link href="/history" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>Notre histoire</Link>
+        <span style={sep}>·</span>  
+        <Link href="/how#faq" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>FAQ</Link>
         <span style={sep}>·</span>
         <Link href="/legal" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>Mentions légales & CGU</Link>
         <span style={sep}>·</span>

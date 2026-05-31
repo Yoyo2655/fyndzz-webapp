@@ -129,7 +129,9 @@ export default function SptzPage() {
             {REWARDS.map(r => (
               <div key={r.cost} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '20px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <div style={{ fontWeight: 800, fontSize: '1.1rem', color: C.green, minWidth: 80 }}>{r.cost.toLocaleString()}</div>
+                  <div style={{ fontWeight: 800, fontSize: '1.1rem', color: C.green, minWidth: 80 }}>
+                    {r.cost < 1000 ? r.cost : `${r.cost}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                  </div>
                   <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.8)' }}>{r.label}</div>
                 </div>
                 <span style={{ padding: '4px 12px', borderRadius: 100, fontSize: '0.72rem', fontWeight: 700, background: 'rgba(0,255,102,0.12)', border: '1px solid rgba(0,255,102,0.25)', color: C.green }}>SPTZ</span>
