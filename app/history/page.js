@@ -18,8 +18,8 @@ const C = {
 
 /* Jalons de la timeline — remplace les dates [À DÉFINIR] */
 const MILESTONES = [
-  { date: '[À DÉFINIR]', t: 'Le déclic', d: "Coincés à tourner pour se garer, on réalise que le problème n'est pas le manque de places — c'est leur invisibilité.", color: C.pOrange },
-  { date: '[À DÉFINIR]', t: 'La rencontre', d: 'Les fondateurs se réunissent autour d\'une conviction : la donnée de stationnement temps réel peut changer la mobilité urbaine.', color: C.pMagenta },
+  { date: 'Février 2024', t: 'Le déclic', d: "Coincés à tourner pour se garer, on réalise que le problème n'est pas le manque de places — c'est leur invisibilité.", color: C.pOrange },
+  { date: 'Mars 2026', t: 'L\'équipe s\'agrandit', d: 'L’équipe se renforce et réunit désormais 6 collaborateurs mobilisés autour d’une même ambition : construire la solution.', color: C.pMagenta },
   { date: '[À DÉFINIR]', t: 'Le premier capteur', d: 'Premier prototype sur le terrain. Une place, un capteur, une preuve que ça marche.', color: C.pViolet },
   { date: '[À DÉFINIR]', t: 'Le pilote 16ᵉ', d: 'Déploiement d\'un réseau réel dans le 16ᵉ arrondissement de Paris.', color: C.pIndigo },
   { date: 'Aujourd\'hui', t: '+500 capteurs', d: 'Un réseau vivant en Île-de-France, en expansion continue.', color: C.green },
@@ -46,7 +46,7 @@ export default function HistoryPage() {
                 Tout est parti d'une rue, et de trop de temps perdu à chercher.
               </h1>
               <p style={{ fontSize: '1.1rem', lineHeight: 1.6, marginTop: 18, color: 'rgba(255,255,255,0.8)' }}>
-                Fyndzz n'est pas né dans un bureau. Il est né dans le trafic, un soir, à tourner en rond pour une place qui n'existait pas.
+                Fyndzz n'est pas né dans un bureau. Il est né dans le trafic, un soir, à tourner en rond pour trouver une place qui n'existait pas.
               </p>
             </div>
           </div>
@@ -57,7 +57,7 @@ export default function HistoryPage() {
           variant="bleed"
           eyebrow="Le déclic"
           title="Le problème, ce n'est pas le manque de places."
-          text="C'est qu'on ne les voit pas. Jusqu'à 30% du trafic urbain ne se déplace pas vraiment : il cherche. Une place se libère à 50 mètres, mais personne ne le sait. On a voulu rendre cet invisible visible."
+          text="C'est qu'on ne les voit pas. En France, 30% des conducteurs qui circulent en ville cherchent simplement à se garer. Une place se libère à 50 mètres, mais personne ne le sait. On a voulu rendre cet invisible visible."
           src="/photos/history-traffic.jpg"
           alt="Voiture cherchant une place dans le trafic"
         />
@@ -67,9 +67,8 @@ export default function HistoryPage() {
           variant="framed"
           reverse
           eyebrow="La rencontre"
-          title="Des fondateurs, une conviction commune."
-          text="Réunis autour d'une même obsession — la mobilité urbaine et la donnée temps réel — les fondateurs de Fyndzz décident d'attaquer le stationnement par là où personne ne l'avait fait : le capteur physique couplé à l'IA."
-          src="/photos/history-founders.jpg"
+          title="Une équipe, une conviction commune."
+          text="Portés par une même obsession, nos collaborateurs travaillent à résoudre le problème du stationnement en l’attaquant à sa racine."          src="/photos/history-founders.jpg"
           alt="Les fondateurs de Fyndzz"
         />
 

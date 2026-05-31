@@ -30,7 +30,7 @@ export default function CompanyPage() {
         {/* ===== HERO MOSAIC ===== */}
         <section style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18, padding: '32px 0' }} className="fz-mosaic">
           <div style={{ ...blockBase, background: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})`, border: '1px solid rgba(255,255,255,0.1)' }}>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', opacity: 0.9, marginBottom: 14 }}>L'entreprise</div>
+            
             <h1 style={{ fontSize: 'clamp(2rem, 3.6vw, 3.1rem)', fontWeight: 800, lineHeight: 1.04, letterSpacing: '-0.02em' }}>
               Moins de voitures qui tournent, ça ne ferait de mal à personne.
             </h1>
@@ -45,7 +45,7 @@ export default function CompanyPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div style={{ ...miniBase, background: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})`, border: '1px solid rgba(255,255,255,0.1)' }}>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Notre vision</h3>
-              <p style={{ fontSize: '0.95rem', lineHeight: 1.5, opacity: 0.88 }}>Une ville où personne ne perd 20 minutes à chercher une place pour se garer. Où le trafic respire.</p>
+              <p style={{ fontSize: '0.95rem', lineHeight: 1.5, opacity: 0.88 }}>Une ville où personne ne perd 20 minutes à chercher une place pour se garer. Pour une ville qui respire enfin.</p>
             </div>
             <div style={{ ...miniBase, background: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})`, border: '1px solid rgba(255,255,255,0.1)' }}>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Notre méthode</h3>
@@ -111,7 +111,7 @@ export default function CompanyPage() {
           <SecHead tag="Pour qui" title="Une donnée, plusieurs bénéficiaires." />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }} className="fz-3">
             {[
-              { t: 'Conducteurs', d: 'Trouvez-vous une place sans stress, et réduisez votre empreinte à chaque trajet.', cta: "Télécharger l'app →", href: '/register', bg: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})` },
+              { t: 'Conducteurs', d: 'Trouvez-vous une place sans stress, et réduisez votre empreinte à chaque trajet.', cta: "Télécharger l'app →", href: '/install-pwa', bg: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})` },
               { t: 'Villes & mairies', d: 'Fluidifiez le trafic et pilotez la mobilité avec une donnée de stationnement temps réel.', cta: 'Nous contacter →', href: '/contact', bg: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})` },
               { t: 'Investisseurs', d: 'Une infrastructure de mobilité scalable, ville par ville. Découvrez la vision.', cta: 'Demander le deck →', href: '/contact', bg: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})` },
             ].map(({ t, d, cta, href, bg }) => (

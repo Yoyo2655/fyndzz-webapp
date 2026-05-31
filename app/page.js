@@ -88,13 +88,13 @@ export default function LandingPage() {
           <div style={{ ...blockBase, background: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})`, border: '1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ fontWeight: 800, fontSize: '0.95rem', opacity: 0.85, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8, color: C.green }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: C.green, animation: 'pulse 2s infinite' }} />
-              568 capteurs actifs en Île-de-France
+              Nos capteurs sont actifs dans toute l'Île-de-France
             </div>
             <h1 style={{ fontSize: 'clamp(2rem, 3.6vw, 3.1rem)', fontWeight: 800, lineHeight: 1.04, letterSpacing: '-0.02em' }}>
               Oubliez le stress du stationnement.
             </h1>
             <p style={{ fontSize: '1.05rem', lineHeight: 1.55, marginTop: 14, maxWidth: '90%', opacity: 0.85 }}>
-              Fyndzz vous guide en temps réel vers une place libre dans la rue. <strong style={{ color: C.green }}>Find it. Park it.</strong>
+              Fyndzz vous guide en temps réel vers la place libre la plus proche de votre destination. <strong style={{ color: C.green }}>Find it. Park it.</strong>
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 26 }}>
               <Link href="/register" style={{ ...btn, background: C.green, color: C.ink }}>Créer un compte gratuit →</Link>
@@ -109,7 +109,7 @@ export default function LandingPage() {
               <p style={{ fontSize: '0.95rem', lineHeight: 1.5, opacity: 0.88 }}>Des capteurs détectent les places libres en direct, rue par rue.</p>
               <Link href="#how" style={{ marginTop: 16, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 4, color: C.green }}>Comment ça marche →</Link>
             </div>
-            <div style={{ ...miniBase, background: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})`, border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ ...miniBase, background: `linear-gradient(150deg, ${C.pMagenta}, ${C.pOrange})`, border: '1px solid rgba(255,255,255,0.1)' }}>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Park it.</h3>
               <p style={{ fontSize: '0.95rem', lineHeight: 1.5, opacity: 0.92 }}>Navigation jusqu'à la place. Une meilleure se libère ? On recalcule.</p>
               <Link href="/register" style={{ marginTop: 16, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 4, color: '#fff' }}>Voir la carte →</Link>
@@ -137,7 +137,7 @@ export default function LandingPage() {
           variant="framed"
           eyebrow="Au volant"
           title="Pensé pour la vraie vie en ville."
-          text="Vous indiquez votre destination, Fyndzz s'occupe du reste. Pas de regard furtif à droite à gauche ni d'yeux rivés sur l'écran à chercher où se trouve la place: un guidage clair qui vous mène à l'emplacement, pendant que vous gardez les mains sur le volant."
+          text="Vous indiquez votre destination, Fyndzz s'occupe du reste. Pas de regard furtif à droite à gauche ni d'yeux rivés sur l'écran à chercher où se trouve la place : un guidage clair qui vous mène à l'emplacement, pendant que vous gardez les mains sur le volant."
           src="/photos/driver.jpg"
           alt="Conducteur utilisant Fyndzz au volant"
         />
@@ -147,9 +147,9 @@ export default function LandingPage() {
           <SecHead tag="Le concept" title="Comment ça marche ?" sub="Trois étapes, zéro tour de pâté de maisons." />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }} className="fz-3">
             {[
-              { step: 'ÉTAPE 01', t: 'Capteurs temps réel', d: "Une flotte de capteurs signale l'occupation des places en direct, toutes les 30 secondes.", bg: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})` },
-              { step: 'ÉTAPE 02', t: 'Guidage intelligent', d: 'À 10 min de votre destination, Fyndzz active le mode parking et calcule la place la plus proche.', bg: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})` },
-              { step: 'ÉTAPE 03', t: 'Vous vous garez', d: 'Navigation turn-by-turn. Une place mieux placée se libère ? On vous redirige tout seul.', bg: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})` },
+              { step: 'ÉTAPE 01', t: 'Capteurs temps réel', d: "Une flotte de capteurs signale l'occupation des places en live.", bg: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})` },
+              { step: 'ÉTAPE 02', t: 'Guidage intelligent', d: 'À environ 7 minutes de votre destination, Fyndzz active le mode parking et calcule la place la plus proche.', bg: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})` },
+              { step: 'ÉTAPE 03', t: 'Vous vous garez', d: 'Navigation turn-by-turn. Une place mieux placée se libère ? Votre place est prise par quelqu\'un avant vous ? On vous redirige tout seul.', bg: `linear-gradient(150deg, ${C.pMagenta}, ${C.pOrange})` },
             ].map(({ step, t, d, bg }) => (
               <div key={step} style={{ borderRadius: 22, padding: 34, color: '#fff', minHeight: 230, background: bg, border: '1px solid rgba(255,255,255,0.1)' }}>
                 <div style={{ fontWeight: 800, opacity: 0.6, fontSize: '0.8rem', letterSpacing: '0.1em', color: C.green }}>{step}</div>
@@ -176,10 +176,10 @@ export default function LandingPage() {
           <SecHead tag="Pourquoi Fyndzz" title="Pas juste un GPS parking." />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }} className="fz-2">
             {[
-              { t: 'Vraiment temps réel', d: "Pas de données périmées. Chaque capteur met à jour l'état de la place toutes les 30 s." },
-              { t: 'Anticipation automatique', d: "Le mode parking s'active 10 min avant l'arrivée — pas une fois sur place à galérer." },
-              { t: 'Recalcul dynamique', d: "Votre place vient d'être prise ? Fyndzz trouve la suivante sans que vous touchiez à rien." },
-              { t: 'Moins de CO₂', d: '8 minutes gagnées en moyenne par trajet, soit ~34% de CO₂ économisé.' },
+              { t: 'Vraiment temps réel', d: "Pas de données périmées. Chaque capteur met à jour l'état de la place toutes les 10 s." },
+              { t: 'Anticipation automatique', d: "Le mode parking s'active 7 minutes avant votre arrivée." },
+              { t: 'Recalcul dynamique', d: "Votre place vient d'être prise ? Fyndzz trouve la suivante sans que vous ne touchiez à rien." },
+              { t: 'Ecologique et économique', d: '8 minutes gagnées en moyenne par trajet, soit ~34% de CO₂ économisé et un gain de 0,50€ par trajet.' },
             ].map(({ t, d }) => (
               <div key={t} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 26 }}>
                 <div style={{ width: 40, height: 4, borderRadius: 4, background: C.green, marginBottom: 16 }} />
@@ -194,8 +194,8 @@ export default function LandingPage() {
         <PhotoSection
           variant="overlay"
           eyebrow="L'impact"
-          title="Moins de tours. Moins de CO₂."
-          text="Chaque trajet sans chercher, c'est ~8 minutes gagnées et 34% de CO₂ en moins. Multiplié par des milliers de conducteurs, c'est une ville qui respire."
+          title="Moins de tours. Moins de pollution."
+          text="Chaque trajet avec Fyndzz, c'est en moyenne 8 minutes gagnées, moins d’émissions de CO₂, moins de bruit et moins de circulation inutile. Multiplié par des milliers de conducteurs, c'est une ville qui respire."
           cta={{ label: 'Rejoindre les Fyndzzers →', href: '/register' }}
           src="/photos/aerial-traffic.jpg"
           alt="Vue aérienne de la circulation urbaine"

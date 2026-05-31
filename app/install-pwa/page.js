@@ -7,7 +7,7 @@ export default function InstallPWA() {
   const [activeTab, setActiveTab] = useState('android')
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #3D2CD5 0%, #160C6B 100%)', fontFamily: "'DM Sans', sans-serif", color: '#fff', overflowX: 'hidden', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #3D2CD5 0%, #160C6B 100%)', fontFamily: "'DM Sans', sans-serif", color: '#fff', overflow: 'hidden', position: 'relative' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
