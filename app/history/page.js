@@ -43,7 +43,7 @@ export default function HistoryPage() {
             <div style={{ position: 'relative', maxWidth: 720 }}>
               <div style={{ fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: C.green, marginBottom: 16 }}>Notre histoire</div>
               <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.4rem)', fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.02em' }}>
-                Tout est parti d'une rue, et de trop de temps perdu à chercher.
+                Au départ, comme vous, on en avait assez de perdre du temps à chercher une place.
               </h1>
               <p style={{ fontSize: '1.1rem', lineHeight: 1.6, marginTop: 18, color: 'rgba(255,255,255,0.8)' }}>
                 Fyndzz n'est pas né dans un bureau. Il est né dans le trafic, un soir, à tourner en rond pour trouver une place qui n'existait pas.
