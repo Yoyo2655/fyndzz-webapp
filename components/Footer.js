@@ -54,7 +54,7 @@ export default function Footer() {
       <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         <Link href="/company" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>L'entreprise</Link>
         <span style={sep}>·</span>
-        <Link href="/history" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>Notre histoire</Link>
+        <Link href="/history" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>A propos de nous</Link>
         <span style={sep}>·</span>  
         <Link href="/how#faq" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>FAQ</Link>
         <span style={sep}>·</span>
