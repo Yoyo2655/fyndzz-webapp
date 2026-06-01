@@ -62,7 +62,7 @@ export default function Footer() {
         <span style={sep}>·</span>
         <Link href="/legal" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>Mentions légales & CGU</Link>
         <span style={sep}>·</span>
-        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.25)' }}>© 2024-2026 Fyndzz · Paris 🇫🇷</span>
+        <span style={{ fontSize: '0.8rem', color: '#ffffff' }}>© 2024-2026 Fyndzz · Paris 🇫🇷</span>
       </div>
 
     </footer>

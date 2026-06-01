@@ -9,7 +9,7 @@ const INK = '#0A0040'
 
 const LINKS = [
   { href: '/company', label: "L'entreprise" },
-  { href: '/history', label: 'Notre histoire' },
+  { href: '/history', label: 'A propos de nous' },
 ]
 
 export default function NavBar() {
