@@ -6,7 +6,7 @@ import NavBar from '@/components/NavBar'
 import Footer from '@/components/Footer'
 
 /* ============================================================
-   PALETTE FYNDZZ — identique landing/company
+   PALETTE FYNDZZ — identique landing/about-us
    FOND : #3D2CD5 → #160C6B · ACCENT : #00FF66
    PASTILLES : #FF914D · #4A3AAA · #2A1A8A · #8814CE
    ============================================================ */
@@ -58,7 +58,7 @@ export default function HistoryPage() {
           eyebrow="Le déclic"
           title="Le problème, ce n'est pas le manque de places."
           text="C'est qu'on ne les voit pas. En France, 30% des conducteurs qui circulent en ville cherchent simplement à se garer. Une place se libère à 50 mètres, mais personne ne le sait. On a voulu rendre cet invisible visible."
-          src="/photos/history-traffic.jpg"
+          src="/photos/about-us-traffic.jpg"
           alt="Voiture cherchant une place dans le trafic"
         />
 
@@ -68,7 +68,7 @@ export default function HistoryPage() {
           reverse
           eyebrow="La rencontre"
           title="Une équipe, une conviction commune."
-          text="Portés par une même obsession, nos collaborateurs travaillent à résoudre le problème du stationnement en l’attaquant à sa racine."          src="/photos/history-founders.jpg"
+          text="Portés par une même obsession, nos collaborateurs travaillent à résoudre le problème du stationnement en l’attaquant à sa racine."          src="/photos/about-us-founders.jpg"
           alt="Les fondateurs de Fyndzz"
         />
 
@@ -78,7 +78,7 @@ export default function HistoryPage() {
           eyebrow="Le premier prototype"
           title="Une place. Un capteur. Une preuve."
           text="Le premier capteur posé sur le bitume a confirmé l'intuition : on peut savoir, en temps réel, si une place est libre. Le reste n'était plus qu'une question d'échelle."
-          src="/photos/history-sensor.jpg"
+          src="/photos/about-us-sensor.jpg"
           alt="Premier capteur Fyndzz installé"
         />
 

@@ -38,7 +38,7 @@ export default function Footer() {
           </svg>
         </a>
 
-        <a href="https://www.linkedin.com/company/fyndzz" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', textDecoration: 'none' }}
+        <a href="https://www.linkedin.com/about-us/fyndzz" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', textDecoration: 'none' }}
           onMouseEnter={e => e.currentTarget.style.background = 'rgba(10,102,194,0.2)'}
           onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
         >
@@ -52,9 +52,7 @@ export default function Footer() {
 
       {/* Bas du footer */}
       <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <Link href="/company" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>L'entreprise</Link>
-        <span style={sep}>·</span>
-        <Link href="/history" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>A propos de nous</Link>
+        <Link href="/about-us" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>A propos</Link>
         <span style={sep}>·</span>  
         <Link href="/how#faq" style={{ color: '#00ff66', textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}>FAQ</Link>
         <span style={sep}>·</span>

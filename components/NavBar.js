@@ -9,15 +9,15 @@ const GREEN = '#00FF66'
 const INK = '#0A0040'
 
 const LINKS = [
-  { href: '/company', label: "L'entreprise" },
-  { href: '/history', label: 'A propos de nous' },
+  { href: '/about-us', label: 'A propos' },
   {
     label: 'Solutions',
     children: [
       { href: '/cities', label: 'Villes & mairies', sub: 'Pilotez le stationnement urbain' },
-      { href: '/business', label: 'Investisseurs', sub: 'Découvrez la vision et la roadmap' },
+      { href: '/partners', label: 'Entreprises & artisans', sub: 'Boostez votre visibilité locale' },
     ],
   },
+  { href: '/business', label: 'Investisseurs' },
 ]
 
 export default function NavBar() {

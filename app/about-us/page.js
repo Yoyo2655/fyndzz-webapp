@@ -5,18 +5,21 @@ import PhotoSection from '@/components/PhotoSection'
 import NavBar from '@/components/NavBar'
 import Footer from '@/components/Footer'
 
-/* ============================================================
-   PALETTE FYNDZZ — identique à la landing
-   FOND : #3D2CD5 → #160C6B · ACCENT : #00FF66
-   PASTILLES : #FF914D · #4A3AAA · #2A1A8A · #8814CE
-   ============================================================ */
 const C = {
   violet: '#3D2CD5', navy: '#160C6B', navyDeep: '#0d0a3e',
   green: '#00FF66', ink: '#0A0040',
   pOrange: '#FF914D', pViolet: '#4A3AAA', pIndigo: '#2A1A8A', pMagenta: '#8814CE',
 }
 
-export default function CompanyPage() {
+const MILESTONES = [
+  { date: 'Février 2024', t: 'Le déclic', d: "Coincés à tourner pour se garer, on réalise que le problème n'est pas le manque de places — c'est leur invisibilité.", color: C.pOrange },
+  { date: 'Mars 2026', t: "L'équipe s'agrandit", d: "L'équipe se renforce et réunit désormais 6 collaborateurs mobilisés autour d'une même ambition : construire la solution.", color: C.pMagenta },
+  { date: '[À DÉFINIR]', t: 'Le premier capteur', d: 'Premier prototype sur le terrain. Une place, un capteur, une preuve que ça marche.', color: C.pViolet },
+  { date: '[À DÉFINIR]', t: 'Le pilote 16ᵉ', d: "Déploiement d'un réseau réel dans le 16ᵉ arrondissement de Paris.", color: C.pIndigo },
+  { date: "Aujourd'hui", t: '+500 capteurs', d: 'Un réseau vivant en Île-de-France, en expansion continue.', color: C.green },
+]
+
+export default function AboutPage() {
   return (
     <div style={{ minHeight: '100vh', background: `linear-gradient(180deg, ${C.violet} 0%, ${C.navy} 100%)`, color: '#fff', fontFamily: 'system-ui, sans-serif', overflow: 'hidden', position: 'relative' }}>
 
@@ -30,18 +33,13 @@ export default function CompanyPage() {
         {/* ===== HERO MOSAIC ===== */}
         <section style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18, padding: '32px 0' }} className="fz-mosaic">
           <div style={{ ...blockBase, background: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})`, border: '1px solid rgba(255,255,255,0.1)' }}>
-            
             <h1 style={{ fontSize: 'clamp(2rem, 3.6vw, 3.1rem)', fontWeight: 800, lineHeight: 1.04, letterSpacing: '-0.02em' }}>
               Moins de voitures qui tournent, ça ne ferait de mal à personne.
             </h1>
             <p style={{ fontSize: '1.05rem', lineHeight: 1.55, marginTop: 14, maxWidth: '90%', opacity: 0.92 }}>
               Fyndzz construit l'infrastructure de stationnement intelligente des villes. Notre mission : rendre chaque place visible, en temps réel.
             </p>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 26 }}>
-              <Link href="/about-us" style={{ ...btn, background: C.green , color: C.ink }}>Découvrir notre histoire</Link>
-            </div>
           </div>
-
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div style={{ ...miniBase, background: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})`, border: '1px solid rgba(255,255,255,0.1)' }}>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Notre vision</h3>
@@ -55,7 +53,7 @@ export default function CompanyPage() {
         </section>
 
         {/* ===== STORY ===== */}
-        <section id="story" style={{ padding: '20px 0' }}>
+        <section style={{ padding: '20px 0' }}>
           <div style={{ background: `linear-gradient(150deg, ${C.pIndigo}, ${C.navy})`, borderRadius: 26, padding: 60, textAlign: 'center', border: '1px solid rgba(255,255,255,0.1)' }} className="fz-pad">
             <h2 style={{ fontSize: 'clamp(1.8rem, 3.4vw, 2.8rem)', fontWeight: 800, maxWidth: 760, margin: '0 auto', letterSpacing: '-0.02em' }}>
               Parce que chercher une place ne devrait plus exister.
@@ -63,22 +61,67 @@ export default function CompanyPage() {
             <p style={{ fontSize: '1.1rem', lineHeight: 1.6, maxWidth: 600, margin: '18px auto 0', color: 'rgba(255,255,255,0.7)' }}>
               Fyndzz est né d'un constat simple : jusqu'à 30% du trafic urbain ne se déplace pas, il cherche. On a décidé de rendre l'invisible visible — une place libre, au bon moment, au bon endroit.
             </p>
-            <Link href="/about-us" style={{ ...btn, background: C.green, color: C.ink, marginTop: 26 }}>Lire notre histoire</Link>
           </div>
         </section>
 
-        {/* ===== PHOTO 1 — bord à bord ===== */}
+        {/* ===== RÉCIT : LE DÉCLIC ===== */}
         <PhotoSection
           variant="bleed"
-          eyebrow="Notre origine"
-          title="Tout a commencé par une rue, et trop de voitures qui tournent."
-          text="On a regardé nos villes : des conducteurs qui cherchent, du temps perdu, des émissions inutiles. Fyndzz est notre réponse — rendre chaque place visible, en temps réel."
-          src="/photos/founders-street.jpg"
-          alt="L'équipe Fyndzz dans la rue"
+          eyebrow="Le déclic"
+          title="Le problème, ce n'est pas le manque de places."
+          text="C'est qu'on ne les voit pas. En France, 30% des conducteurs qui circulent en ville cherchent simplement à se garer. Une place se libère à 50 mètres, mais personne ne le sait. On a voulu rendre cet invisible visible."
+          src="/photos/about-us-traffic.jpg"
+          alt="Voiture cherchant une place dans le trafic"
         />
 
+        {/* ===== RÉCIT : LA RENCONTRE ===== */}
+        <PhotoSection
+          variant="framed"
+          reverse
+          eyebrow="La rencontre"
+          title="Une équipe, une conviction commune."
+          text="Portés par une même obsession, nos collaborateurs travaillent à résoudre le problème du stationnement en l'attaquant à sa racine."
+          src="/photos/about-us-founders.jpg"
+          alt="Les fondateurs de Fyndzz"
+        />
+
+        {/* ===== RÉCIT : LE PREMIER CAPTEUR ===== */}
+        <PhotoSection
+          variant="overlay"
+          eyebrow="Le premier prototype"
+          title="Une place. Un capteur. Une preuve."
+          text="Le premier capteur posé sur le bitume a confirmé l'intuition : on peut savoir, en temps réel, si une place est libre. Le reste n'était plus qu'une question d'échelle."
+          src="/photos/about-us-sensor.jpg"
+          alt="Premier capteur Fyndzz installé"
+        />
+
+        {/* ===== TIMELINE VISUELLE ===== */}
+        <section style={{ padding: '60px 0' }}>
+          <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto 50px' }}>
+            <span style={{ fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: C.green }}>Le parcours</span>
+            <h2 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 800, marginTop: 12, letterSpacing: '-0.02em' }}>D'une place à un réseau.</h2>
+          </div>
+          <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
+            <div style={{ position: 'absolute', left: 19, top: 8, bottom: 8, width: 2, background: 'rgba(255,255,255,0.12)' }} />
+            {MILESTONES.map((m, i) => (
+              <div key={i} style={{ position: 'relative', display: 'flex', gap: 24, paddingBottom: i === MILESTONES.length - 1 ? 0 : 36 }}>
+                <div style={{ flexShrink: 0, position: 'relative', zIndex: 1 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: m.color, display: 'grid', placeItems: 'center', fontWeight: 800, color: m.color === C.green ? C.ink : '#fff', fontSize: '0.85rem', boxShadow: `0 0 0 6px ${C.navy}` }}>
+                    {i + 1}
+                  </div>
+                </div>
+                <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 18, padding: 24 }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.78rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: m.color === C.green ? C.green : 'rgba(255,255,255,0.5)', marginBottom: 8 }}>{m.date}</div>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 6 }}>{m.t}</h3>
+                  <p style={{ fontSize: '0.95rem', lineHeight: 1.55, color: 'rgba(255,255,255,0.65)' }}>{m.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* ===== IMPACT ===== */}
-        <section id="impact" style={{ padding: '50px 0' }}>
+        <section style={{ padding: '0 0 50px' }}>
           <SecHead tag="Notre impact" title="Des chiffres qui comptent." />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }} className="fz-3">
             {[
@@ -95,7 +138,7 @@ export default function CompanyPage() {
           </div>
         </section>
 
-        {/* ===== PHOTO 2 — cadre arrondi, photo à droite ===== */}
+        {/* ===== PHOTO TECHNO ===== */}
         <PhotoSection
           variant="framed"
           reverse
@@ -112,8 +155,8 @@ export default function CompanyPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }} className="fz-3">
             {[
               { t: 'Conducteurs', d: 'Trouvez-vous une place sans stress, et réduisez votre empreinte à chaque trajet.', cta: "Télécharger l'app →", href: '/install-pwa', bg: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})` },
-              { t: 'Villes & mairies', d: 'Fluidifiez le trafic et pilotez la mobilité avec une donnée de stationnement temps réel.', cta: 'Nous contacter →', href: '/contact', bg: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})` },
-              { t: 'Investisseurs', d: 'Une infrastructure de mobilité scalable, ville par ville. Découvrez la vision.', cta: 'Demander le deck →', href: '/contact', bg: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})` },
+              { t: 'Villes & mairies', d: 'Fluidifiez le trafic et pilotez la mobilité avec une donnée de stationnement temps réel.', cta: 'En savoir plus →', href: '/cities', bg: `linear-gradient(150deg, ${C.pMagenta}, ${C.pViolet})` },
+              { t: 'Artisans & entreprises', d: 'Rendez votre commerce visible aux conducteurs qui se garent à proximité. Plus de passage, plus de clients.', cta: 'En savoir plus →', href: '/partners', bg: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})` },
             ].map(({ t, d, cta, href, bg }) => (
               <div key={t} style={{ borderRadius: 22, padding: 34, minHeight: 260, display: 'flex', flexDirection: 'column', background: bg, color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '10px 0' }}>{t}</h3>
@@ -137,7 +180,6 @@ export default function CompanyPage() {
               { name: 'Matis BROSSA', role: 'CFO' },
             ].map((m, i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, overflow: 'hidden', textAlign: 'center', paddingBottom: 18 }}>
-                {/* Remplace par <Image src="/team/xxx.jpg" .../> */}
                 <div style={{ aspectRatio: '1', background: `linear-gradient(135deg, ${C.pViolet}, ${C.pIndigo})`, display: 'grid', placeItems: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>photo</div>
                 <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: '14px 0 2px' }}>{m.name}</h4>
                 <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.45)' }}>{m.role}</span>
@@ -146,7 +188,7 @@ export default function CompanyPage() {
           </div>
         </section>
 
-        {/* ===== PHOTO 3 — fond plein largeur, texte par-dessus ===== */}
+        {/* ===== PHOTO AMBITION ===== */}
         <PhotoSection
           variant="overlay"
           reverse
@@ -157,14 +199,21 @@ export default function CompanyPage() {
           alt="Skyline urbain"
         />
 
-        {/* ===== CTA ===== */}
+        {/* ===== MISSION / CTA ===== */}
         <section style={{ paddingBottom: 40 }}>
-          <div style={{ background: `linear-gradient(150deg, ${C.pViolet}, ${C.pIndigo})`, borderRadius: 30, padding: 64, textAlign: 'center', color: '#fff', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }} className="fz-pad">
-            <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'rgba(0,255,102,0.12)', filter: 'blur(70px)', top: -120, right: -80, pointerEvents: 'none' }} />
-            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, position: 'relative' }}>Prêt à prendre la route ?</h2>
-            <p style={{ fontSize: '1.1rem', opacity: 0.8, margin: '16px auto 28px', maxWidth: 440, position: 'relative' }}>Rejoignez les Fyndzzers et accédez à la carte en temps réel.</p>
-            <div style={{ position: 'relative', display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/register" style={{ ...btn, background: C.green, color: C.ink, padding: '14px 30px', fontSize: '1rem' }}>Créer un compte gratuit →</Link>
+          <div style={{ background: `linear-gradient(150deg, ${C.pOrange}, ${C.pMagenta})`, borderRadius: 30, padding: 60, textAlign: 'center', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }} className="fz-pad">
+            <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'rgba(0,255,102,0.12)', filter: 'blur(70px)', bottom: -140, left: -80, pointerEvents: 'none' }} />
+            <div style={{ position: 'relative' }}>
+              <div style={{ fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.9, marginBottom: 16, color: C.green }}>Notre mission</div>
+              <h2 style={{ fontSize: 'clamp(1.8rem, 3.4vw, 2.8rem)', fontWeight: 800, maxWidth: 760, margin: '0 auto', letterSpacing: '-0.02em' }}>
+                Rendre chaque place visible, pour que personne ne perde plus son temps à chercher.
+              </h2>
+              <p style={{ fontSize: '1.1rem', lineHeight: 1.6, maxWidth: 560, margin: '18px auto 28px', opacity: 0.92 }}>
+                Moins de tours, moins de CO₂, plus de ville. C'est ce qui nous fait avancer, capteur après capteur, quartier après quartier.
+              </p>
+              <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: C.green, color: C.ink, fontWeight: 700, borderRadius: 10, padding: '14px 30px', fontSize: '1rem', textDecoration: 'none' }}>
+                Rejoindre les Fyndzzers →
+              </Link>
             </div>
           </div>
         </section>
@@ -176,12 +225,6 @@ export default function CompanyPage() {
   )
 }
 
-/* ============================================================
-   COMPOSANTS PARTAGÉS — identiques à la landing
-   (idéalement à extraire dans /components)
-   ============================================================ */
-
-
 function SecHead({ tag, title, sub }) {
   return (
     <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto 44px' }}>
@@ -191,7 +234,6 @@ function SecHead({ tag, title, sub }) {
     </div>
   )
 }
-
 
 function GlobalStyle() {
   return (
@@ -216,4 +258,3 @@ function GlobalStyle() {
 
 const blockBase = { borderRadius: 26, padding: 42, position: 'relative', overflow: 'hidden' }
 const miniBase = { flex: 1, borderRadius: 26, padding: 30, display: 'flex', flexDirection: 'column', justifyContent: 'center' }
-const btn = { display: 'inline-flex', alignItems: 'center', gap: 7, fontWeight: 700, borderRadius: 10, padding: '11px 20px', fontSize: '0.9rem', textDecoration: 'none' }

@@ -190,5 +190,5 @@ create table sptz_rewards (id uuid primary key default gen_random_uuid(), user_i
 
 ## Réseaux sociaux
 - Instagram : https://www.instagram.com/fyndzz.ai/
-- LinkedIn : https://www.linkedin.com/company/fyndzz
+- LinkedIn : https://www.linkedin.com/about-us/fyndzz
 - Website : https://fyndzz.fr

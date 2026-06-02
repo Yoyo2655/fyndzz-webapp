@@ -148,7 +148,7 @@ export default function BusinessPage() {
             <p style={{ fontSize: '1.1rem', opacity: 0.9, margin: '16px auto 28px', maxWidth: 480, position: 'relative' }}>Demandez le deck investisseur et découvrez notre vision, nos chiffres et notre roadmap en détail.</p>
             <div style={{ position: 'relative', display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link href="/contact" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', color: C.ink, fontWeight: 700, borderRadius: 10, padding: '14px 30px', fontSize: '1rem', textDecoration: 'none' }}>Demander le deck →</Link>
-              <Link href="/company" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'transparent', color: '#fff', fontWeight: 700, borderRadius: 10, padding: '14px 30px', fontSize: '1rem', textDecoration: 'none', border: '1.5px solid rgba(255,255,255,0.3)' }}>Découvrir l'entreprise</Link>
+              <Link href="/about-us" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'transparent', color: '#fff', fontWeight: 700, borderRadius: 10, padding: '14px 30px', fontSize: '1rem', textDecoration: 'none', border: '1.5px solid rgba(255,255,255,0.3)' }}>Découvrir l'entreprise</Link>
             </div>
           </div>
         </section>

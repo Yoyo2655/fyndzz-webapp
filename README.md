@@ -180,7 +180,7 @@ L'app pointe vers `https://fyndzz.fr` — mises à jour automatiques sans rebuil
 - **App** : https://fyndzz.fr
 - **Install PWA** : https://fyndzz.fr/install-pwa
 - **Instagram** : https://www.instagram.com/fyndzz.ai/
-- **LinkedIn** : https://www.linkedin.com/company/fyndzz
+- **LinkedIn** : https://www.linkedin.com/about-us/fyndzz
 
 ---
 
