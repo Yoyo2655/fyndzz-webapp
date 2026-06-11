@@ -14,9 +14,9 @@ const C = {
 const MILESTONES = [
   { date: 'Février 2024', t: 'Le déclic', d: "Coincés à tourner pour se garer, on réalise que le problème n'est pas le manque de places — c'est leur invisibilité.", color: C.pOrange },
   { date: 'Mars 2026', t: "L'équipe s'agrandit", d: "L'équipe se renforce et réunit désormais 6 collaborateurs mobilisés autour d'une même ambition : construire la solution.", color: C.pMagenta },
-  { date: '[À DÉFINIR]', t: 'Le premier capteur', d: 'Premier prototype sur le terrain. Une place, un capteur, une preuve que ça marche.', color: C.pViolet },
-  { date: '[À DÉFINIR]', t: 'Le pilote 16ᵉ', d: "Déploiement d'un réseau réel dans le 16ᵉ arrondissement de Paris.", color: C.pIndigo },
-  { date: "Aujourd'hui", t: '+500 capteurs', d: 'Un réseau vivant en Île-de-France, en expansion continue.', color: C.green },
+  { date: 'Très prochainement', t: 'Le premier capteur', d: 'Premier prototype sur le terrain. Une place, un capteur, une preuve que ça marche.', color: C.green },
+  // { date: '[À DÉFINIR]', t: 'Le pilote 16ᵉ', d: "Déploiement d'un réseau réel dans le 16ᵉ arrondissement de Paris.", color: C.pIndigo },
+  // { date: "Aujourd'hui", t: '+500 capteurs', d: 'Un réseau vivant en Île-de-France, en expansion continue.', color: C.green },
 ]
 
 export default function AboutPage() {
@@ -59,7 +59,7 @@ export default function AboutPage() {
               Parce que chercher une place ne devrait plus exister.
             </h2>
             <p style={{ fontSize: '1.1rem', lineHeight: 1.6, maxWidth: 600, margin: '18px auto 0', color: 'rgba(255,255,255,0.7)' }}>
-              Fyndzz est né d'un constat simple : jusqu'à 30% du trafic urbain ne se déplace pas, il cherche. On a décidé de rendre l'invisible visible — une place libre, au bon moment, au bon endroit.
+              Fyndzz est né d'un constat simple : jusqu'à 30% du trafic urbain est directement lié à la recherche de parking. Chez Fyndzz, on a décidé de rendre l'invisible visible : une place libre, au bon moment, au bon endroit.
             </p>
           </div>
         </section>
@@ -122,10 +122,10 @@ export default function AboutPage() {
 
         {/* ===== IMPACT ===== */}
         <section style={{ padding: '0 0 50px' }}>
-          <SecHead tag="Notre impact" title="Des chiffres qui comptent." />
+          <SecHead tag="Notre impact" title="Notre objectif" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }} className="fz-3">
             {[
-              { big: '+500', t: 'capteurs déployés', d: 'Un réseau réel en Île-de-France, en expansion continue.' },
+              { big: '+500', t: 'capteurs déployés', d: 'd\'ici la fin 2027.' },
               { big: '−34%', t: 'de CO₂ par trajet', d: "Moins de tours, c'est moins d'émissions et de congestion." },
               { big: '~8 min', t: 'gagnées / trajet', d: 'Du temps rendu aux conducteurs, chaque jour.' },
             ].map(({ big, t, d }) => (
@@ -172,15 +172,15 @@ export default function AboutPage() {
           <SecHead tag="L'équipe" title="Les Fyndzzers derrière Fyndzz." />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="fz-team">
             {[
-              { name: 'Yoni ATTAL', role: 'CEO & Fondateur' },
-              { name: 'Akram MERIK', role: 'CTO' },
-              { name: 'Léa SEBAG', role: 'COO' },
-              { name: 'Lucien PIERROT', role: 'Growth & Partnerships Manager' },
-              { name: 'Valentin ZHOU', role: 'Product Manager' },
-              { name: 'Matis BROSSA', role: 'CFO' },
+              { name: 'Yoni ATTAL', role: 'CEO & Fondateur', photo: '/photos/team-yoni.png' },
+              { name: 'Akram MERIK', role: 'CTO', photo: '/photos/team-akram.png' },
+              { name: 'Léa SEBAG', role: 'CFO', photo: '/photos/team-lea.png' },
+              { name: 'Lucien PIERROT', role: 'Growth & Partnerships Manager', photo: '/photos/team-lucien.jpg' },
+              { name: 'Valentin ZHOU', role: 'Product Manager', photo: '/photos/team-valentin.png' },
+              
             ].map((m, i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, overflow: 'hidden', textAlign: 'center', paddingBottom: 18 }}>
-                <div style={{ aspectRatio: '1', background: `linear-gradient(135deg, ${C.pViolet}, ${C.pIndigo})`, display: 'grid', placeItems: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>photo</div>
+                <img src={m.photo} alt={m.name} style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', objectPosition: 'top' }} />
                 <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: '14px 0 2px' }}>{m.name}</h4>
                 <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.45)' }}>{m.role}</span>
               </div>

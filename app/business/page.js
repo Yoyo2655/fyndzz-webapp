@@ -95,8 +95,8 @@ export default function BusinessPage() {
           <SecHead tag="Traction" title="Où on en est." />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="fz-stats">
             {[
-              { n: '+500', l: 'Capteurs déployés' },
-              { n: 'Île-de-France', l: 'Zone couverte' },
+              { n: 'Une équipe', l: 'réunie autour d\'une même mission' },
+              { n: 'Île-de-France', l: 'Zone de lancement prévue' },
               { n: 'MVP live', l: 'App en production' },
               { n: 'Dashboard', l: 'SaaS B2B opérationnel' },
             ].map(({ n, l }) => (
