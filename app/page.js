@@ -120,8 +120,8 @@ export default function LandingPage() {
         {/* ===== STATS (glass, comme ton code) ===== */}
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '10px 0 40px' }} className="fz-stats">
           {[
-            { n: '+500', l: 'Capteurs IoT actifs' },
-            { n: 'Île-de-France', l: 'Zone couverte' },
+            { n: '+500', l: 'capteurs déployés d\'ici la fin 2027.'},
+            { n: '3 villes d\'Île-de-France', l: 'd\'ici la fin 2027.' },
             { n: '~8 min', l: 'Économisées / trajet' },
             { n: '−34%', l: 'CO₂ évité' },
           ].map(({ n, l }) => (
